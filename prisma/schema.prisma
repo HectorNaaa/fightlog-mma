@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  password   String
+  level      String
+  discipline String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  trainingSessions TrainingSession[]
+  techniques       Technique[]
+  gameplans        Gameplan[]
+  metrics          PhysicalMetric[]
+  sparringSessions SparringSession[]
+}
+
+model TrainingSession {
+  id             String   @id @default(cuid())
+  userId         String
+  date           DateTime
+  type           String
+  duration       Int
+  intensity      Int
+  energyBefore   Int
+  energyAfter    Int
+  soreness       Int
+  bodyWeight     Float?
+  mood           String?
+  mainFocus      String?
+  notes          String?
+  coachFeedback  String?
+  personalRating Int?
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([date])
+}
+
+model Technique {
+  id            String   @id @default(cuid())
+  userId        String
+  category      String
+  name          String
+  setup         String?
+  counter       String?
+  commonMistake String?
+  successRate   Float?
+  confidence    Int?
+  notes         String?
+  videoUrl      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Gameplan {
+  id            String   @id @default(cuid())
+  userId        String
+  name          String
+  startPosition String?
+  trigger       String?
+  action        String?
+  followUpA     String?
+  followUpB     String?
+  counterRisk   String?
+  bestAgainst   String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model PhysicalMetric {
+  id               String   @id @default(cuid())
+  userId           String
+  date             DateTime
+  bodyWeight       Float?
+  restingHeartRate Int?
+  sleepHours       Float?
+  sleepQuality     Int?
+  calories         Int?
+  strengthNotes    String?
+  cardioNotes      String?
+  injuries         String?
+  recoveryScore    Int?
+  createdAt        DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([date])
+}
+
+model SparringSession {
+  id               String   @id @default(cuid())
+  userId           String
+  date             DateTime
+  partnerStyle     String?
+  rounds           Int?
+  roundLength      Int?
+  dominantMoments  String?
+  mistakes         String?
+  bestTechniques   String?
+  techniquesFailed String?
+  damageTaken      Int?
+  cardioRating     Int?
+  composureRating  Int?
+  defenseRating    Int?
+  overallRating    Int?
+  lessons          String?
+  createdAt        DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
