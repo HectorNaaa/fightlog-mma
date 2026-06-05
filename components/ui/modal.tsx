@@ -1,8 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "./button";
-
 interface ModalProps {
   open: boolean;
   onClose: () => void;

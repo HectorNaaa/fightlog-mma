@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Textarea, Select } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { Badge, RatingDots } from "@/components/ui/badge";
-import { Card, CardBody, CardHeader } from "@/components/ui/card";
+import { Card, CardBody } from "@/components/ui/card";
 import { TRAINING_TYPES, formatDate, formatDateInput } from "@/lib/utils";
 
 interface Session {

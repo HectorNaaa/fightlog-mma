@@ -43,9 +43,6 @@ export default function DashboardPage() {
   const avgIntensity = weeklySessions.length
     ? (weeklySessions.reduce((a, s) => a + s.intensity, 0) / weeklySessions.length).toFixed(1)
     : "—";
-  const avgEnergy = weeklySessions.length
-    ? (weeklySessions.reduce((a, s) => a + s.energyBefore, 0) / weeklySessions.length).toFixed(1)
-    : "—";
   const avgSoreness = weeklySessions.length
     ? (weeklySessions.reduce((a, s) => a + s.soreness, 0) / weeklySessions.length).toFixed(1)
     : "—";

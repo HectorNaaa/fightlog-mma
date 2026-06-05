@@ -18,7 +18,7 @@ interface ChartProps {
   height?: number;
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-bg-elevated border border-stone-border rounded px-3 py-2 text-xs">

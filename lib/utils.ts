@@ -40,11 +40,11 @@ export const DISCIPLINES = [
   "Judo",
 ] as const;
 
-export const LEVELS = [
+export const LEVELS: { value: string; label: string; disabled?: boolean }[] = [
   { value: "beginner", label: "Beginner" },
   { value: "intermediate", label: "Intermediate Amateur" },
   { value: "professional", label: "Professional (Coming Soon)", disabled: true },
-] as const;
+];
 
 export const STRIKING_TECHNIQUES = [
   "Jab",

@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input, Textarea, Select } from "@/components/ui/input";
+import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
-import { Card, CardBody, CardHeader } from "@/components/ui/card";
+import { Card, CardBody } from "@/components/ui/card";
 import { RatingDots } from "@/components/ui/badge";
 import { STRIKING_TECHNIQUES, GRAPPLING_TECHNIQUES } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
@@ -190,7 +190,7 @@ export default function TechnicalTrackerPage() {
   );
 }
 
-function BeginnersView({ tab, presets }: { tab: string; presets: readonly string[] }) {
+function BeginnersView({ presets }: { tab: string; presets: readonly string[] }) {
   return (
     <div>
       <div className="mb-4 p-3 border border-navy/30 bg-navy/10 rounded-sm text-xs text-navy-light">
