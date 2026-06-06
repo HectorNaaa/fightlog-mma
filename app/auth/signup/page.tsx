@@ -22,19 +22,24 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error ?? "Signup failed");
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Signup failed");
+        setLoading(false);
+        return;
+      }
+      await refetch();
+      router.push("/dashboard");
+    } catch {
+      setError("Network error, please try again.");
       setLoading(false);
-      return;
     }
-    await refetch();
-    router.push("/dashboard");
   };
 
   const f = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
