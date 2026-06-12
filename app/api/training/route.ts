@@ -17,6 +17,10 @@ const sessionSchema = z.object({
   notes: z.string().optional().nullable(),
   coachFeedback: z.string().optional().nullable(),
   personalRating: z.number().int().min(1).max(10).optional().nullable(),
+  physicalState: z.number().int().min(1).max(5).optional().nullable(),
+  dailyFocus: z.string().max(200).optional().nullable(),
+  tacticNote: z.string().max(500).optional().nullable(),
+  tacticPublic: z.boolean().optional(),
 });
 
 export async function GET() {

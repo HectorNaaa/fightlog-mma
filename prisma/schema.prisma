@@ -9,20 +9,25 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(cuid())
-  name       String
-  email      String   @unique
-  password   String
-  level      String
-  discipline String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  password     String
+  level        String
+  discipline   String
+  gymName      String?
+  todayFocus   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   trainingSessions TrainingSession[]
   techniques       Technique[]
   gameplans        Gameplan[]
   metrics          PhysicalMetric[]
   sparringSessions SparringSession[]
+  friendships      Friendship[]      @relation("UserFriendships")
+  friendshipsOf    Friendship[]      @relation("FriendFriendships")
+  respectosGiven   TacticRespeto[]
 }
 
 model TrainingSession {
@@ -41,12 +46,44 @@ model TrainingSession {
   notes          String?
   coachFeedback  String?
   personalRating Int?
+  physicalState  Int?
+  dailyFocus     String?
+  tacticNote     String?
+  tacticPublic   Boolean  @default(false)
   createdAt      DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  respetos TacticRespeto[]
 
   @@index([userId])
   @@index([date])
+}
+
+model TacticRespeto {
+  id        String   @id @default(cuid())
+  userId    String
+  sessionId String
+  createdAt DateTime @default(now())
+
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sessionId])
+  @@index([sessionId])
+}
+
+model Friendship {
+  id        String   @id @default(cuid())
+  userId    String
+  friendId  String
+  createdAt DateTime @default(now())
+
+  user   User @relation("UserFriendships", fields: [userId], references: [id], onDelete: Cascade)
+  friend User @relation("FriendFriendships", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, friendId])
+  @@index([userId])
+  @@index([friendId])
 }
 
 model Technique {

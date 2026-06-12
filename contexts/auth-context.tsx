@@ -6,6 +6,9 @@ interface User {
   email: string;
   name: string;
   level: string;
+  gymName?: string | null;
+  todayFocus?: string | null;
+  streak?: number;
 }
 
 interface AuthContextType {

@@ -15,8 +15,9 @@ export function Sidebar() {
   const [open, setOpen] = useState(false);
 
   const navItems = [
-    { href: "/dashboard", label: t.sidebar.nav.dashboard, icon: "⬡" },
+    { href: "/dashboard", label: t.sidebar.nav.dashboard, icon: "⬡", exact: true },
     { href: "/dashboard/training-log", label: t.sidebar.nav.trainingLog, icon: "◈" },
+    { href: "/dashboard/community", label: "Comunidad", icon: "◉" },
     { href: "/dashboard/technical-tracker", label: t.sidebar.nav.technical, icon: "◎" },
     { href: "/dashboard/gameplan", label: t.sidebar.nav.gameplan, icon: "◇" },
     { href: "/dashboard/physical-metrics", label: t.sidebar.nav.metrics, icon: "△" },
@@ -33,9 +34,9 @@ export function Sidebar() {
     <>
       {/* Mobile top bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-bg-secondary border-b border-stone-border flex items-center justify-between px-4 py-3">
-        <span className="font-condensed font-bold text-lg tracking-widest text-beige-surface">
+        <Link href="/" className="font-condensed font-bold text-lg tracking-widest text-beige-surface hover:text-beige-warm transition-colors">
           FIGHTLOG
-        </span>
+        </Link>
         <button
           onClick={() => setOpen(!open)}
           className="text-beige-warm p-1"
@@ -62,9 +63,11 @@ export function Sidebar() {
       >
         {/* Logo */}
         <div className="px-5 py-5 border-b border-stone-border">
-          <div className="font-condensed font-black text-xl tracking-[0.2em] text-beige-surface">
-            FIGHT<span className="text-burgundy">LOG</span>
-          </div>
+          <Link href="/" className="block group">
+            <div className="font-condensed font-black text-xl tracking-[0.2em] text-beige-surface group-hover:text-beige-warm transition-colors">
+              FIGHT<span className="text-burgundy">LOG</span>
+            </div>
+          </Link>
           <div className="text-[10px] text-stone-text uppercase tracking-widest mt-0.5">
             {t.sidebar.subtitle}
           </div>
@@ -91,7 +94,9 @@ export function Sidebar() {
         {/* Nav */}
         <nav className="flex-1 px-2 py-3 overflow-y-auto">
           {navItems.map((item) => {
-            const active = pathname === item.href;
+            const active = (item as { exact?: boolean }).exact
+              ? pathname === item.href
+              : pathname.startsWith(item.href);
             const isLocked =
               user?.level === "beginner" &&
               ["/dashboard/gameplan", "/dashboard/sparring", "/dashboard/weekly-review"].includes(item.href);
