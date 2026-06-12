@@ -6,6 +6,12 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  safelist: [
+    "animate-float-slow",
+    "animate-float-med",
+    "animate-drift",
+    "animate-pulse-ring",
+  ],
   theme: {
     extend: {
       colors: {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
+import { LanguageProvider } from "@/contexts/language-context";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -17,10 +18,10 @@ const barlowCondensed = Barlow_Condensed({
 });
 
 export const metadata: Metadata = {
-  title: "FightLog MMA — Track Your Evolution",
+  title: "FightLog — Track Your Fighting Evolution",
   description:
-    "The professional training operating system for MMA fighters. Track sessions, techniques, gameplans, and physical metrics.",
-  keywords: ["MMA", "training log", "fighter", "martial arts", "performance"],
+    "The professional training operating system for fighters. Track sessions, techniques, gameplans, and physical metrics.",
+  keywords: ["fighter", "training log", "combat sports", "martial arts", "performance"],
 };
 
 export default function RootLayout({
@@ -33,7 +34,9 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${barlowCondensed.variable} bg-bg-primary text-beige-warm antialiased min-h-screen`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

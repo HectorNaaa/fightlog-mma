@@ -2,24 +2,27 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
+import { useLanguage } from "@/contexts/language-context";
+import { LanguageSelector } from "@/components/ui/language-selector";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: "⬡" },
-  { href: "/dashboard/training-log", label: "Training Log", icon: "◈" },
-  { href: "/dashboard/technical-tracker", label: "Technical", icon: "◎" },
-  { href: "/dashboard/gameplan", label: "Gameplan", icon: "◇" },
-  { href: "/dashboard/physical-metrics", label: "Metrics", icon: "△" },
-  { href: "/dashboard/sparring", label: "Sparring", icon: "⬡" },
-  { href: "/dashboard/weekly-review", label: "Weekly Review", icon: "□" },
-];
 
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
+
+  const navItems = [
+    { href: "/dashboard", label: t.sidebar.nav.dashboard, icon: "⬡" },
+    { href: "/dashboard/training-log", label: t.sidebar.nav.trainingLog, icon: "◈" },
+    { href: "/dashboard/technical-tracker", label: t.sidebar.nav.technical, icon: "◎" },
+    { href: "/dashboard/gameplan", label: t.sidebar.nav.gameplan, icon: "◇" },
+    { href: "/dashboard/physical-metrics", label: t.sidebar.nav.metrics, icon: "△" },
+    { href: "/dashboard/sparring", label: t.sidebar.nav.sparring, icon: "⬡" },
+    { href: "/dashboard/weekly-review", label: t.sidebar.nav.weeklyReview, icon: "□" },
+  ];
 
   const handleLogout = async () => {
     await logout();
@@ -63,14 +66,14 @@ export function Sidebar() {
             FIGHT<span className="text-burgundy">LOG</span>
           </div>
           <div className="text-[10px] text-stone-text uppercase tracking-widest mt-0.5">
-            MMA Training OS
+            {t.sidebar.subtitle}
           </div>
         </div>
 
         {/* User info */}
         {user && (
           <div className="px-4 py-3 border-b border-stone-border/50">
-            <div className="text-xs text-stone-text uppercase tracking-wider">Fighter</div>
+            <div className="text-xs text-stone-text uppercase tracking-wider">{t.sidebar.fighter}</div>
             <div className="text-sm font-semibold text-beige-warm mt-0.5">{user.name}</div>
             <div className="mt-1">
               <span className={cn(
@@ -137,12 +140,15 @@ export function Sidebar() {
 
         {/* Footer */}
         <div className="px-4 py-4 border-t border-stone-border">
-          <button
-            onClick={handleLogout}
-            className="text-xs text-stone-text hover:text-beige-warm uppercase tracking-wider transition-colors"
-          >
-            Sign Out
-          </button>
+          <div className="flex items-center justify-between">
+            <button
+              onClick={handleLogout}
+              className="text-xs text-stone-text hover:text-beige-warm uppercase tracking-wider transition-colors"
+            >
+              {t.sidebar.logout}
+            </button>
+            <LanguageSelector compact />
+          </div>
         </div>
       </aside>
     </>
