@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/language-context";
 
 interface TrainingSession {
   id: string;
@@ -34,6 +35,8 @@ function getWeekRange(offsetWeeks = 0) {
 
 export default function WeeklyReviewPage() {
   const { user } = useAuth();
+  const { locale } = useLanguage();
+  const isEs = locale === "es";
   const [sessions, setSessions] = useState<TrainingSession[]>([]);
   const [weekOffset, setWeekOffset] = useState(0);
 
@@ -75,7 +78,7 @@ export default function WeeklyReviewPage() {
         <div className="border border-navy/30 bg-navy/10 rounded-sm p-6 text-center max-w-lg mx-auto mt-10">
           <div className="text-4xl mb-3 opacity-30">□</div>
           <div className="font-condensed text-xl font-bold uppercase tracking-widest text-navy-light mb-2">Intermediate Feature</div>
-          <p className="text-sm text-stone-text">Weekly Performance Review is available for Intermediate Amateur fighters.</p>
+          <p className="text-sm text-stone-text">{isEs ? "La revisión semanal está disponible para nivel intermedio." : "Weekly Performance Review is available for Intermediate Amateur fighters."}</p>
         </div>
       </div>
     );
@@ -87,13 +90,13 @@ export default function WeeklyReviewPage() {
         <div>
           <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">Weekly Review</h1>
           <p className="text-sm text-stone-text mt-1">
-            {start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} — {end.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+            {start.toLocaleDateString(isEs ? "es-ES" : "en-US", { month: "short", day: "numeric" })} — {end.toLocaleDateString(isEs ? "es-ES" : "en-US", { month: "short", day: "numeric", year: "numeric" })}
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" size="sm" onClick={() => setWeekOffset((w) => w + 1)}>← Prev</Button>
-          {weekOffset > 0 && <Button variant="secondary" size="sm" onClick={() => setWeekOffset(0)}>This Week</Button>}
-          {weekOffset > 0 && <Button variant="secondary" size="sm" onClick={() => setWeekOffset((w) => Math.max(0, w - 1))}>Next →</Button>}
+          <Button variant="secondary" size="sm" onClick={() => setWeekOffset((w) => w + 1)}>← {isEs ? "Ant" : "Prev"}</Button>
+          {weekOffset > 0 && <Button variant="secondary" size="sm" onClick={() => setWeekOffset(0)}>{isEs ? "Esta semana" : "This Week"}</Button>}
+          {weekOffset > 0 && <Button variant="secondary" size="sm" onClick={() => setWeekOffset((w) => Math.max(0, w - 1))}>{isEs ? "Sig" : "Next"} →</Button>}
         </div>
       </div>
 
@@ -133,7 +136,7 @@ export default function WeeklyReviewPage() {
         <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">Sessions This Week</div></CardHeader>
         <CardBody className="p-0">
           {weekSessions.length === 0 ? (
-            <div className="p-6 text-center text-stone-text text-sm">No sessions in this week.</div>
+            <div className="p-6 text-center text-stone-text text-sm">{isEs ? "No hay sesiones esta semana." : "No sessions in this week."}</div>
           ) : (
             <table className="data-table">
               <thead>
@@ -149,7 +152,7 @@ export default function WeeklyReviewPage() {
               <tbody>
                 {weekSessions.map((s) => (
                   <tr key={s.id}>
-                    <td className="text-stone-text">{new Date(s.date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</td>
+                    <td className="text-stone-text">{new Date(s.date).toLocaleDateString(isEs ? "es-ES" : "en-US", { weekday: "short", month: "short", day: "numeric" })}</td>
                     <td><Badge label={s.type} /></td>
                     <td>{s.duration}m</td>
                     <td>{s.intensity}/10</td>

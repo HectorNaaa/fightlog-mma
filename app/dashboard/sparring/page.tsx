@@ -7,6 +7,7 @@ import { Card, CardBody } from "@/components/ui/card";
 import { RatingDots } from "@/components/ui/badge";
 import { formatDate, formatDateInput } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
+import { useLanguage } from "@/contexts/language-context";
 
 interface SparringSession {
   id: string;
@@ -45,6 +46,8 @@ const empty: Omit<SparringSession, "id"> = {
 
 export default function SparringPage() {
   const { user } = useAuth();
+  const { locale } = useLanguage();
+  const isEs = locale === "es";
   const [sessions, setSessions] = useState<SparringSession[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<SparringSession | null>(null);
@@ -87,7 +90,7 @@ export default function SparringPage() {
         <div className="border border-navy/30 bg-navy/10 rounded-sm p-6 text-center max-w-lg mx-auto mt-10">
           <div className="text-4xl mb-3 opacity-30">⬡</div>
           <div className="font-condensed text-xl font-bold uppercase tracking-widest text-navy-light mb-2">Intermediate Feature</div>
-          <p className="text-sm text-stone-text">Sparring analysis is available for Intermediate Amateur fighters.</p>
+          <p className="text-sm text-stone-text">{isEs ? "El análisis de sparring está disponible para nivel intermedio." : "Sparring analysis is available for Intermediate Amateur fighters."}</p>
         </div>
       </div>
     );
@@ -98,15 +101,15 @@ export default function SparringPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">Sparring Review</h1>
-          <p className="text-sm text-stone-text mt-1">{sessions.length} sessions logged</p>
+          <p className="text-sm text-stone-text mt-1">{sessions.length} {isEs ? "sesiones registradas" : "sessions logged"}</p>
         </div>
-        <Button onClick={openNew}>+ Log Sparring</Button>
+        <Button onClick={openNew}>+ {isEs ? "Registrar sparring" : "Log Sparring"}</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {sessions.length === 0 && (
           <div className="col-span-full p-10 text-center text-stone-text text-sm border border-stone-border/50 rounded-sm">
-            No sparring sessions yet.
+            {isEs ? "Aún no hay sesiones de sparring." : "No sparring sessions yet."}
           </div>
         )}
         {sessions.map((s) => (
@@ -151,7 +154,7 @@ export default function SparringPage() {
         ))}
       </div>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={editing ? "Edit Sparring" : "Log Sparring Session"} className="max-w-2xl">
+      <Modal open={open} onClose={() => setOpen(false)} title={editing ? (isEs ? "Editar sparring" : "Edit Sparring") : (isEs ? "Registrar sparring" : "Log Sparring Session")} className="max-w-2xl">
         <div className="grid grid-cols-2 gap-4">
           <Input label="Date" type="date" value={form.date} onChange={f("date")} />
           <Input label="Partner Style" value={form.partnerStyle ?? ""} onChange={f("partnerStyle")} placeholder="e.g. Boxer, Wrestler" />
@@ -174,8 +177,8 @@ export default function SparringPage() {
           <Textarea label="Lessons for Next Session" value={form.lessons ?? ""} onChange={f("lessons")} rows={3} className="col-span-2" />
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</Button>
+          <Button variant="secondary" onClick={() => setOpen(false)}>{isEs ? "Cancelar" : "Cancel"}</Button>
+          <Button onClick={save} disabled={saving}>{saving ? (isEs ? "Guardando…" : "Saving…") : (isEs ? "Guardar" : "Save")}</Button>
         </div>
       </Modal>
     </div>

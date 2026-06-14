@@ -6,6 +6,7 @@ import { Modal } from "@/components/ui/modal";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { MetricChart } from "@/components/charts/metric-chart";
 import { formatDate, formatDateInput } from "@/lib/utils";
+import { useLanguage } from "@/contexts/language-context";
 
 interface Metric {
   id: string;
@@ -35,6 +36,8 @@ const empty: Omit<Metric, "id"> = {
 };
 
 export default function PhysicalMetricsPage() {
+  const { locale } = useLanguage();
+  const isEs = locale === "es";
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Metric | null>(null);
@@ -88,28 +91,28 @@ export default function PhysicalMetricsPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">Physical Metrics</h1>
-          <p className="text-sm text-stone-text mt-1">Body weight, recovery and health tracking</p>
+          <p className="text-sm text-stone-text mt-1">{isEs ? "Peso corporal, recuperación y salud" : "Body weight, recovery and health tracking"}</p>
         </div>
-        <Button onClick={openNew}>+ Log Metrics</Button>
+        <Button onClick={openNew}>+ {isEs ? "Registrar métricas" : "Log Metrics"}</Button>
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <Card>
-          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">Body Weight</div></CardHeader>
-          <CardBody>{weightChart.length > 0 ? <MetricChart data={weightChart} color="#c4a882" height={150} /> : <Empty text="No weight data yet" />}</CardBody>
+          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{isEs ? "Peso corporal" : "Body Weight"}</div></CardHeader>
+          <CardBody>{weightChart.length > 0 ? <MetricChart data={weightChart} color="#c4a882" height={150} /> : <Empty text={isEs ? "Sin datos de peso aún" : "No weight data yet"} />}</CardBody>
         </Card>
         <Card>
-          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">Recovery Score</div></CardHeader>
-          <CardBody>{recoveryChart.length > 0 ? <MetricChart data={recoveryChart} color="#8b2635" height={150} /> : <Empty text="No recovery data yet" />}</CardBody>
+          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{isEs ? "Recuperación" : "Recovery Score"}</div></CardHeader>
+          <CardBody>{recoveryChart.length > 0 ? <MetricChart data={recoveryChart} color="#8b2635" height={150} /> : <Empty text={isEs ? "Sin datos de recuperación" : "No recovery data yet"} />}</CardBody>
         </Card>
         <Card>
-          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">Resting Heart Rate</div></CardHeader>
-          <CardBody>{hrChart.length > 0 ? <MetricChart data={hrChart} color="#2d3a5e" type="line" height={150} /> : <Empty text="No HR data yet" />}</CardBody>
+          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{isEs ? "Frecuencia en reposo" : "Resting Heart Rate"}</div></CardHeader>
+          <CardBody>{hrChart.length > 0 ? <MetricChart data={hrChart} color="#2d3a5e" type="line" height={150} /> : <Empty text={isEs ? "Sin datos de FC" : "No HR data yet"} />}</CardBody>
         </Card>
         <Card>
-          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">Sleep Hours</div></CardHeader>
-          <CardBody>{sleepChart.length > 0 ? <MetricChart data={sleepChart} color="#d4a017" type="line" height={150} /> : <Empty text="No sleep data yet" />}</CardBody>
+          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{isEs ? "Horas de sueño" : "Sleep Hours"}</div></CardHeader>
+          <CardBody>{sleepChart.length > 0 ? <MetricChart data={sleepChart} color="#d4a017" type="line" height={150} /> : <Empty text={isEs ? "Sin datos de sueño" : "No sleep data yet"} />}</CardBody>
         </Card>
       </div>
 
@@ -117,7 +120,7 @@ export default function PhysicalMetricsPage() {
       <Card>
         <CardBody className="p-0 overflow-x-auto">
           {metrics.length === 0 ? (
-            <div className="p-10 text-center text-stone-text text-sm">No metric entries yet.</div>
+            <div className="p-10 text-center text-stone-text text-sm">{isEs ? "Aún no hay registros de métricas." : "No metric entries yet."}</div>
           ) : (
             <table className="data-table min-w-[800px]">
               <thead>
@@ -158,7 +161,7 @@ export default function PhysicalMetricsPage() {
         </CardBody>
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={editing ? "Edit Metrics" : "Log Physical Metrics"} className="max-w-xl">
+      <Modal open={open} onClose={() => setOpen(false)} title={editing ? (isEs ? "Editar métricas" : "Edit Metrics") : (isEs ? "Registrar métricas" : "Log Physical Metrics")} className="max-w-xl">
         <div className="grid grid-cols-2 gap-4">
           <Input label="Date" type="date" value={form.date} onChange={f("date")} className="col-span-2" />
           <Input label="Body Weight (kg)" type="number" step="0.1" value={form.bodyWeight ?? ""} onChange={f("bodyWeight")} />
@@ -178,8 +181,8 @@ export default function PhysicalMetricsPage() {
           <Textarea label="Injuries / Pain Areas" value={form.injuries ?? ""} onChange={f("injuries")} rows={2} className="col-span-2" />
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</Button>
+          <Button variant="secondary" onClick={() => setOpen(false)}>{isEs ? "Cancelar" : "Cancel"}</Button>
+          <Button onClick={save} disabled={saving}>{saving ? (isEs ? "Guardando…" : "Saving…") : (isEs ? "Guardar" : "Save")}</Button>
         </div>
       </Modal>
     </div>

@@ -6,6 +6,7 @@ import { Modal } from "@/components/ui/modal";
 import { Badge, RatingDots } from "@/components/ui/badge";
 import { Card, CardBody } from "@/components/ui/card";
 import { TRAINING_TYPES, formatDate, formatDateInput } from "@/lib/utils";
+import { useLanguage } from "@/contexts/language-context";
 
 interface Session {
   id: string;
@@ -41,6 +42,8 @@ const empty: Omit<Session, "id"> = {
 };
 
 export default function TrainingLogPage() {
+  const { locale } = useLanguage();
+  const isEs = locale === "es";
   const [sessions, setSessions] = useState<Session[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Session | null>(null);
@@ -85,28 +88,28 @@ export default function TrainingLogPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">Training Log</h1>
-          <p className="text-sm text-stone-text mt-1">{sessions.length} sessions recorded</p>
+          <p className="text-sm text-stone-text mt-1">{sessions.length} {isEs ? "sesiones registradas" : "sessions recorded"}</p>
         </div>
-        <Button onClick={openNew}>+ New Session</Button>
+        <Button onClick={openNew}>+ {isEs ? "Nueva sesión" : "New Session"}</Button>
       </div>
 
       <Card>
         <CardBody className="p-0 overflow-x-auto">
           {sessions.length === 0 ? (
-            <div className="p-10 text-center text-stone-text text-sm">No sessions yet. Log your first training session.</div>
+            <div className="p-10 text-center text-stone-text text-sm">{isEs ? "Aún no hay sesiones. Registra tu primera sesión." : "No sessions yet. Log your first training session."}</div>
           ) : (
             <table className="data-table min-w-[900px]">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Type</th>
-                  <th>Duration</th>
-                  <th>Intensity</th>
-                  <th>Energy ↑↓</th>
-                  <th>Soreness</th>
-                  <th>Weight</th>
-                  <th>Focus</th>
-                  <th>Rating</th>
+                  <th>{isEs ? "Fecha" : "Date"}</th>
+                  <th>{isEs ? "Tipo" : "Type"}</th>
+                  <th>{isEs ? "Duración" : "Duration"}</th>
+                  <th>{isEs ? "Intensidad" : "Intensity"}</th>
+                  <th>{isEs ? "Energía ↑↓" : "Energy ↑↓"}</th>
+                  <th>{isEs ? "Agujetas" : "Soreness"}</th>
+                  <th>{isEs ? "Peso" : "Weight"}</th>
+                  <th>{isEs ? "Foco" : "Focus"}</th>
+                  <th>{isEs ? "Nota" : "Rating"}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -124,8 +127,8 @@ export default function TrainingLogPage() {
                     <td>{s.personalRating ? <RatingDots value={s.personalRating} /> : "—"}</td>
                     <td>
                       <div className="flex gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => openEdit(s)}>Edit</Button>
-                        <Button variant="danger" size="sm" onClick={() => del(s.id)} disabled={deleting === s.id}>Del</Button>
+                        <Button variant="ghost" size="sm" onClick={() => openEdit(s)}>{isEs ? "Editar" : "Edit"}</Button>
+                        <Button variant="danger" size="sm" onClick={() => del(s.id)} disabled={deleting === s.id}>{isEs ? "Borrar" : "Del"}</Button>
                       </div>
                     </td>
                   </tr>
@@ -136,45 +139,45 @@ export default function TrainingLogPage() {
         </CardBody>
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={editing ? "Edit Session" : "Log New Session"} className="max-w-2xl">
+      <Modal open={open} onClose={() => setOpen(false)} title={editing ? (isEs ? "Editar sesión" : "Edit Session") : (isEs ? "Registrar sesión" : "Log New Session")} className="max-w-2xl">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Date" type="date" value={form.date} onChange={f("date")} />
+          <Input label={isEs ? "Fecha" : "Date"} type="date" value={form.date} onChange={f("date")} />
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Type</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Tipo" : "Type"}</label>
             <Select value={form.type} onChange={f("type")}>
               {TRAINING_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
             </Select>
           </div>
-          <Input label="Duration (min)" type="number" min={1} value={form.duration} onChange={f("duration")} />
-          <Input label="Body Weight (kg)" type="number" step="0.1" value={form.bodyWeight ?? ""} onChange={f("bodyWeight")} />
+          <Input label={isEs ? "Duración (min)" : "Duration (min)"} type="number" min={1} value={form.duration} onChange={f("duration")} />
+          <Input label={isEs ? "Peso corporal (kg)" : "Body Weight (kg)"} type="number" step="0.1" value={form.bodyWeight ?? ""} onChange={f("bodyWeight")} />
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Intensity (1–10): {form.intensity}</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Intensidad (1–10): ${form.intensity}` : `Intensity (1–10): ${form.intensity}`}</label>
             <input type="range" min={1} max={10} value={form.intensity} onChange={f("intensity")} />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Energy Before (1–10): {form.energyBefore}</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Energía antes (1–10): ${form.energyBefore}` : `Energy Before (1–10): ${form.energyBefore}`}</label>
             <input type="range" min={1} max={10} value={form.energyBefore} onChange={f("energyBefore")} />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Energy After (1–10): {form.energyAfter}</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Energía después (1–10): ${form.energyAfter}` : `Energy After (1–10): ${form.energyAfter}`}</label>
             <input type="range" min={1} max={10} value={form.energyAfter} onChange={f("energyAfter")} />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Soreness (1–10): {form.soreness}</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Agujetas (1–10): ${form.soreness}` : `Soreness (1–10): ${form.soreness}`}</label>
             <input type="range" min={1} max={10} value={form.soreness} onChange={f("soreness")} />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Personal Rating (1–10): {form.personalRating ?? 0}</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Valoración personal (1–10): ${form.personalRating ?? 0}` : `Personal Rating (1–10): ${form.personalRating ?? 0}`}</label>
             <input type="range" min={0} max={10} value={form.personalRating ?? 0} onChange={f("personalRating")} />
           </div>
-          <Input label="Mood" value={form.mood ?? ""} onChange={f("mood")} placeholder="e.g. Sharp, Tired, Focused" />
-          <Input label="Main Focus" value={form.mainFocus ?? ""} onChange={f("mainFocus")} placeholder="e.g. Takedown defense" className="sm:col-span-2" />
-          <Textarea label="Notes" value={form.notes ?? ""} onChange={f("notes")} rows={3} className="sm:col-span-2" />
-          <Textarea label="Coach Feedback" value={form.coachFeedback ?? ""} onChange={f("coachFeedback")} rows={2} className="sm:col-span-2" />
+          <Input label={isEs ? "Sensación" : "Mood"} value={form.mood ?? ""} onChange={f("mood")} placeholder={isEs ? "ej: fino, cansado, concentrado" : "e.g. Sharp, Tired, Focused"} />
+          <Input label={isEs ? "Foco principal" : "Main Focus"} value={form.mainFocus ?? ""} onChange={f("mainFocus")} placeholder={isEs ? "ej: defensa de derribo" : "e.g. Takedown defense"} className="sm:col-span-2" />
+          <Textarea label={isEs ? "Notas" : "Notes"} value={form.notes ?? ""} onChange={f("notes")} rows={3} className="sm:col-span-2" />
+          <Textarea label={isEs ? "Feedback del coach" : "Coach Feedback"} value={form.coachFeedback ?? ""} onChange={f("coachFeedback")} rows={2} className="sm:col-span-2" />
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={save} disabled={saving}>{saving ? "Saving…" : editing ? "Update" : "Save Session"}</Button>
+          <Button variant="secondary" onClick={() => setOpen(false)}>{isEs ? "Cancelar" : "Cancel"}</Button>
+          <Button onClick={save} disabled={saving}>{saving ? (isEs ? "Guardando…" : "Saving…") : editing ? (isEs ? "Actualizar" : "Update") : (isEs ? "Guardar sesión" : "Save Session")}</Button>
         </div>
       </Modal>
     </div>

@@ -2,11 +2,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
+import { useLanguage } from "@/contexts/language-context";
 import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
   const { refetch, user, loading: authLoading } = useAuth();
+  const { t } = useLanguage();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,14 +32,14 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Login failed");
+        setError(data.error ?? t.auth.loginFailed);
         setLoading(false);
         return;
       }
       await refetch();
       router.push("/dashboard");
     } catch {
-      setError("Network error, please try again.");
+      setError(t.auth.networkError);
       setLoading(false);
     }
   };
@@ -49,13 +51,13 @@ export default function LoginPage() {
           <div className="font-condensed font-black text-3xl tracking-[0.2em] text-beige-surface mb-1">
             FIGHT<span className="text-burgundy">LOG</span>
           </div>
-          <p className="text-xs text-stone-text uppercase tracking-widest">Sign in to your account</p>
+          <p className="text-xs text-stone-text uppercase tracking-widest">{t.auth.loginSub}</p>
         </div>
 
         <div className="bg-bg-card border border-stone-border rounded-sm p-6">
           <form onSubmit={submit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Email</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{t.auth.email}</label>
               <input
                 type="email"
                 required
@@ -66,7 +68,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Password</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{t.auth.password}</label>
               <input
                 type="password"
                 required
@@ -82,19 +84,19 @@ export default function LoginPage() {
               disabled={loading}
               className="mt-2 bg-burgundy text-beige-surface font-bold uppercase tracking-widest text-sm py-2.5 rounded transition-colors hover:bg-burgundy-light disabled:opacity-50"
             >
-              {loading ? "Signing in…" : "Sign In"}
+              {loading ? t.auth.signingIn : t.auth.login}
             </button>
           </form>
         </div>
 
         <p className="text-center text-xs text-stone-text mt-4">
-          No account?{" "}
+          {t.auth.noAccount}{" "}
           <Link href="/auth/signup" className="text-amber hover:text-amber-light underline">
-            Create one
+            {t.auth.signupLink}
           </Link>
         </p>
         <p className="text-center text-xs text-stone-text mt-2">
-          <Link href="/" className="text-stone-text hover:text-beige-warm">← Back to home</Link>
+          <Link href="/" className="text-stone-text hover:text-beige-warm">{t.auth.backHome}</Link>
         </p>
       </div>
     </div>

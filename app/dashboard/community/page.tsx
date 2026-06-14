@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils";
+import { useLanguage } from "@/contexts/language-context";
 
 interface Tip {
   sessionId: string;
@@ -26,6 +27,8 @@ interface Friend {
 type Tab = "tips" | "aliados";
 
 export default function CommunityPage() {
+  const { locale } = useLanguage();
+  const isEs = locale === "es";
   const [tab, setTab] = useState<Tab>("tips");
   const [tips, setTips] = useState<Tip[]>([]);
   const [friends, setFriends] = useState<Friend[]>([]);
@@ -67,11 +70,11 @@ export default function CommunityPage() {
     });
     const data = await res.json();
     if (res.ok) {
-      setAddStatus(`✓ ${data.name} añadido como aliado`);
+      setAddStatus(isEs ? `✓ ${data.name} añadido como aliado` : `✓ ${data.name} added as teammate`);
       setAddEmail("");
       load();
     } else {
-      setAddStatus(`✗ ${data.error ?? "Error al añadir"}`);
+      setAddStatus(`✗ ${data.error ?? (isEs ? "Error al añadir" : "Error adding teammate")}`);
     }
   };
 
@@ -85,9 +88,9 @@ export default function CommunityPage() {
       {/* Header */}
       <div>
         <h1 className="font-condensed font-black text-2xl uppercase tracking-widest text-beige-surface">
-          Comunidad
+          {isEs ? "Comunidad" : "Community"}
         </h1>
-        <p className="text-xs text-stone-text mt-0.5">Tus aliados de entrenamiento</p>
+        <p className="text-xs text-stone-text mt-0.5">{isEs ? "Tus aliados de entrenamiento" : "Your training teammates"}</p>
       </div>
 
       {/* Tabs */}
@@ -103,17 +106,18 @@ export default function CommunityPage() {
                 : "text-stone-text hover:text-beige-warm"
             )}
           >
-            {t === "tips" ? "Muro de Tips" : "Consistencia"}
+            {t === "tips" ? (isEs ? "Muro de Tips" : "Tips Wall") : (isEs ? "Consistencia" : "Consistency")}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="py-10 text-center text-stone-text text-sm">Cargando…</div>
+        <div className="py-10 text-center text-stone-text text-sm">{isEs ? "Cargando…" : "Loading…"}</div>
       ) : tab === "tips" ? (
-        <TipsFeed tips={tips} onRespeto={toggleRespeto} />
+        <TipsFeed tips={tips} onRespeto={toggleRespeto} isEs={isEs} />
       ) : (
         <ConsistencyBoard
+          isEs={isEs}
           friends={friends}
           addEmail={addEmail}
           setAddEmail={setAddEmail}
@@ -130,16 +134,18 @@ export default function CommunityPage() {
 function TipsFeed({
   tips,
   onRespeto,
+  isEs,
 }: {
   tips: Tip[];
   onRespeto: (id: string) => void;
+  isEs: boolean;
 }) {
   if (tips.length === 0) {
     return (
       <EmptyState
         icon="◎"
-        title="Sin tips aún"
-        body="Cuando tus aliados compartan notas tácticas al entrenar, aparecerán aquí."
+          title={isEs ? "Sin tips aún" : "No tips yet"}
+          body={isEs ? "Cuando tus aliados compartan notas tácticas al entrenar, aparecerán aquí." : "When your teammates share tactical notes after training, they will show up here."}
       />
     );
   }
@@ -185,7 +191,7 @@ function TipsFeed({
               )}
             >
               <span className="text-sm">{tip.hasRespeto ? "♥" : "♡"}</span>
-              <span>Respeto · {tip.respetos}</span>
+              <span>{isEs ? "Respeto" : "Respect"} · {tip.respetos}</span>
             </button>
           </div>
         </div>
@@ -196,6 +202,7 @@ function TipsFeed({
 
 /* ── Consistency board ─────────────────────────────────────── */
 function ConsistencyBoard({
+  isEs,
   friends,
   addEmail,
   setAddEmail,
@@ -203,6 +210,7 @@ function ConsistencyBoard({
   onRemove,
   addStatus,
 }: {
+  isEs: boolean;
   friends: Friend[];
   addEmail: string;
   setAddEmail: (v: string) => void;
@@ -215,7 +223,7 @@ function ConsistencyBoard({
       {/* Add friend */}
       <div className="bg-bg-card border border-stone-border rounded-sm p-4">
         <div className="text-[10px] uppercase tracking-widest text-stone-text mb-3">
-          Añadir aliado por email
+          {isEs ? "Añadir aliado por email" : "Add teammate by email"}
         </div>
         <div className="flex gap-2">
           <input
@@ -223,14 +231,14 @@ function ConsistencyBoard({
             value={addEmail}
             onChange={(e) => setAddEmail(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onAdd()}
-            placeholder="email@ejemplo.com"
+            placeholder={isEs ? "email@ejemplo.com" : "email@example.com"}
             className="flex-1 bg-bg-elevated border border-stone-border rounded-sm px-3 py-2 text-sm text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber transition-colors"
           />
           <button
             onClick={onAdd}
             className="bg-burgundy text-beige-surface text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-sm hover:bg-burgundy-light transition-colors"
           >
-            Añadir
+            {isEs ? "Añadir" : "Add"}
           </button>
         </div>
         {addStatus && (
@@ -249,14 +257,14 @@ function ConsistencyBoard({
       {friends.length === 0 ? (
         <EmptyState
           icon="◈"
-          title="Sin aliados todavía"
-          body="Añade compañeros de entrenamiento para ver su consistencia semanal y motivaros mutuamente."
+          title={isEs ? "Sin aliados todavía" : "No teammates yet"}
+          body={isEs ? "Añade compañeros de entrenamiento para ver su consistencia semanal y motivaros mutuamente." : "Add training partners to see weekly consistency and motivate each other."}
         />
       ) : (
         <div className="bg-bg-card border border-stone-border rounded-sm overflow-hidden">
           <div className="px-4 py-3 border-b border-stone-border/50">
             <div className="text-[10px] uppercase tracking-widest text-stone-text">
-              Consistencia esta semana
+              {isEs ? "Consistencia esta semana" : "This week consistency"}
             </div>
           </div>
           {[...friends]
@@ -320,7 +328,7 @@ function ConsistencyBoard({
                   >
                     {friend.weeklySessionCount}
                     <span className="text-[10px] font-normal text-stone-text ml-0.5">
-                      entrenos
+                      {isEs ? "entrenos" : "sessions"}
                     </span>
                   </div>
                 </div>
@@ -329,7 +337,7 @@ function ConsistencyBoard({
                 <button
                   onClick={() => onRemove(friend.friendshipId)}
                   className="text-stone-text/30 hover:text-red-400/70 transition-colors text-sm shrink-0"
-                  title="Eliminar aliado"
+                  title={isEs ? "Eliminar aliado" : "Remove teammate"}
                 >
                   ×
                 </button>

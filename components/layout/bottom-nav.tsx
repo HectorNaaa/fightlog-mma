@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLanguage } from "@/contexts/language-context";
 import { cn } from "@/lib/utils";
 
 const HomeIcon = () => (
@@ -56,15 +55,14 @@ const PlanIcon = () => (
 
 export function BottomNav() {
   const pathname = usePathname();
-  const { t } = useLanguage();
 
   const navItems = [
-    { href: "/dashboard", label: t.sidebar.nav.dashboard, icon: HomeIcon, exact: true },
-    { href: "/dashboard/training-log", label: t.sidebar.nav.trainingLog, icon: DiaryIcon },
-    { href: "/dashboard/community", label: t.sidebar.nav.community, icon: CommunityIcon },
-    { href: "/dashboard/technical-tracker", label: t.sidebar.nav.technical, icon: TechnicalIcon },
-    { href: "/dashboard/gameplan", label: t.sidebar.nav.gameplan, icon: PlanIcon },
-    { href: "/dashboard/physical-metrics", label: t.sidebar.nav.metrics, icon: MetricsIcon },
+    { href: "/dashboard", icon: HomeIcon, exact: true },
+    { href: "/dashboard/training-log", icon: DiaryIcon },
+    { href: "/dashboard/community", icon: CommunityIcon },
+    { href: "/dashboard/technical-tracker", icon: TechnicalIcon },
+    { href: "/dashboard/gameplan", icon: PlanIcon },
+    { href: "/dashboard/physical-metrics", icon: MetricsIcon },
   ];
 
   return (
@@ -89,7 +87,6 @@ export function BottomNav() {
               <span className={cn("flex h-8 w-8 items-center justify-center rounded-full border transition-all", active ? "border-burgundy/40 bg-burgundy/15 text-burgundy-light" : "border-white/10 bg-white/5 text-stone-text")}>
                 <Icon />
               </span>
-              <span className="whitespace-nowrap text-[9px] leading-none">{item.label}</span>
               {active && (
                 <span className="absolute inset-x-3 bottom-1 h-0.5 rounded-full bg-gradient-to-r from-transparent via-burgundy to-transparent" />
               )}

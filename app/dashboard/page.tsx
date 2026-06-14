@@ -9,6 +9,7 @@ import { Modal } from "@/components/ui/modal";
 import { formatDate, formatDateInput, TRAINING_TYPES } from "@/lib/utils";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/language-context";
 
 const MOTIVATIONS: Record<number, string> = {
   0: "Hoy empieza tu racha. Un entreno cambia el día.",
@@ -20,10 +21,21 @@ const MOTIVATIONS: Record<number, string> = {
   14: "Dos semanas. El trabajo habla por ti.",
   30: "Un mes. Ya eres otro luchador.",
 };
-function getMotivation(streak: number): string {
-  const keys = Object.keys(MOTIVATIONS).map(Number).sort((a, b) => b - a);
-  for (const k of keys) { if (streak >= k) return MOTIVATIONS[k]; }
-  return "Hoy empieza tu racha.";
+const MOTIVATIONS_EN: Record<number, string> = {
+  0: "Your streak starts today. One session can change the day.",
+  1: "1 day. Consistency is built one day at a time.",
+  2: "2 days in a row. Your body remembers.",
+  3: "3 days. You are building a real habit.",
+  5: "5 days. That's discipline, not motivation.",
+  7: "A full week. Few make it this far.",
+  14: "Two weeks. Your work speaks for itself.",
+  30: "One month. You are not the same athlete anymore.",
+};
+function getMotivation(streak: number, locale: string): string {
+  const table = locale === "es" ? MOTIVATIONS : MOTIVATIONS_EN;
+  const keys = Object.keys(table).map(Number).sort((a, b) => b - a);
+  for (const k of keys) { if (streak >= k) return table[k]; }
+  return locale === "es" ? "Hoy empieza tu racha." : "Your streak starts today.";
 }
 
 interface Session { id: string; date: string; type: string; duration: number; intensity: number; energyBefore: number; energyAfter: number; soreness: number; mainFocus?: string | null; personalRating?: number | null; }
@@ -33,6 +45,8 @@ const emptyForm = { date: "", type: "Boxing", duration: 60, intensity: 7, energy
 
 export default function DashboardPage() {
   const { user, refetch } = useAuth();
+  const { locale } = useLanguage();
+  const isEs = locale === "es";
   const [sessions, setSessions] = useState<Session[]>([]);
   const [tips, setTips] = useState<Tip[]>([]);
   const [fabOpen, setFabOpen] = useState(false);
@@ -91,23 +105,23 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs text-stone-text uppercase tracking-widest">{new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })}</p>
+          <p className="text-xs text-stone-text uppercase tracking-widest">{new Date().toLocaleDateString(isEs ? "es-ES" : "en-US", { weekday: "long", day: "numeric", month: "long" })}</p>
           <h1 className="font-condensed font-black text-2xl uppercase tracking-wider text-beige-surface mt-0.5">
-            Hola, {user?.name?.split(" ")[0]}
+            {isEs ? "Hola" : "Hi"}, {user?.name?.split(" ")[0]}
           </h1>
         </div>
-        <Link href="/api/export" className="text-[10px] text-stone-text/60 hover:text-stone-text uppercase tracking-widest border border-stone-border/50 px-2 py-1 rounded-sm transition-colors">Export</Link>
+        <Link href="/api/export" className="text-[10px] text-stone-text/60 hover:text-stone-text uppercase tracking-widest border border-stone-border/50 px-2 py-1 rounded-sm transition-colors">{isEs ? "Exportar" : "Export"}</Link>
       </div>
 
       {/* Streak Card */}
       <div className={cn("rounded-sm p-4 border", streak >= 7 ? "bg-amber/10 border-amber/30" : streak >= 3 ? "bg-burgundy/10 border-burgundy/20" : "bg-bg-card border-stone-border")}>
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] uppercase tracking-widest text-stone-text">Racha de constancia</span>
+          <span className="text-[10px] uppercase tracking-widest text-stone-text">{isEs ? "Racha de constancia" : "Consistency streak"}</span>
           <span className={cn("font-condensed font-black text-3xl", streak >= 7 ? "text-amber" : streak >= 3 ? "text-burgundy-light" : "text-beige-surface")}>
-            {streak} <span className="text-sm font-normal text-stone-text">días</span>
+            {streak} <span className="text-sm font-normal text-stone-text">{isEs ? "días" : "days"}</span>
           </span>
         </div>
-        <p className="text-xs text-stone-text/80 italic">{getMotivation(streak)}</p>
+        <p className="text-xs text-stone-text/80 italic">{getMotivation(streak, locale)}</p>
         <div className="flex gap-1 mt-3">
           {Array.from({ length: 7 }, (_, i) => {
             const d = new Date(); d.setDate(d.getDate() - (6 - i));
@@ -124,19 +138,19 @@ export default function DashboardPage() {
       {/* Today focus */}
       <div className="bg-bg-card border border-stone-border rounded-sm p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] uppercase tracking-widest text-stone-text">Foco de hoy</span>
+          <span className="text-[10px] uppercase tracking-widest text-stone-text">{isEs ? "Foco de hoy" : "Today's focus"}</span>
           <button onClick={() => setFocusEdit(!focusEdit)} className="text-[10px] text-burgundy hover:text-burgundy-light uppercase tracking-wider">
-            {focusEdit ? "Cancelar" : "Editar"}
+            {focusEdit ? (isEs ? "Cancelar" : "Cancel") : (isEs ? "Editar" : "Edit")}
           </button>
         </div>
         {focusEdit ? (
           <div className="flex gap-2">
-            <input ref={focusRef} value={focusVal} onChange={e => setFocusVal(e.target.value)} onKeyDown={e => e.key === "Enter" && saveFocus()} placeholder="ej: Mantener la guardia al retroceder..." className="flex-1 bg-bg-elevated border border-stone-border rounded-sm px-3 py-1.5 text-sm text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber" maxLength={200} />
+              <input ref={focusRef} value={focusVal} onChange={e => setFocusVal(e.target.value)} onKeyDown={e => e.key === "Enter" && saveFocus()} placeholder={isEs ? "ej: Mantener la guardia al retroceder..." : "e.g. Keep guard while backing up..."} className="flex-1 bg-bg-elevated border border-stone-border rounded-sm px-3 py-1.5 text-sm text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber" maxLength={200} />
             <button onClick={saveFocus} className="bg-burgundy text-beige-surface text-xs font-bold uppercase px-3 py-1.5 rounded-sm hover:bg-burgundy-light">OK</button>
           </div>
         ) : (
           <p className={cn("text-sm", user?.todayFocus ? "text-beige-warm" : "text-stone-text/50 italic")}>
-            {user?.todayFocus ?? 'Sin foco definido. Toca Editar para añadir uno.'}
+              {user?.todayFocus ?? (isEs ? "Sin foco definido. Toca Editar para añadir uno." : "No focus set. Tap Edit to add one.")}
           </p>
         )}
       </div>
@@ -144,11 +158,11 @@ export default function DashboardPage() {
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-bg-card border border-stone-border rounded-sm p-3">
-          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-1">Esta semana</div>
-          <div className="font-condensed font-black text-2xl text-amber">{weeklySessions.length}<span className="text-sm font-normal text-stone-text ml-1">entrenamientos</span></div>
+          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-1">{isEs ? "Esta semana" : "This week"}</div>
+          <div className="font-condensed font-black text-2xl text-amber">{weeklySessions.length}<span className="text-sm font-normal text-stone-text ml-1">{isEs ? "entrenamientos" : "sessions"}</span></div>
         </div>
         <div className="bg-bg-card border border-stone-border rounded-sm p-3">
-          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-1">Volumen</div>
+          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-1">{isEs ? "Volumen" : "Volume"}</div>
           <div className="font-condensed font-black text-2xl text-burgundy-light">{weeklyMinutes}<span className="text-sm font-normal text-stone-text ml-1">min</span></div>
         </div>
       </div>
@@ -156,7 +170,7 @@ export default function DashboardPage() {
       {/* Volume chart */}
       {chartData.length > 0 && (
         <div className="bg-bg-card border border-stone-border rounded-sm p-4">
-          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-3">Volumen últimas sesiones</div>
+          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-3">{isEs ? "Volumen últimas sesiones" : "Recent sessions volume"}</div>
           <MetricChart data={chartData} color="#8b2635" height={120} />
         </div>
       )}
@@ -165,8 +179,8 @@ export default function DashboardPage() {
       {tips.length > 0 && (
         <div className="bg-bg-card border border-stone-border rounded-sm p-4">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] uppercase tracking-widest text-stone-text">Tips de aliados</span>
-            <Link href="/dashboard/community" className="text-[10px] text-burgundy hover:text-burgundy-light uppercase tracking-wider">Ver todos</Link>
+            <span className="text-[10px] uppercase tracking-widest text-stone-text">{isEs ? "Tips de aliados" : "Teammate tips"}</span>
+            <Link href="/dashboard/community" className="text-[10px] text-burgundy hover:text-burgundy-light uppercase tracking-wider">{isEs ? "Ver todos" : "View all"}</Link>
           </div>
           <div className="space-y-2">
             {tips.slice(0, 3).map(tip => (
@@ -178,7 +192,7 @@ export default function DashboardPage() {
                 <p className="text-xs text-stone-text/90 leading-relaxed">{tip.tacticNote}</p>
                 <button onClick={() => toggleRespeto(tip.sessionId)} className={cn("mt-2 text-[10px] flex items-center gap-1 uppercase tracking-wider transition-colors", tip.hasRespeto ? "text-burgundy" : "text-stone-text/50 hover:text-stone-text")}>
                   <span>{tip.hasRespeto ? "♥" : "♡"}</span>
-                  <span>{tip.respetos} respeto{tip.respetos !== 1 ? "s" : ""}</span>
+                  <span>{tip.respetos} {isEs ? `respeto${tip.respetos !== 1 ? "s" : ""}` : `respect${tip.respetos !== 1 ? "s" : ""}`}</span>
                 </button>
               </div>
             ))}
@@ -189,12 +203,12 @@ export default function DashboardPage() {
       {/* Last session */}
       {last && (
         <div className="bg-bg-card border border-stone-border rounded-sm p-4">
-          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-3">Último entreno</div>
+          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-3">{isEs ? "Último entreno" : "Last session"}</div>
           <div className="flex items-center gap-2 mb-2"><Badge label={last.type} /><span className="text-xs text-stone-text">{formatDate(last.date)}</span></div>
           <div className="grid grid-cols-3 gap-2">
-            <div><div className="text-[9px] text-stone-text uppercase">Duración</div><div className="font-condensed font-bold text-lg text-beige-surface">{last.duration}<span className="text-[10px] text-stone-text">m</span></div></div>
-            <div><div className="text-[9px] text-stone-text uppercase">Int.</div><div className="font-condensed font-bold text-lg text-amber">{last.intensity}<span className="text-[10px] text-stone-text">/10</span></div></div>
-            <div><div className="text-[9px] text-stone-text uppercase">Energía</div><div className="font-condensed font-bold text-lg text-beige-surface">{last.energyBefore}→{last.energyAfter}</div></div>
+            <div><div className="text-[9px] text-stone-text uppercase">{isEs ? "Duración" : "Duration"}</div><div className="font-condensed font-bold text-lg text-beige-surface">{last.duration}<span className="text-[10px] text-stone-text">m</span></div></div>
+            <div><div className="text-[9px] text-stone-text uppercase">{isEs ? "Int." : "Int."}</div><div className="font-condensed font-bold text-lg text-amber">{last.intensity}<span className="text-[10px] text-stone-text">/10</span></div></div>
+            <div><div className="text-[9px] text-stone-text uppercase">{isEs ? "Energía" : "Energy"}</div><div className="font-condensed font-bold text-lg text-beige-surface">{last.energyBefore}→{last.energyAfter}</div></div>
           </div>
           {last.mainFocus && <p className="text-xs text-stone-text mt-2 italic">&ldquo;{last.mainFocus}&rdquo;</p>}
         </div>
@@ -203,7 +217,7 @@ export default function DashboardPage() {
       {/* Recent sessions list */}
       {sessions.length > 1 && (
         <div className="bg-bg-card border border-stone-border rounded-sm">
-          <div className="px-4 pt-4 pb-2 text-[10px] text-stone-text uppercase tracking-widest">Historial reciente</div>
+          <div className="px-4 pt-4 pb-2 text-[10px] text-stone-text uppercase tracking-widest">{isEs ? "Historial reciente" : "Recent history"}</div>
           {sessions.slice(1, 6).map(s => (
             <div key={s.id} className="flex items-center gap-3 px-4 py-2.5 border-t border-stone-border/40">
               <Badge label={s.type} />
@@ -220,28 +234,28 @@ export default function DashboardPage() {
       </button>
 
       {/* Quick log modal */}
-      <Modal open={fabOpen} onClose={() => setFabOpen(false)} title="Registrar Entreno">
+      <Modal open={fabOpen} onClose={() => setFabOpen(false)} title={isEs ? "Registrar Entreno" : "Log Session"}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Fecha" type="date" value={form.date} onChange={f("date")} />
-          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Tipo</label><Select value={form.type} onChange={f("type")}>{TRAINING_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</Select></div>
-          <Input label="Duración (min)" type="number" min={1} value={form.duration} onChange={f("duration")} />
-          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Sensación física (1-5): {form.physicalState}</label><input type="range" min={1} max={5} value={form.physicalState} onChange={f("physicalState")} /></div>
-          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Intensidad (1-10): {form.intensity}</label><input type="range" min={1} max={10} value={form.intensity} onChange={f("intensity")} /></div>
-          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Energía antes (1-10): {form.energyBefore}</label><input type="range" min={1} max={10} value={form.energyBefore} onChange={f("energyBefore")} /></div>
-          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Energía después (1-10): {form.energyAfter}</label><input type="range" min={1} max={10} value={form.energyAfter} onChange={f("energyAfter")} /></div>
-          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Agujetas (1-10): {form.soreness}</label><input type="range" min={1} max={10} value={form.soreness} onChange={f("soreness")} /></div>
-          <Input label="Foco del entreno" value={form.dailyFocus ?? ""} onChange={f("dailyFocus")} placeholder="ej: Mantener guardia alta" className="sm:col-span-2" />
-          <Textarea label="Nota táctica (opcional)" value={form.tacticNote ?? ""} onChange={f("tacticNote")} rows={2} placeholder="Algo que descubriste hoy..." className="sm:col-span-2" />
+          <Input label={isEs ? "Fecha" : "Date"} type="date" value={form.date} onChange={f("date")} />
+          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Tipo" : "Type"}</label><Select value={form.type} onChange={f("type")}>{TRAINING_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</Select></div>
+          <Input label={isEs ? "Duración (min)" : "Duration (min)"} type="number" min={1} value={form.duration} onChange={f("duration")} />
+          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Sensación física (1-5): ${form.physicalState}` : `Physical state (1-5): ${form.physicalState}`}</label><input type="range" min={1} max={5} value={form.physicalState} onChange={f("physicalState")} /></div>
+          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Intensidad (1-10): ${form.intensity}` : `Intensity (1-10): ${form.intensity}`}</label><input type="range" min={1} max={10} value={form.intensity} onChange={f("intensity")} /></div>
+          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Energía antes (1-10): ${form.energyBefore}` : `Energy before (1-10): ${form.energyBefore}`}</label><input type="range" min={1} max={10} value={form.energyBefore} onChange={f("energyBefore")} /></div>
+          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Energía después (1-10): ${form.energyAfter}` : `Energy after (1-10): ${form.energyAfter}`}</label><input type="range" min={1} max={10} value={form.energyAfter} onChange={f("energyAfter")} /></div>
+          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Agujetas (1-10): ${form.soreness}` : `Soreness (1-10): ${form.soreness}`}</label><input type="range" min={1} max={10} value={form.soreness} onChange={f("soreness")} /></div>
+          <Input label={isEs ? "Foco del entreno" : "Session focus"} value={form.dailyFocus ?? ""} onChange={f("dailyFocus")} placeholder={isEs ? "ej: Mantener guardia alta" : "e.g. Keep high guard"} className="sm:col-span-2" />
+          <Textarea label={isEs ? "Nota táctica (opcional)" : "Tactical note (optional)"} value={form.tacticNote ?? ""} onChange={f("tacticNote")} rows={2} placeholder={isEs ? "Algo que descubriste hoy..." : "Something you discovered today..."} className="sm:col-span-2" />
           {form.tacticNote && (
             <label className="sm:col-span-2 flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.tacticPublic} onChange={e => setForm(p => ({ ...p, tacticPublic: e.target.checked }))} className="w-4 h-4 accent-burgundy" />
-              <span className="text-xs text-stone-text">Compartir con mis aliados</span>
+              <span className="text-xs text-stone-text">{isEs ? "Compartir con mis aliados" : "Share with my teammates"}</span>
             </label>
           )}
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="secondary" onClick={() => setFabOpen(false)}>Cancelar</Button>
-          <Button onClick={saveSession} disabled={saving}>{saving ? "Guardando…" : "Guardar"}</Button>
+          <Button variant="secondary" onClick={() => setFabOpen(false)}>{isEs ? "Cancelar" : "Cancel"}</Button>
+          <Button onClick={saveSession} disabled={saving}>{saving ? (isEs ? "Guardando…" : "Saving…") : (isEs ? "Guardar" : "Save")}</Button>
         </div>
       </Modal>
     </div>

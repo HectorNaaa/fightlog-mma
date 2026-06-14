@@ -3,6 +3,42 @@ import Link from "next/link";
 import { useLanguage } from "@/contexts/language-context";
 import { LanguageSelector } from "@/components/ui/language-selector";
 
+function AnimatedOutlineText({ text }: { text: string }) {
+  return (
+    <span className="hero-outline-wrap" aria-label={text}>
+      <svg className="hero-outline-svg" viewBox="0 0 1200 180" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden>
+        <defs>
+          <linearGradient id="heroStrokeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#7a0000" />
+            <stop offset="35%" stopColor="#ff2a2a" />
+            <stop offset="70%" stopColor="#b40000" />
+            <stop offset="100%" stopColor="#7a0000" />
+            <animate attributeName="x1" values="0%;100%;0%" dur="3.2s" repeatCount="indefinite" />
+            <animate attributeName="x2" values="100%;200%;100%" dur="3.2s" repeatCount="indefinite" />
+          </linearGradient>
+        </defs>
+        <text
+          x="50%"
+          y="50%"
+          dominantBaseline="middle"
+          textAnchor="middle"
+          textLength="1080"
+          lengthAdjust="spacingAndGlyphs"
+          className="hero-outline-text"
+          fill="transparent"
+          stroke="url(#heroStrokeGradient)"
+          strokeWidth="3"
+          paintOrder="stroke"
+          strokeDasharray="22 10"
+        >
+          {text}
+          <animate attributeName="stroke-dashoffset" from="0" to="-320" dur="3.2s" repeatCount="indefinite" />
+        </text>
+      </svg>
+    </span>
+  );
+}
+
 function BackgroundAnimation() {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none select-none" aria-hidden>
@@ -40,7 +76,7 @@ export default function LandingPage() {
         <div className="max-w-3xl w-full">
           <h1 className="font-condensed font-black text-5xl md:text-7xl lg:text-8xl text-beige-surface leading-none uppercase tracking-tight mb-6">
             {t.landing.heroLine1}<br />
-            <span className="hero-evolution-chip">{t.landing.heroLine2}</span><br />
+            <AnimatedOutlineText text={t.landing.heroLine2} /><br />
             {t.landing.heroLine3}
           </h1>
           <p className="text-base md:text-lg text-stone-text max-w-xl mx-auto mb-10 leading-relaxed">{t.landing.heroSub}</p>

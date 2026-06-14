@@ -28,6 +28,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.lang = locale;
     localStorage.setItem("fightlog-locale", locale);
+    document.cookie = `fightlog-locale=${locale}; path=/; max-age=31536000; samesite=lax`;
   }, [locale]);
 
   const setLocale = (l: Locale) => {
