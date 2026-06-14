@@ -18,7 +18,7 @@ export function formatDateInput(date: Date | string): string {
 }
 
 export const TRAINING_TYPES = [
-  "MMA",
+  "General Training",
   "Boxing",
   "Muay Thai",
   "Wrestling",
@@ -31,7 +31,10 @@ export const TRAINING_TYPES = [
 ] as const;
 
 export const DISCIPLINES = [
-  "MMA",
+  "General Training",
+  "Team Sports",
+  "Strength Training",
+  "Endurance Training",
   "Boxing",
   "Muay Thai",
   "Wrestling",

@@ -26,7 +26,7 @@ interface Session {
 
 const empty: Omit<Session, "id"> = {
   date: formatDateInput(new Date()),
-  type: "MMA",
+  type: "General Training",
   duration: 60,
   intensity: 7,
   energyBefore: 7,

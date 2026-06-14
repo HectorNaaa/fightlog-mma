@@ -18,10 +18,11 @@ const barlowCondensed = Barlow_Condensed({
 });
 
 export const metadata: Metadata = {
-  title: "FightLog — Fighting Evolution",
+  metadataBase: new URL("https://fightlogapp.vercel.app"),
+  title: "FightLog — Training Evolution",
   description:
-    "The professional training operating system for fighters. Track sessions, techniques, gameplans, and physical metrics.",
-  keywords: ["fighter", "training log", "combat sports", "martial arts", "performance"],
+    "The training operating system for athletes. Track sessions, skills, plans, and performance across any sport.",
+  keywords: ["athlete", "training log", "sports performance", "coaching", "recovery"],
 };
 
 export default function RootLayout({

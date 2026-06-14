@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 const typeColors: Record<string, string> = {
-  MMA: "bg-burgundy/20 text-burgundy-light border-burgundy/30",
+  "General Training": "bg-burgundy/20 text-burgundy-light border-burgundy/30",
   Boxing: "bg-amber/20 text-amber-light border-amber/30",
   "Muay Thai": "bg-orange-900/20 text-orange-400 border-orange-900/30",
   Wrestling: "bg-navy/30 text-navy-light border-navy/40",

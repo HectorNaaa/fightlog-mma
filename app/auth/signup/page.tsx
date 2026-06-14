@@ -13,7 +13,7 @@ export default function SignupPage() {
     email: "",
     password: "",
     level: "beginner",
-    discipline: "MMA",
+    discipline: "General Training",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -52,7 +52,7 @@ export default function SignupPage() {
           <div className="font-condensed font-black text-3xl tracking-[0.2em] text-beige-surface mb-1">
             FIGHT<span className="text-burgundy">LOG</span>
           </div>
-          <p className="text-xs text-stone-text uppercase tracking-widest">Create your fighter profile</p>
+          <p className="text-xs text-stone-text uppercase tracking-widest">Create your athlete profile</p>
         </div>
 
         <div className="bg-bg-card border border-stone-border rounded-sm p-6">
@@ -76,7 +76,7 @@ export default function SignupPage() {
                 placeholder="Min 8 characters" />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Primary Discipline</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Primary Sport</label>
               <select value={form.discipline} onChange={f("discipline")}
                 className="bg-bg-elevated border border-stone-border rounded px-3 py-2 text-sm text-beige-warm focus:outline-none focus:border-amber transition-colors">
                 {DISCIPLINES.map((d) => <option key={d} value={d}>{d}</option>)}
@@ -106,7 +106,7 @@ export default function SignupPage() {
                   <div>
                     <div className="text-sm font-semibold text-beige-warm">{l.label}</div>
                     {l.value === "beginner" && <div className="text-[11px] text-stone-text">Fundamentals, consistency, basic logs</div>}
-                    {l.value === "intermediate" && <div className="text-[11px] text-stone-text">Sparring, gameplans, weekly reviews</div>}
+                    {l.value === "intermediate" && <div className="text-[11px] text-stone-text">Skill work, tactics, weekly reviews</div>}
                     {l.disabled && <div className="text-[11px] text-stone-text/60">Coming soon</div>}
                   </div>
                 </label>
@@ -118,7 +118,7 @@ export default function SignupPage() {
               disabled={loading}
               className="mt-2 bg-burgundy text-beige-surface font-bold uppercase tracking-widest text-sm py-2.5 rounded transition-colors hover:bg-burgundy-light disabled:opacity-50"
             >
-              {loading ? "Creating account…" : "Create Fighter Profile"}
+              {loading ? "Creating account…" : "Create Profile"}
             </button>
           </form>
         </div>
