@@ -1,10 +1,11 @@
-export type Locale = "en" | "es" | "pt" | "fr";
+export type Locale = "en" | "es" | "pt" | "fr" | "it";
 
 export const LOCALES: { code: Locale; label: string; flag: string }[] = [
-  { code: "en", label: "English", flag: "🇺🇸" },
+  { code: "en", label: "English", flag: "🇬🇧" },
   { code: "es", label: "Español", flag: "🇪🇸" },
-  { code: "pt", label: "Português", flag: "🇧🇷" },
+  { code: "it", label: "Italiano", flag: "🇮🇹" },
   { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "pt", label: "Português", flag: "🇧🇷" },
 ];
 
 export const translations = {
@@ -47,6 +48,7 @@ export const translations = {
       nav: {
         dashboard: "Dashboard",
         trainingLog: "Training Log",
+        community: "Community",
         technical: "Technical",
         gameplan: "Gameplan",
         metrics: "Metrics",
@@ -119,6 +121,7 @@ export const translations = {
       nav: {
         dashboard: "Panel",
         trainingLog: "Diario",
+        community: "Comunidad",
         technical: "Técnicas",
         gameplan: "Gameplan",
         metrics: "Métricas",
@@ -189,6 +192,7 @@ export const translations = {
       nav: {
         dashboard: "Painel",
         trainingLog: "Diário",
+        community: "Comunidade",
         technical: "Técnicas",
         gameplan: "Gameplan",
         metrics: "Métricas",
@@ -259,6 +263,7 @@ export const translations = {
       nav: {
         dashboard: "Tableau de Bord",
         trainingLog: "Journal",
+        community: "Communauté",
         technical: "Techniques",
         gameplan: "Gameplan",
         metrics: "Métriques",
@@ -292,6 +297,77 @@ export const translations = {
       hasAccount: "Déjà un compte ?",
       signupLink: "S'inscrire",
       loginLink: "Se connecter",
+    },
+  },
+  it: {
+    nav: {
+      signIn: "Accedi",
+      getStarted: "Inizia Gratis",
+    },
+    landing: {
+      badge: "Sistema di Allenamento",
+      heroLine1: "Traccia La Tua",
+      heroLine2: "Fighting Evolution",
+      heroLine3: "Come Un Pro",
+      heroSub:
+        "Diario di allenamento, tracciamento tecnico, costruttore di gameplans e report esportabili — progettato per i fighter che trattano l'allenamento come una scienza.",
+      ctaPrimary: "Inizia Gratis",
+      ctaSecondary: "Accedi",
+      featuresTitle: "Costruito per i fighter",
+      feature1: "Diario",
+      feature2: "Tecniche",
+      feature3: "Gameplan",
+      feature4: "Esporta Excel",
+      ctaSection: "Inizia a Costruire La Tua",
+      ctaHighlight: "Carriera",
+      ctaBody: "Gratis. Senza abbonamenti. I tuoi dati restano tuoi.",
+      ctaButton: "Crea Account Gratis",
+    },
+    footer: {
+      tagline: "Costruito per i fighter",
+    },
+    sidebar: {
+      subtitle: "Sistema di Allenamento",
+      fighter: "Fighter",
+      beginner: "Principiante",
+      amateur: "Amatoriale",
+      nav: {
+        dashboard: "Dashboard",
+        trainingLog: "Diario",
+        community: "Community",
+        technical: "Tecniche",
+        gameplan: "Gameplan",
+        metrics: "Metriche",
+        sparring: "Sparring",
+        weeklyReview: "Revisione Settimanale",
+      },
+      logout: "Esci",
+      preview: "Anteprima",
+    },
+    mock: {
+      thisWeek: "Questa Settimana",
+      sessions: "sessioni",
+      volume: "Volume",
+      avgIntensity: "Int. Media",
+      bodyWeight: "Peso Corporeo",
+      recentSessions: "Sessioni Recenti",
+      weeklyVolume: "Volume Settimanale",
+    },
+    auth: {
+      loginTitle: "Bentornato",
+      loginSub: "Accedi al tuo account",
+      signupTitle: "Crea account",
+      signupSub: "Inizia a tracciare il tuo allenamento",
+      email: "E-mail",
+      password: "Password",
+      name: "Nome completo",
+      confirmPassword: "Conferma password",
+      login: "Accedi",
+      signup: "Crea Account",
+      noAccount: "Non hai un account?",
+      hasAccount: "Hai già un account?",
+      signupLink: "Registrati",
+      loginLink: "Accedi",
     },
   },
 } as const;

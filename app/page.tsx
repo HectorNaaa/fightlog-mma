@@ -38,13 +38,9 @@ export default function LandingPage() {
       </nav>
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center pt-8 pb-20">
         <div className="max-w-3xl w-full">
-          <div className="inline-flex items-center gap-2 bg-burgundy/10 border border-burgundy/20 rounded-sm px-3 py-1 mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber animate-pulse" />
-            <span className="text-xs text-burgundy-light font-semibold uppercase tracking-widest">{t.landing.badge}</span>
-          </div>
           <h1 className="font-condensed font-black text-5xl md:text-7xl lg:text-8xl text-beige-surface leading-none uppercase tracking-tight mb-6">
             {t.landing.heroLine1}<br />
-            <span className="text-burgundy">{t.landing.heroLine2}</span><br />
+            <span className="hero-evolution-chip">{t.landing.heroLine2}</span><br />
             {t.landing.heroLine3}
           </h1>
           <p className="text-base md:text-lg text-stone-text max-w-xl mx-auto mb-10 leading-relaxed">{t.landing.heroSub}</p>

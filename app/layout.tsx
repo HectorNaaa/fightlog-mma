@@ -18,7 +18,7 @@ const barlowCondensed = Barlow_Condensed({
 });
 
 export const metadata: Metadata = {
-  title: "FightLog — Track Your Fighting Evolution",
+  title: "FightLog — Fighting Evolution",
   description:
     "The professional training operating system for fighters. Track sessions, techniques, gameplans, and physical metrics.",
   keywords: ["fighter", "training log", "combat sports", "martial arts", "performance"],

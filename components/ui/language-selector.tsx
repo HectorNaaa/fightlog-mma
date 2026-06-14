@@ -24,12 +24,15 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
   return (
     <div ref={ref} className="relative">
       <button
+        type="button"
         onClick={() => setOpen(!open)}
         className={cn(
           "flex items-center gap-1.5 text-stone-text hover:text-beige-warm transition-colors",
           compact ? "text-xs" : "text-sm"
         )}
         aria-label="Select language"
+        aria-haspopup="menu"
+        aria-expanded={open}
       >
         <span>{current.flag}</span>
         {!compact && <span className="uppercase tracking-wider">{current.code}</span>}
@@ -37,13 +40,14 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 w-36 bg-bg-secondary border border-stone-border rounded-sm shadow-xl z-50 py-1">
+        <div className="absolute right-0 top-full mt-1 w-40 overflow-hidden rounded-xl border border-white/10 bg-bg-secondary/80 py-1 shadow-2xl backdrop-blur-xl z-50">
           {LOCALES.map((l) => (
             <button
               key={l.code}
+              type="button"
               onClick={() => { setLocale(l.code as Locale); setOpen(false); }}
               className={cn(
-                "w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-bg-elevated transition-colors text-left",
+                "w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5 transition-colors text-left",
                 locale === l.code ? "text-beige-surface font-semibold" : "text-stone-text"
               )}
             >

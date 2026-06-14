@@ -76,10 +76,45 @@ input[type="range"]::-webkit-slider-thumb {
   0%, 100% { transform: scale(1); opacity: 0.05; }
   50% { transform: scale(1.15); opacity: 0.12; }
 }
+@keyframes border-spin {
+  to { transform: rotate(360deg); }
+}
 .animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
 .animate-float-med { animation: float-med 6s ease-in-out infinite; }
 .animate-drift { animation: drift 12s ease-in-out infinite; }
 .animate-pulse-ring { animation: pulse-ring 5s ease-in-out infinite; }
+
+.hero-evolution-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.08em 0.5em;
+  margin: 0 0.08em;
+  border-radius: 0.35em;
+  color: #f3e8d8;
+  isolation: isolate;
+}
+
+.hero-evolution-chip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg, #6f0000, #ff2d2d, #ff7b7b, #b10000, #6f0000);
+  animation: border-spin 2.8s linear infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.95;
+  z-index: 0;
+}
+
+.hero-evolution-chip > * {
+  position: relative;
+  z-index: 1;
+}
 
 /* Table styles */
 .data-table {

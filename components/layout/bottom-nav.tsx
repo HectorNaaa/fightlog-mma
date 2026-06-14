@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLanguage } from "@/contexts/language-context";
 import { cn } from "@/lib/utils";
 
 const HomeIcon = () => (
@@ -37,19 +38,38 @@ const MetricsIcon = () => (
   </svg>
 );
 
-const navItems = [
-  { href: "/dashboard", label: "Home", icon: HomeIcon, exact: true },
-  { href: "/dashboard/training-log", label: "Diario", icon: DiaryIcon },
-  { href: "/dashboard/community", label: "Aliados", icon: CommunityIcon },
-  { href: "/dashboard/physical-metrics", label: "Métricas", icon: MetricsIcon },
-];
+const TechnicalIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+    <path d="M12 3l2.4 4.9L20 9l-4 3.9.9 5.6L12 15.9 7.1 18.5 8 13l-4-4 5.6-.9L12 3z" />
+  </svg>
+);
+
+const PlanIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+    <path d="M4 19V5" />
+    <path d="M4 19h16" />
+    <path d="M8 17v-4" />
+    <path d="M12 17V8" />
+    <path d="M16 17v-6" />
+  </svg>
+);
 
 export function BottomNav() {
   const pathname = usePathname();
+  const { t } = useLanguage();
+
+  const navItems = [
+    { href: "/dashboard", label: t.sidebar.nav.dashboard, icon: HomeIcon, exact: true },
+    { href: "/dashboard/training-log", label: t.sidebar.nav.trainingLog, icon: DiaryIcon },
+    { href: "/dashboard/community", label: t.sidebar.nav.community, icon: CommunityIcon },
+    { href: "/dashboard/technical-tracker", label: t.sidebar.nav.technical, icon: TechnicalIcon },
+    { href: "/dashboard/gameplan", label: t.sidebar.nav.gameplan, icon: PlanIcon },
+    { href: "/dashboard/physical-metrics", label: t.sidebar.nav.metrics, icon: MetricsIcon },
+  ];
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg-secondary border-t border-stone-border safe-area-pb">
-      <div className="flex items-stretch h-16">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-bg-secondary/70 shadow-[0_-12px_40px_rgba(0,0,0,0.35)] backdrop-blur-2xl safe-area-pb">
+      <div className="mx-auto flex max-w-screen-md items-stretch gap-1 overflow-x-auto px-2 py-2">
         {navItems.map((item) => {
           const active = item.exact
             ? pathname === item.href
@@ -60,16 +80,18 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold uppercase tracking-widest transition-colors",
+                "relative flex min-w-[72px] flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] transition-all",
                 active
-                  ? "text-burgundy"
+                  ? "text-beige-surface bg-burgundy/20 shadow-[0_0_0_1px_rgba(180,28,28,0.25)]"
                   : "text-stone-text hover:text-beige-warm"
               )}
             >
-              <Icon />
-              <span>{item.label}</span>
+              <span className={cn("flex h-8 w-8 items-center justify-center rounded-full border transition-all", active ? "border-burgundy/40 bg-burgundy/15 text-burgundy-light" : "border-white/10 bg-white/5 text-stone-text")}>
+                <Icon />
+              </span>
+              <span className="whitespace-nowrap text-[9px] leading-none">{item.label}</span>
               {active && (
-                <span className="absolute bottom-0 w-6 h-0.5 bg-burgundy rounded-t-full" />
+                <span className="absolute inset-x-3 bottom-1 h-0.5 rounded-full bg-gradient-to-r from-transparent via-burgundy to-transparent" />
               )}
             </Link>
           );

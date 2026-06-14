@@ -12,23 +12,26 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+function getInitialLocale(): Locale {
+  if (typeof window === "undefined") return "en";
+
+  const stored = localStorage.getItem("fightlog-locale") as Locale | null;
+  if (stored && stored in translations) return stored;
+
+  const detected = navigator.language.slice(0, 2) as Locale;
+  return detected in translations ? detected : "en";
+}
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
+  const [locale, setLocaleState] = useState<Locale>(getInitialLocale);
 
   useEffect(() => {
-    const stored = localStorage.getItem("fightlog-locale") as Locale | null;
-    if (stored && stored in translations) {
-      setLocaleState(stored);
-    } else {
-      // Auto-detect from browser
-      const lang = navigator.language.slice(0, 2) as Locale;
-      if (lang in translations) setLocaleState(lang);
-    }
-  }, []);
+    document.documentElement.lang = locale;
+    localStorage.setItem("fightlog-locale", locale);
+  }, [locale]);
 
   const setLocale = (l: Locale) => {
     setLocaleState(l);
-    localStorage.setItem("fightlog-locale", l);
   };
 
   return (
