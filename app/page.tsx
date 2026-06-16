@@ -9,12 +9,18 @@ function AnimatedOutlineText({ text }: { text: string }) {
       <svg className="hero-outline-svg" viewBox="0 0 1200 180" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden>
         <defs>
           <linearGradient id="heroStrokeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#7a0000" />
-            <stop offset="35%" stopColor="#ff2a2a" />
-            <stop offset="70%" stopColor="#b40000" />
-            <stop offset="100%" stopColor="#7a0000" />
-            <animate attributeName="x1" values="0%;100%;0%" dur="3.2s" repeatCount="indefinite" />
-            <animate attributeName="x2" values="100%;200%;100%" dur="3.2s" repeatCount="indefinite" />
+            <stop offset="0%" stopColor="#1a0000" />
+            <stop offset="22%" stopColor="#7a0000" />
+            <stop offset="48%" stopColor="#ff2a2a" />
+            <stop offset="74%" stopColor="#930000" />
+            <stop offset="100%" stopColor="#000000" />
+            <animateTransform
+              attributeName="gradientTransform"
+              type="translate"
+              values="-0.35 0; 0.35 0; -0.35 0"
+              dur="5s"
+              repeatCount="indefinite"
+            />
           </linearGradient>
         </defs>
         <text
@@ -27,12 +33,10 @@ function AnimatedOutlineText({ text }: { text: string }) {
           className="hero-outline-text"
           fill="transparent"
           stroke="url(#heroStrokeGradient)"
-          strokeWidth="3"
+          strokeWidth="3.4"
           paintOrder="stroke"
-          strokeDasharray="22 10"
         >
           {text}
-          <animate attributeName="stroke-dashoffset" from="0" to="-320" dur="3.2s" repeatCount="indefinite" />
         </text>
       </svg>
     </span>

@@ -12,18 +12,37 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+function isSupportedLocale(value: string | undefined | null): value is Locale {
+  return !!value && value in translations;
+}
+
 function getInitialLocale(): Locale {
   if (typeof window === "undefined") return "en";
 
   const stored = localStorage.getItem("fightlog-locale") as Locale | null;
-  if (stored && stored in translations) return stored;
+  if (isSupportedLocale(stored)) return stored;
+
+  const cookieMatch = document.cookie
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith("fightlog-locale="));
+  const cookieLocale = cookieMatch?.split("=")[1];
+  if (isSupportedLocale(cookieLocale)) return cookieLocale;
 
   const detected = navigator.language.slice(0, 2) as Locale;
-  return detected in translations ? detected : "en";
+  return isSupportedLocale(detected) ? detected : "en";
 }
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(getInitialLocale);
+export function LanguageProvider({ children, initialLocale }: { children: ReactNode; initialLocale?: Locale }) {
+  const [locale, setLocaleState] = useState<Locale>(() => {
+    if (typeof window === "undefined") {
+      return isSupportedLocale(initialLocale) ? initialLocale : "en";
+    }
+
+    const resolved = getInitialLocale();
+    if (isSupportedLocale(resolved)) return resolved;
+    return isSupportedLocale(initialLocale) ? initialLocale : "en";
+  });
 
   useEffect(() => {
     document.documentElement.lang = locale;

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Inter, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
 import { LanguageProvider } from "@/contexts/language-context";
+import type { Locale } from "@/lib/i18n";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,18 +27,30 @@ export const metadata: Metadata = {
   keywords: ["athlete", "training log", "sports performance", "coaching", "recovery"],
 };
 
+const SUPPORTED_LOCALES: Locale[] = ["en", "es", "pt", "fr", "it"];
+
+function resolveInitialLocale(cookieValue: string | undefined): Locale {
+  if (cookieValue && SUPPORTED_LOCALES.includes(cookieValue as Locale)) {
+    return cookieValue as Locale;
+  }
+  return "en";
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const localeCookie = cookies().get("fightlog-locale")?.value;
+  const initialLocale = resolveInitialLocale(localeCookie);
+
   return (
-    <html lang="en" className="dark">
+    <html lang={initialLocale} className="dark">
       <body
         className={`${inter.variable} ${barlowCondensed.variable} bg-bg-primary text-beige-warm antialiased min-h-screen`}
       >
         <AuthProvider>
-          <LanguageProvider>{children}</LanguageProvider>
+          <LanguageProvider initialLocale={initialLocale}>{children}</LanguageProvider>
         </AuthProvider>
       </body>
     </html>
