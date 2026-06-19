@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { hashPassword, signToken, createAuthCookie, AuthConfigError } from "@/lib/auth";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 const signupSchema = z.object({
@@ -122,12 +123,19 @@ export async function POST(req: NextRequest) {
       discipline,
     });
 
-    const token = signToken({
-      userId: user.id,
-      email: user.email,
-      name: user.name,
-      level: user.level,
-    });
+    let token: string;
+    try {
+      token = signToken({
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+        level: user.level,
+      });
+    } catch (tokenError) {
+      // Avoid leaving newly-created users in a broken auth state if token signing fails.
+      await prisma.user.delete({ where: { id: user.id } }).catch(() => undefined);
+      throw tokenError;
+    }
 
     const cookieOptions = createAuthCookie(token);
     const response = NextResponse.json(
@@ -138,7 +146,19 @@ export async function POST(req: NextRequest) {
     return response;
   } catch (err) {
     if (err instanceof AuthConfigError) {
-      return NextResponse.json({ error: err.message }, { status: 500 });
+      return NextResponse.json({ error: err.message }, { status: 503 });
+    }
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      if (err.code === "P2002") {
+        return NextResponse.json({ error: "Email already registered" }, { status: 409 });
+      }
+      if (err.code === "P2021" || err.code === "P2022") {
+        console.error("[auth/signup] Database schema mismatch", err);
+        return NextResponse.json(
+          { error: "Server database is updating. Please try again in a moment." },
+          { status: 503 }
+        );
+      }
     }
     console.error("[auth/signup] Internal error", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyPassword, signToken, createAuthCookie, AuthConfigError } from "@/lib/auth";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -49,7 +50,16 @@ export async function POST(req: NextRequest) {
     return response;
   } catch (err) {
     if (err instanceof AuthConfigError) {
-      return NextResponse.json({ error: err.message }, { status: 500 });
+      return NextResponse.json({ error: err.message }, { status: 503 });
+    }
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      if (err.code === "P2021" || err.code === "P2022") {
+        console.error("[auth/login] Database schema mismatch", err);
+        return NextResponse.json(
+          { error: "Server database is updating. Please try again in a moment." },
+          { status: 503 }
+        );
+      }
     }
     console.error("[auth/login] Internal error", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -12,7 +12,7 @@ class AuthConfigError extends Error {
 }
 
 function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET;
+  const secret = process.env.JWT_SECRET ?? process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
   if (!secret || secret.trim().length < 32) {
     if (process.env.NODE_ENV !== "production") {
       console.warn("[auth] JWT_SECRET missing/short in development. Using temporary development secret.");
