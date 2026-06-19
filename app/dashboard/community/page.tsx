@@ -1,19 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
-import { formatDate } from "@/lib/utils";
-import { useLanguage } from "@/contexts/language-context";
 
-interface Tip {
-  sessionId: string;
-  authorName: string;
-  gymName?: string | null;
-  date: string;
-  type: string;
-  tacticNote: string | null;
-  respetos: number;
-  hasRespeto: boolean;
-}
+import { useEffect, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
+
+type TabKey = "feed" | "fighters" | "partners" | "nodes";
 
 interface Friend {
   id: string;
@@ -21,350 +11,596 @@ interface Friend {
   name: string;
   gymName?: string | null;
   level: string;
+  primaryDiscipline: string;
   weeklySessionCount: number;
+  mutualFriends: number;
+  sharedDisciplines: string[];
+  sharedGyms: string[];
+  isTrainingPartner: boolean;
 }
 
-type Tab = "tips" | "aliados";
+interface FighterCandidate {
+  id: string;
+  isFriend: boolean;
+  name: string;
+  level: string;
+  gymName?: string | null;
+  primaryDiscipline: string;
+  profile?: {
+    username?: string;
+    displayName?: string;
+    city?: string;
+    beltRank?: string;
+    weightClass?: string;
+    bio?: string;
+    isPublic?: boolean;
+  } | null;
+  disciplines: string[];
+  mutualFriends: number;
+  sharedDisciplines: string[];
+  sharedGyms: string[];
+}
+
+interface FriendRequest {
+  id: string;
+  requesterId: string;
+  receiverId: string;
+  note?: string | null;
+  createdAt: string;
+  requester?: {
+    name: string;
+    discipline: string;
+    gymName?: string | null;
+    profile?: { username?: string; displayName?: string } | null;
+  };
+  receiver?: {
+    name: string;
+    discipline: string;
+    gymName?: string | null;
+    profile?: { username?: string; displayName?: string } | null;
+  };
+}
+
+interface TechniqueNode {
+  id: string;
+  title: string;
+  discipline: string | null;
+  position: string | null;
+  description: string | null;
+  visibility: "private" | "friends" | "public";
+  linkedNodeIds: string[];
+  counts: { saves: number; likes: number; comments: number };
+  hasSaved: boolean;
+  hasLiked: boolean;
+  createdBy: {
+    id: string;
+    name: string;
+    profile?: { username?: string; displayName?: string } | null;
+  };
+}
+
+interface FeedEvent {
+  id: string;
+  eventType: string;
+  message: string;
+  createdAt: string;
+  user: {
+    name: string;
+    profile?: { displayName?: string; username?: string } | null;
+  };
+}
+
+interface FeedResponse {
+  events: FeedEvent[];
+  recommendations: {
+    fightersYouMayKnow: FighterCandidate[];
+    popularTechniqueNodes: Array<{
+      id: string;
+      title: string;
+      discipline: string | null;
+      likes: number;
+      saves: number;
+      visibility: string;
+    }>;
+    gymNetworkCount: number;
+  };
+}
 
 export default function CommunityPage() {
-  const { locale } = useLanguage();
-  const isEs = locale === "es";
-  const [tab, setTab] = useState<Tab>("tips");
-  const [tips, setTips] = useState<Tip[]>([]);
-  const [friends, setFriends] = useState<Friend[]>([]);
-  const [addEmail, setAddEmail] = useState("");
-  const [addStatus, setAddStatus] = useState<string | null>(null);
+  const [tab, setTab] = useState<TabKey>("feed");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const load = async () => {
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [fighters, setFighters] = useState<FighterCandidate[]>([]);
+  const [search, setSearch] = useState("");
+
+  const [incomingRequests, setIncomingRequests] = useState<FriendRequest[]>([]);
+  const [outgoingRequests, setOutgoingRequests] = useState<FriendRequest[]>([]);
+
+  const [feed, setFeed] = useState<FeedResponse | null>(null);
+  const [nodes, setNodes] = useState<TechniqueNode[]>([]);
+
+  const [creatingNode, setCreatingNode] = useState(false);
+  const [nodeForm, setNodeForm] = useState({
+    title: "",
+    discipline: "MMA",
+    position: "",
+    description: "",
+    visibility: "private" as "private" | "friends" | "public",
+  });
+
+  const loadAll = async (query = "") => {
     setLoading(true);
-    const [t, f] = await Promise.all([
-      fetch("/api/community/tips").then((r) => r.json()).catch(() => []),
-      fetch("/api/friends").then((r) => r.json()).catch(() => []),
-    ]);
-    setTips(Array.isArray(t) ? t : []);
-    setFriends(Array.isArray(f) ? f : []);
-    setLoading(false);
+    setError(null);
+    try {
+      const [friendsRes, requestsRes, feedRes, nodesRes, fightersRes] = await Promise.all([
+        fetch("/api/friends", { cache: "no-store" }),
+        fetch("/api/friends/requests", { cache: "no-store" }),
+        fetch("/api/community/feed", { cache: "no-store" }),
+        fetch(`/api/technique-nodes?q=${encodeURIComponent(query)}`, { cache: "no-store" }),
+        fetch(`/api/fighters?q=${encodeURIComponent(query)}`, { cache: "no-store" }),
+      ]);
+
+      const friendsData = await friendsRes.json().catch(() => []);
+      const requestsData = await requestsRes.json().catch(() => ({ incoming: [], outgoing: [] }));
+      const feedData = await feedRes.json().catch(() => null);
+      const nodesData = await nodesRes.json().catch(() => []);
+      const fightersData = await fightersRes.json().catch(() => []);
+
+      if (!friendsRes.ok || !requestsRes.ok || !feedRes.ok || !nodesRes.ok || !fightersRes.ok) {
+        setError("Some community data failed to load. Try refreshing.");
+      }
+
+      setFriends(Array.isArray(friendsData) ? friendsData : []);
+      setIncomingRequests(Array.isArray(requestsData.incoming) ? requestsData.incoming : []);
+      setOutgoingRequests(Array.isArray(requestsData.outgoing) ? requestsData.outgoing : []);
+      setFeed(feedData);
+      setNodes(Array.isArray(nodesData) ? nodesData : []);
+      setFighters(Array.isArray(fightersData) ? fightersData : []);
+    } catch {
+      setError("Network error loading community data.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    loadAll();
+  }, []);
 
-  const toggleRespeto = async (sessionId: string) => {
-    await fetch(`/api/tips/${sessionId}/respeto`, { method: "POST" });
-    setTips((prev) =>
-      prev.map((t) =>
-        t.sessionId === sessionId
-          ? { ...t, respetos: t.hasRespeto ? t.respetos - 1 : t.respetos + 1, hasRespeto: !t.hasRespeto }
-          : t
+  const filteredFighters = useMemo(() => {
+    if (!search.trim()) return fighters;
+    const q = search.toLowerCase();
+    return fighters.filter((fighter) => {
+      const display = fighter.profile?.displayName || fighter.name;
+      return (
+        fighter.name.toLowerCase().includes(q) ||
+        display.toLowerCase().includes(q) ||
+        (fighter.profile?.username || "").toLowerCase().includes(q) ||
+        fighter.primaryDiscipline.toLowerCase().includes(q)
+      );
+    });
+  }, [fighters, search]);
+
+  const sendRequest = async (receiverId: string) => {
+    const res = await fetch("/api/friends/requests", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ receiverId }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error ?? "Could not send request");
+      return;
+    }
+
+    await loadAll(search);
+  };
+
+  const processRequest = async (requestId: string, action: "accept" | "reject" | "cancel") => {
+    const res = await fetch(`/api/friends/requests/${requestId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error ?? "Could not process request");
+      return;
+    }
+
+    await loadAll(search);
+  };
+
+  const toggleTrainingPartner = async (friendshipId: string, isTrainingPartner: boolean) => {
+    const res = await fetch(`/api/friends/${friendshipId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isTrainingPartner: !isTrainingPartner }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error ?? "Could not update training partner status");
+      return;
+    }
+
+    setFriends((prev) =>
+      prev.map((friend) =>
+        friend.friendshipId === friendshipId
+          ? { ...friend, isTrainingPartner: !isTrainingPartner }
+          : friend
       )
     );
   };
 
-  const addFriend = async () => {
-    if (!addEmail.trim()) return;
-    setAddStatus(null);
-    const res = await fetch("/api/friends", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: addEmail.trim() }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setAddStatus(isEs ? `✓ ${data.name} añadido como aliado` : `✓ ${data.name} added as teammate`);
-      setAddEmail("");
-      load();
-    } else {
-      setAddStatus(`✗ ${data.error ?? (isEs ? "Error al añadir" : "Error adding teammate")}`);
+  const createNode = async () => {
+    if (creatingNode) return;
+    if (!nodeForm.title.trim()) {
+      setError("Technique title is required.");
+      return;
+    }
+
+    setCreatingNode(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/technique-nodes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: nodeForm.title.trim(),
+          discipline: nodeForm.discipline,
+          position: nodeForm.position || null,
+          description: nodeForm.description || null,
+          visibility: nodeForm.visibility,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Could not create technique node");
+        return;
+      }
+
+      setNodeForm({
+        title: "",
+        discipline: "MMA",
+        position: "",
+        description: "",
+        visibility: "private",
+      });
+
+      await loadAll(search);
+    } finally {
+      setCreatingNode(false);
     }
   };
 
-  const removeFriend = async (friendshipId: string) => {
-    await fetch(`/api/friends/${friendshipId}`, { method: "DELETE" });
-    setFriends((prev) => prev.filter((f) => f.friendshipId !== friendshipId));
+  const toggleNodeSave = async (nodeId: string) => {
+    const res = await fetch(`/api/technique-nodes/${nodeId}/save`, { method: "POST" });
+    if (res.ok) await loadAll(search);
+  };
+
+  const toggleNodeLike = async (nodeId: string) => {
+    const res = await fetch(`/api/technique-nodes/${nodeId}/like`, { method: "POST" });
+    if (res.ok) await loadAll(search);
   };
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div>
-        <h1 className="font-condensed font-black text-2xl uppercase tracking-widest text-beige-surface">
-          {isEs ? "Comunidad" : "Community"}
-        </h1>
-        <p className="text-xs text-stone-text mt-0.5">{isEs ? "Tus aliados de entrenamiento" : "Your training teammates"}</p>
-      </div>
+    <div className="space-y-5">
+      <header className="rounded-xl border border-stone-border bg-bg-card p-5 shadow-[0_12px_30px_rgba(0,0,0,0.24)]">
+        <h1 className="font-condensed text-2xl font-black uppercase tracking-[0.14em] text-white">Community</h1>
+        <p className="mt-1 text-sm text-stone-light">Train smarter. Build your fight brain.</p>
+        <p className="text-xs text-stone-text">Learning network for fighters, not vanity engagement.</p>
+      </header>
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-bg-card border border-stone-border rounded-sm p-1">
-        {(["tips", "aliados"] as Tab[]).map((t) => (
+      <div className="grid gap-2 rounded-xl border border-stone-border bg-bg-card p-2 sm:grid-cols-4">
+        {([
+          { key: "feed", label: "Learning Feed" },
+          { key: "fighters", label: "Find Fighters" },
+          { key: "partners", label: "Partners" },
+          { key: "nodes", label: "Technique Graph" },
+        ] as Array<{ key: TabKey; label: string }>).map((item) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            key={item.key}
+            onClick={() => setTab(item.key)}
             className={cn(
-              "flex-1 py-2 text-xs font-bold uppercase tracking-widest rounded-sm transition-colors",
-              tab === t
-                ? "bg-burgundy text-beige-surface"
-                : "text-stone-text hover:text-beige-warm"
+              "rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-colors",
+              tab === item.key
+                ? "bg-burgundy text-white"
+                : "text-stone-light hover:bg-bg-elevated hover:text-white"
             )}
           >
-            {t === "tips" ? (isEs ? "Muro de Tips" : "Tips Wall") : (isEs ? "Consistencia" : "Consistency")}
+            {item.label}
           </button>
         ))}
       </div>
 
-      {loading ? (
-        <div className="py-10 text-center text-stone-text text-sm">{isEs ? "Cargando…" : "Loading…"}</div>
-      ) : tab === "tips" ? (
-        <TipsFeed tips={tips} onRespeto={toggleRespeto} isEs={isEs} />
-      ) : (
-        <ConsistencyBoard
-          isEs={isEs}
-          friends={friends}
-          addEmail={addEmail}
-          setAddEmail={setAddEmail}
-          onAdd={addFriend}
-          onRemove={removeFriend}
-          addStatus={addStatus}
-        />
-      )}
-    </div>
-  );
-}
+      {error && <div className="rounded-lg border border-red-900/40 bg-red-950/30 px-3 py-2 text-sm text-red-300">{error}</div>}
+      {loading && <div className="text-sm text-stone-text">Loading community intelligence...</div>}
 
-/* ── Tips feed ─────────────────────────────────────────────── */
-function TipsFeed({
-  tips,
-  onRespeto,
-  isEs,
-}: {
-  tips: Tip[];
-  onRespeto: (id: string) => void;
-  isEs: boolean;
-}) {
-  if (tips.length === 0) {
-    return (
-      <EmptyState
-        icon="◎"
-          title={isEs ? "Sin tips aún" : "No tips yet"}
-          body={isEs ? "Cuando tus aliados compartan notas tácticas al entrenar, aparecerán aquí." : "When your teammates share tactical notes after training, they will show up here."}
-      />
-    );
-  }
-
-  return (
-    <div className="space-y-3">
-      {tips.map((tip) => (
-        <div
-          key={tip.sessionId}
-          className="bg-bg-card border border-stone-border rounded-sm p-4"
-        >
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <div>
-              <span className="text-sm font-bold text-beige-warm">{tip.authorName}</span>
-              {tip.gymName && (
-                <span className="ml-2 text-[10px] bg-stone-border/50 text-stone-text px-1.5 py-0.5 rounded-sm uppercase tracking-wider">
-                  {tip.gymName}
-                </span>
+      {!loading && tab === "feed" && (
+        <section className="space-y-4">
+          <div className="rounded-xl border border-stone-border bg-bg-card p-4">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-stone-light">Network Activity</h2>
+            <div className="space-y-2">
+              {(feed?.events || []).slice(0, 12).map((event) => (
+                <div key={event.id} className="rounded-lg border border-stone-border/70 bg-bg-elevated p-3">
+                  <p className="text-sm text-white">
+                    <span className="font-semibold text-burgundy-light">{event.user.profile?.displayName || event.user.name}</span>{" "}
+                    {event.message}
+                  </p>
+                  <p className="mt-1 text-[11px] uppercase tracking-wider text-stone-text">{new Date(event.createdAt).toLocaleString()}</p>
+                </div>
+              ))}
+              {(!feed?.events || feed.events.length === 0) && (
+                <div className="rounded-lg border border-dashed border-stone-border p-4 text-sm text-stone-text">
+                  No activity yet. Add friends and share a technique node to kickstart your learning network.
+                </div>
               )}
             </div>
-            <div className="text-right shrink-0">
-              <span className="text-[10px] text-stone-text">{formatDate(tip.date)}</span>
-              <div className="mt-0.5">
-                <span className="text-[10px] bg-burgundy/20 text-burgundy-light border border-burgundy/30 px-1.5 py-0.5 rounded-sm uppercase font-bold">
-                  {tip.type}
-                </span>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="rounded-xl border border-stone-border bg-bg-card p-4">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-light">Fighters You May Know</h3>
+              <div className="mt-3 space-y-2">
+                {(feed?.recommendations.fightersYouMayKnow || []).slice(0, 5).map((fighter) => (
+                  <div key={fighter.id} className="rounded-lg border border-stone-border/70 bg-bg-elevated p-3">
+                    <p className="text-sm font-semibold text-white">{fighter.profile?.displayName || fighter.name}</p>
+                    <p className="text-xs text-stone-light">{fighter.primaryDiscipline} · {fighter.gymName || "Independent"}</p>
+                  </div>
+                ))}
+                {(feed?.recommendations.fightersYouMayKnow || []).length === 0 && (
+                  <p className="text-sm text-stone-text">Recommendations appear as your network grows.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-stone-border bg-bg-card p-4">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-light">Popular In Your Network</h3>
+              <div className="mt-3 space-y-2">
+                {(feed?.recommendations.popularTechniqueNodes || []).slice(0, 5).map((node) => (
+                  <div key={node.id} className="rounded-lg border border-stone-border/70 bg-bg-elevated p-3">
+                    <p className="text-sm font-semibold text-white">{node.title}</p>
+                    <p className="text-xs text-stone-light">{node.discipline || "General"} · {node.saves} saves · {node.likes} likes</p>
+                  </div>
+                ))}
+                {(feed?.recommendations.popularTechniqueNodes || []).length === 0 && (
+                  <p className="text-sm text-stone-text">No popular nodes yet. Add your first one in Technique Graph.</p>
+                )}
               </div>
             </div>
           </div>
+        </section>
+      )}
 
-          <p className="text-sm text-stone-text/90 leading-relaxed border-l-2 border-burgundy/30 pl-3 italic">
-            &ldquo;{tip.tacticNote}&rdquo;
-          </p>
-
-          <div className="flex items-center gap-3 mt-3">
-            <button
-              onClick={() => onRespeto(tip.sessionId)}
-              className={cn(
-                "flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider transition-colors px-2.5 py-1 rounded-sm",
-                tip.hasRespeto
-                  ? "bg-burgundy/20 text-burgundy-light border border-burgundy/30"
-                  : "bg-stone-border/30 text-stone-text hover:text-beige-warm border border-transparent"
-              )}
-            >
-              <span className="text-sm">{tip.hasRespeto ? "♥" : "♡"}</span>
-              <span>{isEs ? "Respeto" : "Respect"} · {tip.respetos}</span>
-            </button>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ── Consistency board ─────────────────────────────────────── */
-function ConsistencyBoard({
-  isEs,
-  friends,
-  addEmail,
-  setAddEmail,
-  onAdd,
-  onRemove,
-  addStatus,
-}: {
-  isEs: boolean;
-  friends: Friend[];
-  addEmail: string;
-  setAddEmail: (v: string) => void;
-  onAdd: () => void;
-  onRemove: (id: string) => void;
-  addStatus: string | null;
-}) {
-  return (
-    <div className="space-y-4">
-      {/* Add friend */}
-      <div className="bg-bg-card border border-stone-border rounded-sm p-4">
-        <div className="text-[10px] uppercase tracking-widest text-stone-text mb-3">
-          {isEs ? "Añadir aliado por email" : "Add teammate by email"}
-        </div>
-        <div className="flex gap-2">
-          <input
-            type="email"
-            value={addEmail}
-            onChange={(e) => setAddEmail(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && onAdd()}
-            placeholder={isEs ? "email@ejemplo.com" : "email@example.com"}
-            className="flex-1 bg-bg-elevated border border-stone-border rounded-sm px-3 py-2 text-sm text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber transition-colors"
-          />
-          <button
-            onClick={onAdd}
-            className="bg-burgundy text-beige-surface text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-sm hover:bg-burgundy-light transition-colors"
-          >
-            {isEs ? "Añadir" : "Add"}
-          </button>
-        </div>
-        {addStatus && (
-          <p
-            className={cn(
-              "text-xs mt-2",
-              addStatus.startsWith("✓") ? "text-green-400" : "text-red-400"
-            )}
-          >
-            {addStatus}
-          </p>
-        )}
-      </div>
-
-      {/* Consistency board */}
-      {friends.length === 0 ? (
-        <EmptyState
-          icon="◈"
-          title={isEs ? "Sin aliados todavía" : "No teammates yet"}
-          body={isEs ? "Añade compañeros de entrenamiento para ver su consistencia semanal y motivaros mutuamente." : "Add training partners to see weekly consistency and motivate each other."}
-        />
-      ) : (
-        <div className="bg-bg-card border border-stone-border rounded-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-stone-border/50">
-            <div className="text-[10px] uppercase tracking-widest text-stone-text">
-              {isEs ? "Consistencia esta semana" : "This week consistency"}
+      {!loading && tab === "fighters" && (
+        <section className="space-y-4">
+          <div className="rounded-xl border border-stone-border bg-bg-card p-4">
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-light">Search fighters</label>
+            <div className="flex gap-2">
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Name, username, discipline"
+                className="flex-1 rounded-lg border border-stone-border bg-bg-elevated px-3 py-2 text-sm text-white placeholder:text-stone-text focus:border-burgundy-light focus:outline-none"
+              />
+              <button
+                onClick={() => loadAll(search)}
+                className="rounded-lg bg-burgundy px-4 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-burgundy-light"
+              >
+                Search
+              </button>
             </div>
           </div>
-          {[...friends]
-            .sort((a, b) => b.weeklySessionCount - a.weeklySessionCount)
-            .map((friend, idx) => (
-              <div
-                key={friend.id}
-                className="flex items-center gap-3 px-4 py-3 border-b border-stone-border/30 last:border-0"
-              >
-                {/* Rank */}
-                <div
-                  className={cn(
-                    "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0",
-                    idx === 0
-                      ? "bg-amber/20 text-amber"
-                      : idx === 1
-                      ? "bg-stone-muted/30 text-stone-light"
-                      : "bg-stone-border/30 text-stone-text"
+
+          <div className="grid gap-3">
+            {filteredFighters.map((fighter) => (
+              <div key={fighter.id} className="rounded-xl border border-stone-border bg-bg-card p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{fighter.profile?.displayName || fighter.name}</p>
+                    <p className="text-xs text-stone-light">
+                      @{fighter.profile?.username || fighter.name.toLowerCase().replace(/\s+/g, "")}
+                      {" · "}
+                      {fighter.primaryDiscipline}
+                    </p>
+                    <p className="mt-1 text-xs text-stone-text">
+                      {fighter.gymName || "No gym listed"}
+                      {fighter.profile?.city ? ` · ${fighter.profile.city}` : ""}
+                    </p>
+                  </div>
+
+                  {fighter.isFriend ? (
+                    <span className="rounded-md border border-burgundy/50 bg-burgundy/20 px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-burgundy-light">Connected</span>
+                  ) : (
+                    <button
+                      onClick={() => sendRequest(fighter.id)}
+                      className="rounded-md border border-stone-border bg-bg-elevated px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white hover:border-burgundy-light"
+                    >
+                      Send Request
+                    </button>
                   )}
-                >
-                  {idx + 1}
                 </div>
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-semibold text-beige-warm truncate">
-                      {friend.name}
-                    </span>
-                    {friend.gymName && (
-                      <span className="text-[9px] bg-stone-border/50 text-stone-text px-1 py-0.5 rounded-sm uppercase shrink-0">
-                        {friend.gymName}
-                      </span>
-                    )}
-                  </div>
-                  {/* Mini bar */}
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 h-1 bg-stone-border rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-burgundy/60 rounded-full transition-all"
-                        style={{ width: `${Math.min(100, (friend.weeklySessionCount / 7) * 100)}%` }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-stone-text shrink-0">
-                      {friend.weeklySessionCount}/7
-                    </span>
-                  </div>
+                <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-stone-light">
+                  <span className="rounded bg-bg-elevated px-2 py-1">Mutual friends: {fighter.mutualFriends}</span>
+                  <span className="rounded bg-bg-elevated px-2 py-1">Shared disciplines: {fighter.sharedDisciplines.length}</span>
+                  <span className="rounded bg-bg-elevated px-2 py-1">Shared gyms: {fighter.sharedGyms.length}</span>
                 </div>
-
-                {/* Sessions badge */}
-                <div className="text-right shrink-0">
-                  <div
-                    className={cn(
-                      "font-condensed font-black text-xl",
-                      friend.weeklySessionCount >= 5
-                        ? "text-amber"
-                        : friend.weeklySessionCount >= 3
-                        ? "text-burgundy-light"
-                        : "text-stone-text"
-                    )}
-                  >
-                    {friend.weeklySessionCount}
-                    <span className="text-[10px] font-normal text-stone-text ml-0.5">
-                      {isEs ? "entrenos" : "sessions"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Remove */}
-                <button
-                  onClick={() => onRemove(friend.friendshipId)}
-                  className="text-stone-text/30 hover:text-red-400/70 transition-colors text-sm shrink-0"
-                  title={isEs ? "Eliminar aliado" : "Remove teammate"}
-                >
-                  ×
-                </button>
               </div>
             ))}
-        </div>
+            {filteredFighters.length === 0 && (
+              <div className="rounded-xl border border-dashed border-stone-border bg-bg-card p-5 text-sm text-stone-text">
+                No fighters found yet. Try a discipline or username search.
+              </div>
+            )}
+          </div>
+        </section>
       )}
-    </div>
-  );
-}
 
-function EmptyState({
-  icon,
-  title,
-  body,
-}: {
-  icon: string;
-  title: string;
-  body: string;
-}) {
-  return (
-    <div className="py-12 text-center">
-      <div className="text-4xl opacity-20 mb-3">{icon}</div>
-      <div className="font-condensed font-bold text-lg uppercase tracking-widest text-beige-surface/60 mb-1">
-        {title}
-      </div>
-      <p className="text-xs text-stone-text max-w-xs mx-auto leading-relaxed">{body}</p>
+      {!loading && tab === "partners" && (
+        <section className="space-y-4">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="rounded-xl border border-stone-border bg-bg-card p-4">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-light">Incoming Requests</h3>
+              <div className="mt-3 space-y-2">
+                {incomingRequests.map((request) => (
+                  <div key={request.id} className="rounded-lg border border-stone-border/70 bg-bg-elevated p-3">
+                    <p className="text-sm text-white">{request.requester?.profile?.displayName || request.requester?.name}</p>
+                    <p className="text-xs text-stone-light">{request.requester?.discipline} · {request.requester?.gymName || "No gym"}</p>
+                    <div className="mt-2 flex gap-2">
+                      <button onClick={() => processRequest(request.id, "accept")} className="rounded bg-burgundy px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-white">Accept</button>
+                      <button onClick={() => processRequest(request.id, "reject")} className="rounded border border-stone-border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-stone-light">Reject</button>
+                    </div>
+                  </div>
+                ))}
+                {incomingRequests.length === 0 && <p className="text-sm text-stone-text">No incoming requests.</p>}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-stone-border bg-bg-card p-4">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-light">Outgoing Requests</h3>
+              <div className="mt-3 space-y-2">
+                {outgoingRequests.map((request) => (
+                  <div key={request.id} className="rounded-lg border border-stone-border/70 bg-bg-elevated p-3">
+                    <p className="text-sm text-white">{request.receiver?.profile?.displayName || request.receiver?.name}</p>
+                    <p className="text-xs text-stone-light">{request.receiver?.discipline} · {request.receiver?.gymName || "No gym"}</p>
+                    <button onClick={() => processRequest(request.id, "cancel")} className="mt-2 rounded border border-stone-border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-stone-light">Cancel</button>
+                  </div>
+                ))}
+                {outgoingRequests.length === 0 && <p className="text-sm text-stone-text">No outgoing requests.</p>}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-stone-border bg-bg-card p-4">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-light">Connected Fighters</h3>
+            <div className="mt-3 grid gap-2">
+              {friends.map((friend) => (
+                <div key={friend.friendshipId} className="rounded-lg border border-stone-border/70 bg-bg-elevated p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-white">{friend.name}</p>
+                      <p className="text-xs text-stone-light">{friend.primaryDiscipline} · {friend.gymName || "No gym"}</p>
+                    </div>
+                    <button
+                      onClick={() => toggleTrainingPartner(friend.friendshipId, friend.isTrainingPartner)}
+                      className={cn(
+                        "rounded px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider",
+                        friend.isTrainingPartner
+                          ? "border border-burgundy/50 bg-burgundy/20 text-burgundy-light"
+                          : "border border-stone-border text-stone-light"
+                      )}
+                    >
+                      {friend.isTrainingPartner ? "Training Partner" : "Mark Partner"}
+                    </button>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-stone-light">
+                    <span className="rounded bg-bg-card px-2 py-1">Mutual: {friend.mutualFriends}</span>
+                    <span className="rounded bg-bg-card px-2 py-1">Shared disciplines: {friend.sharedDisciplines.length}</span>
+                    <span className="rounded bg-bg-card px-2 py-1">Shared gyms: {friend.sharedGyms.length}</span>
+                    <span className="rounded bg-bg-card px-2 py-1">Weekly sessions: {friend.weeklySessionCount}</span>
+                  </div>
+                </div>
+              ))}
+              {friends.length === 0 && (
+                <div className="rounded-lg border border-dashed border-stone-border p-4 text-sm text-stone-text">
+                  No connections yet. Start by sending requests to fighters in your discipline.
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {!loading && tab === "nodes" && (
+        <section className="space-y-4">
+          <div className="rounded-xl border border-stone-border bg-bg-card p-4">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-light">Add Technique Node</h3>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <input
+                value={nodeForm.title}
+                onChange={(e) => setNodeForm((prev) => ({ ...prev, title: e.target.value }))}
+                placeholder="Single Leg Defense"
+                className="rounded-lg border border-stone-border bg-bg-elevated px-3 py-2 text-sm text-white placeholder:text-stone-text focus:border-burgundy-light focus:outline-none"
+              />
+              <input
+                value={nodeForm.discipline}
+                onChange={(e) => setNodeForm((prev) => ({ ...prev, discipline: e.target.value }))}
+                placeholder="MMA"
+                className="rounded-lg border border-stone-border bg-bg-elevated px-3 py-2 text-sm text-white placeholder:text-stone-text focus:border-burgundy-light focus:outline-none"
+              />
+              <input
+                value={nodeForm.position}
+                onChange={(e) => setNodeForm((prev) => ({ ...prev, position: e.target.value }))}
+                placeholder="Half Guard Bottom"
+                className="rounded-lg border border-stone-border bg-bg-elevated px-3 py-2 text-sm text-white placeholder:text-stone-text focus:border-burgundy-light focus:outline-none"
+              />
+              <select
+                value={nodeForm.visibility}
+                onChange={(e) => setNodeForm((prev) => ({ ...prev, visibility: e.target.value as "private" | "friends" | "public" }))}
+                title="Technique node visibility"
+                className="rounded-lg border border-stone-border bg-bg-elevated px-3 py-2 text-sm text-white focus:border-burgundy-light focus:outline-none"
+              >
+                <option value="private">Private</option>
+                <option value="friends">Friends</option>
+                <option value="public">Public</option>
+              </select>
+              <textarea
+                value={nodeForm.description}
+                onChange={(e) => setNodeForm((prev) => ({ ...prev, description: e.target.value }))}
+                placeholder="Key details, cues, and tactical references..."
+                className="sm:col-span-2 rounded-lg border border-stone-border bg-bg-elevated px-3 py-2 text-sm text-white placeholder:text-stone-text focus:border-burgundy-light focus:outline-none"
+                rows={3}
+              />
+            </div>
+            <button
+              onClick={createNode}
+              disabled={creatingNode}
+              className="mt-3 rounded-lg bg-burgundy px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-white hover:bg-burgundy-light disabled:opacity-60"
+            >
+              {creatingNode ? "Saving..." : "Create Node"}
+            </button>
+          </div>
+
+          <div className="grid gap-3">
+            {nodes.map((node) => (
+              <div key={node.id} className="rounded-xl border border-stone-border bg-bg-card p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{node.title}</p>
+                    <p className="text-xs text-stone-light">
+                      {node.discipline || "General"}
+                      {node.position ? ` · ${node.position}` : ""}
+                      {" · "}
+                      {node.visibility}
+                    </p>
+                    {node.description && <p className="mt-2 text-sm text-stone-light">{node.description}</p>}
+                  </div>
+                  <span className="rounded bg-bg-elevated px-2 py-1 text-[11px] uppercase tracking-wider text-stone-light">{node.createdBy.profile?.displayName || node.createdBy.name}</span>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <button onClick={() => toggleNodeLike(node.id)} className={cn("rounded px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider", node.hasLiked ? "bg-burgundy/20 text-burgundy-light" : "border border-stone-border text-stone-light")}>Like ({node.counts.likes})</button>
+                  <button onClick={() => toggleNodeSave(node.id)} className={cn("rounded px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider", node.hasSaved ? "bg-burgundy/20 text-burgundy-light" : "border border-stone-border text-stone-light")}>Save ({node.counts.saves})</button>
+                  <span className="rounded bg-bg-elevated px-2 py-1 text-[11px] text-stone-light">Comments: {node.counts.comments}</span>
+                </div>
+              </div>
+            ))}
+            {nodes.length === 0 && (
+              <div className="rounded-xl border border-dashed border-stone-border bg-bg-card p-5 text-sm text-stone-text">
+                No technique nodes yet. Add your first knowledge node privately, then share with friends.
+              </div>
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

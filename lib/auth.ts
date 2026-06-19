@@ -2,8 +2,24 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
 const COOKIE_NAME = "fightlog_token";
+
+class AuthConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AuthConfigError";
+  }
+}
+
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.trim().length < 32) {
+    // Intentionally avoid logging secret values.
+    console.error("[auth] JWT_SECRET is missing or too short. Set a strong JWT_SECRET (min 32 chars).");
+    throw new AuthConfigError("Authentication is not configured on this environment.");
+  }
+  return secret;
+}
 
 export interface JWTPayload {
   userId: string;
@@ -24,12 +40,12 @@ export async function verifyPassword(
 }
 
 export function signToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "30d" });
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: "30d" });
 }
 
 export function verifyToken(token: string): JWTPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload;
+    return jwt.verify(token, getJwtSecret()) as JWTPayload;
   } catch {
     return null;
   }
@@ -55,3 +71,4 @@ export function createAuthCookie(token: string) {
 }
 
 export const COOKIE_NAME_EXPORT = COOKIE_NAME;
+export { AuthConfigError };

@@ -10,34 +10,88 @@ export async function GET() {
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
 
-  const friendships = await prisma.friendship.findMany({
-    where: { userId: me.userId },
-    include: {
-      friend: {
-        select: {
-          id: true,
-          name: true,
-          gymName: true,
-          level: true,
-          trainingSessions: {
-            where: { date: { gte: weekAgo } },
-            select: { id: true, date: true, type: true },
+  const [friendships, myFriends, myDisciplines, myGyms] = await Promise.all([
+    prisma.friendship.findMany({
+      where: { userId: me.userId },
+      include: {
+        friend: {
+          select: {
+            id: true,
+            name: true,
+            gymName: true,
+            level: true,
+            discipline: true,
+            trainingSessions: {
+              where: { date: { gte: weekAgo } },
+              select: { id: true, date: true, type: true },
+            },
+            userDisciplines: {
+              select: {
+                discipline: {
+                  select: { name: true },
+                },
+              },
+            },
+            userGyms: {
+              select: {
+                gym: { select: { id: true, name: true } },
+              },
+            },
           },
         },
       },
-    },
-    orderBy: { createdAt: "asc" },
-  });
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.friendship.findMany({
+      where: { userId: me.userId },
+      select: { friendId: true },
+    }),
+    prisma.userDiscipline.findMany({
+      where: { userId: me.userId },
+      select: { discipline: { select: { name: true } } },
+    }),
+    prisma.userGym.findMany({
+      where: { userId: me.userId },
+      select: { gym: { select: { id: true } } },
+    }),
+  ]);
 
-  const friends = friendships.map((f) => ({
-    id: f.friend.id,
-    friendshipId: f.id,
-    name: f.friend.name,
-    gymName: f.friend.gymName,
-    level: f.friend.level,
-    weeklySessionCount: f.friend.trainingSessions.length,
-    lastSessions: f.friend.trainingSessions.slice(0, 3),
-  }));
+  const myFriendIds = myFriends.map((f) => f.friendId);
+  const myDisciplineNames = new Set(myDisciplines.map((d) => d.discipline.name));
+  const myGymIds = new Set(myGyms.map((g) => g.gym.id));
+
+  const friends = await Promise.all(
+    friendships.map(async (f) => {
+      const candidateFriendIds = await prisma.friendship.findMany({
+        where: { userId: f.friend.id },
+        select: { friendId: true },
+      });
+      const candidateFriendSet = new Set(candidateFriendIds.map((row) => row.friendId));
+
+      const sharedDisciplines = f.friend.userDisciplines
+        .map((d) => d.discipline.name)
+        .filter((name) => myDisciplineNames.has(name));
+
+      const sharedGyms = f.friend.userGyms
+        .filter((ug) => myGymIds.has(ug.gym.id))
+        .map((ug) => ug.gym.name);
+
+      return {
+        id: f.friend.id,
+        friendshipId: f.id,
+        name: f.friend.name,
+        gymName: f.friend.gymName,
+        level: f.friend.level,
+        primaryDiscipline: f.friend.discipline,
+        isTrainingPartner: f.isTrainingPartner,
+        weeklySessionCount: f.friend.trainingSessions.length,
+        lastSessions: f.friend.trainingSessions.slice(0, 3),
+        mutualFriends: myFriendIds.filter((id) => candidateFriendSet.has(id)).length,
+        sharedDisciplines,
+        sharedGyms,
+      };
+    })
+  );
 
   return NextResponse.json(friends);
 }

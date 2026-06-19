@@ -7,6 +7,19 @@ datasource db {
   url       = env("DATABASE_URL")
 }
 
+enum Visibility {
+  private
+  friends
+  public
+}
+
+enum FriendRequestStatus {
+  pending
+  accepted
+  rejected
+  canceled
+}
+
 model User {
   id           String    @id @default(cuid())
   name         String
@@ -27,6 +40,34 @@ model User {
   friendships      Friendship[]      @relation("UserFriendships")
   friendshipsOf    Friendship[]      @relation("FriendFriendships")
   respectosGiven   TacticRespeto[]
+  profile          Profile?
+  sentFriendRequests     FriendRequest[]  @relation("SentFriendRequests")
+  receivedFriendRequests FriendRequest[]  @relation("ReceivedFriendRequests")
+  userDisciplines        UserDiscipline[]
+  userGyms               UserGym[]
+  techniqueNodes         TechniqueNode[]
+  techniqueNodeLikes     TechniqueNodeLike[]
+  techniqueNodeSaves     TechniqueSave[]
+  techniqueComments      TechniqueComment[]
+  activityEvents         ActivityEvent[]
+}
+
+model Profile {
+  id         String     @id @default(cuid())
+  userId      String     @unique
+  username    String     @unique
+  displayName String
+  avatarUrl   String?
+  beltRank    String?
+  weightClass String?
+  city        String?
+  bio         String?
+  isPublic    Boolean    @default(false)
+  visibility  Visibility @default(private)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model TrainingSession {
@@ -75,6 +116,7 @@ model Friendship {
   id        String   @id @default(cuid())
   userId    String
   friendId  String
+  isTrainingPartner Boolean @default(false)
   createdAt DateTime @default(now())
 
   user   User @relation("UserFriendships", fields: [userId], references: [id], onDelete: Cascade)
@@ -83,6 +125,164 @@ model Friendship {
   @@unique([userId, friendId])
   @@index([userId])
   @@index([friendId])
+}
+
+model FriendRequest {
+  id           String              @id @default(cuid())
+  requesterId  String
+  receiverId   String
+  status       FriendRequestStatus @default(pending)
+  note         String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  requester User @relation("SentFriendRequests", fields: [requesterId], references: [id], onDelete: Cascade)
+  receiver  User @relation("ReceivedFriendRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([requesterId])
+  @@index([receiverId])
+  @@unique([requesterId, receiverId])
+}
+
+model Gym {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  city      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users UserGym[]
+}
+
+model UserGym {
+  id        String   @id @default(cuid())
+  userId    String
+  gymId     String
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gym  Gym  @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gymId])
+  @@index([userId])
+  @@index([gymId])
+}
+
+model Discipline {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  users UserDiscipline[]
+  techniqueNodes TechniqueNode[]
+}
+
+model UserDiscipline {
+  id           String   @id @default(cuid())
+  userId       String
+  disciplineId String
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  discipline Discipline @relation(fields: [disciplineId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, disciplineId])
+  @@index([userId])
+  @@index([disciplineId])
+}
+
+model TechniqueNode {
+  id           String     @id @default(cuid())
+  createdById  String
+  disciplineId String?
+  title        String
+  position     String?
+  description  String?
+  visibility   Visibility @default(private)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  createdBy  User             @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  discipline Discipline?      @relation(fields: [disciplineId], references: [id], onDelete: SetNull)
+  outgoingEdges TechniqueEdge[] @relation("TechniqueEdgeFrom")
+  incomingEdges TechniqueEdge[] @relation("TechniqueEdgeTo")
+  comments TechniqueComment[]
+  saves TechniqueSave[]
+  likes TechniqueNodeLike[]
+
+  @@index([createdById])
+  @@index([disciplineId])
+}
+
+model TechniqueEdge {
+  id         String   @id @default(cuid())
+  fromNodeId String
+  toNodeId   String
+  createdAt  DateTime @default(now())
+
+  fromNode TechniqueNode @relation("TechniqueEdgeFrom", fields: [fromNodeId], references: [id], onDelete: Cascade)
+  toNode   TechniqueNode @relation("TechniqueEdgeTo", fields: [toNodeId], references: [id], onDelete: Cascade)
+
+  @@unique([fromNodeId, toNodeId])
+  @@index([fromNodeId])
+  @@index([toNodeId])
+}
+
+model TechniqueComment {
+  id        String   @id @default(cuid())
+  nodeId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+
+  node TechniqueNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([nodeId])
+  @@index([userId])
+}
+
+model TechniqueSave {
+  id        String   @id @default(cuid())
+  nodeId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  node TechniqueNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([nodeId, userId])
+  @@index([nodeId])
+  @@index([userId])
+}
+
+model TechniqueNodeLike {
+  id        String   @id @default(cuid())
+  nodeId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  node TechniqueNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([nodeId, userId])
+  @@index([nodeId])
+  @@index([userId])
+}
+
+model ActivityEvent {
+  id          String   @id @default(cuid())
+  userId      String
+  eventType   String
+  message     String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Technique {

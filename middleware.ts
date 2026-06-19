@@ -6,9 +6,16 @@ import type { NextRequest } from "next/server";
 // is handled by each API route handler via getAuthUser() (Node.js runtime).
 const COOKIE_NAME = "fightlog_token";
 const API_AUTH_PATHS = ["/api/auth/login", "/api/auth/signup"];
+const AUTH_PAGES = ["/auth/login", "/auth/signup"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const token = request.cookies.get(COOKIE_NAME)?.value;
+
+  // Logged-in users shouldn't revisit login/signup pages.
+  if (AUTH_PAGES.some((p) => pathname.startsWith(p)) && token) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 
   // Allow public API auth routes through unconditionally
   if (API_AUTH_PATHS.some((p) => pathname.startsWith(p))) {
@@ -23,8 +30,6 @@ export function middleware(request: NextRequest) {
 
   // Only check cookie presence here — actual JWT verification happens in each
   // route handler via getAuthUser(), which runs in Node.js (not Edge).
-  const token = request.cookies.get(COOKIE_NAME)?.value;
-
   if (!token) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -38,5 +43,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/api/:path*"],
+  matcher: ["/dashboard/:path*", "/api/:path*", "/auth/:path*"],
 };

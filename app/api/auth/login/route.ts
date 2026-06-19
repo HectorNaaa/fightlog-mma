@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { verifyPassword, signToken, createAuthCookie } from "@/lib/auth";
+import { verifyPassword, signToken, createAuthCookie, AuthConfigError } from "@/lib/auth";
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -10,14 +10,21 @@ const loginSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 });
+    }
+
     const parsed = loginSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+      return NextResponse.json({ error: "Please provide a valid email and password" }, { status: 400 });
     }
 
-    const { email, password } = parsed.data;
+    const { password } = parsed.data;
+    const email = parsed.data.email.trim().toLowerCase();
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user || !(await verifyPassword(password, user.password))) {
@@ -41,7 +48,10 @@ export async function POST(req: NextRequest) {
     response.cookies.set(cookieOptions);
     return response;
   } catch (err) {
-    console.error("Login error:", err);
+    if (err instanceof AuthConfigError) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+    console.error("[auth/login] Internal error", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
