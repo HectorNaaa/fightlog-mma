@@ -14,6 +14,10 @@ class AuthConfigError extends Error {
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (!secret || secret.trim().length < 32) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[auth] JWT_SECRET missing/short in development. Using temporary development secret.");
+      return "fightlog-dev-secret-change-me-32-chars";
+    }
     // Intentionally avoid logging secret values.
     console.error("[auth] JWT_SECRET is missing or too short. Set a strong JWT_SECRET (min 32 chars).");
     throw new AuthConfigError("Authentication is not configured on this environment.");

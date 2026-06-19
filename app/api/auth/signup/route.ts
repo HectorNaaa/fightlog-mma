@@ -32,6 +32,55 @@ async function createUniqueUsername(baseName: string): Promise<string> {
   return candidate;
 }
 
+async function bootstrapSocialProfile(args: {
+  userId: string;
+  name: string;
+  discipline: string;
+}) {
+  const { userId, name, discipline } = args;
+
+  try {
+    const username = await createUniqueUsername(name);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.profile.create({
+        data: {
+          userId,
+          username,
+          displayName: name,
+          visibility: "private",
+          isPublic: false,
+        },
+      });
+
+      const disciplineRecord = await tx.discipline.upsert({
+        where: { name: discipline },
+        update: {},
+        create: { name: discipline },
+      });
+
+      await tx.userDiscipline.create({
+        data: {
+          userId,
+          disciplineId: disciplineRecord.id,
+        },
+      });
+
+      await tx.activityEvent.create({
+        data: {
+          userId,
+          eventType: "onboarding.profile.created",
+          message: "Built by fighters, for fighters.",
+          metadata: { username },
+        },
+      });
+    });
+  } catch (error) {
+    // Keep signup/login functional even if new social tables are pending migration.
+    console.warn("[auth/signup] Social bootstrap skipped", error);
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     let body: unknown;
@@ -62,46 +111,15 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await hashPassword(password);
-    const username = await createUniqueUsername(name);
 
-    const user = await prisma.$transaction(async (tx) => {
-      const createdUser = await tx.user.create({
-        data: { name, email, password: hashedPassword, level, discipline },
-      });
+    const user = await prisma.user.create({
+      data: { name, email, password: hashedPassword, level, discipline },
+    });
 
-      await tx.profile.create({
-        data: {
-          userId: createdUser.id,
-          username,
-          displayName: name,
-          visibility: "private",
-          isPublic: false,
-        },
-      });
-
-      const disciplineRecord = await tx.discipline.upsert({
-        where: { name: discipline },
-        update: {},
-        create: { name: discipline },
-      });
-
-      await tx.userDiscipline.create({
-        data: {
-          userId: createdUser.id,
-          disciplineId: disciplineRecord.id,
-        },
-      });
-
-      await tx.activityEvent.create({
-        data: {
-          userId: createdUser.id,
-          eventType: "onboarding.profile.created",
-          message: "Built by fighters, for fighters.",
-          metadata: { username },
-        },
-      });
-
-      return createdUser;
+    await bootstrapSocialProfile({
+      userId: user.id,
+      name,
+      discipline,
     });
 
     const token = signToken({

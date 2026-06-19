@@ -5,7 +5,12 @@ import type { NextRequest } from "next/server";
 // which doesn't have full Node.js crypto support. JWT signature verification
 // is handled by each API route handler via getAuthUser() (Node.js runtime).
 const COOKIE_NAME = "fightlog_token";
-const API_AUTH_PATHS = ["/api/auth/login", "/api/auth/signup"];
+const API_AUTH_PATHS = [
+  "/api/auth/login",
+  "/api/auth/signup",
+  "/api/auth/me",
+  "/api/auth/logout",
+];
 const AUTH_PAGES = ["/auth/login", "/auth/signup"];
 
 export function middleware(request: NextRequest) {

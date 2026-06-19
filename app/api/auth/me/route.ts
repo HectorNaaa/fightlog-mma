@@ -46,7 +46,7 @@ export async function GET() {
   try {
     const user = await getAuthUser();
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ user: null }, { status: 200 });
     }
 
     const dbUser = await prisma.user.findUnique({
