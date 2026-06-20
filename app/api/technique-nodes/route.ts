@@ -21,14 +21,28 @@ export async function GET(req: NextRequest) {
     const friendIds = await getFriendIds(me.userId);
     const query = req.nextUrl.searchParams.get("q")?.trim();
 
+    const visibilityFilter = {
+      OR: [
+        { createdById: me.userId },
+        { visibility: "public" as const },
+        { visibility: "friends" as const, createdById: { in: friendIds } },
+      ],
+    };
+
+    const searchFilter = query
+      ? {
+          OR: [
+            { title: { contains: query, mode: "insensitive" as const } },
+            { description: { contains: query, mode: "insensitive" as const } },
+            { position: { contains: query, mode: "insensitive" as const } },
+            { discipline: { is: { name: { contains: query, mode: "insensitive" as const } } } },
+          ],
+        }
+      : undefined;
+
     const nodes = await prisma.techniqueNode.findMany({
       where: {
-        OR: [
-          { createdById: me.userId },
-          { visibility: "public" },
-          { visibility: "friends", createdById: { in: friendIds } },
-        ],
-        title: query ? { contains: query, mode: "insensitive" } : undefined,
+        AND: [visibilityFilter, ...(searchFilter ? [searchFilter] : [])],
       },
       take: 60,
       orderBy: { createdAt: "desc" },

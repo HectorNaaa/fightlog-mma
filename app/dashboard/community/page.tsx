@@ -183,6 +183,16 @@ export default function CommunityPage() {
     });
   }, [fighters, search]);
 
+  const outgoingReceiverIds = useMemo(
+    () => new Set(outgoingRequests.map((request) => request.receiverId)),
+    [outgoingRequests]
+  );
+
+  const incomingRequesterIds = useMemo(
+    () => new Set(incomingRequests.map((request) => request.requesterId)),
+    [incomingRequests]
+  );
+
   const sendRequest = async (receiverId: string) => {
     const res = await fetch("/api/friends/requests", {
       method: "POST",
@@ -418,6 +428,15 @@ export default function CommunityPage() {
 
                   {fighter.isFriend ? (
                     <span className="rounded-md border border-burgundy/50 bg-burgundy/20 px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-burgundy-light">Connected</span>
+                  ) : outgoingReceiverIds.has(fighter.id) ? (
+                    <span className="rounded-md border border-amber/30 bg-amber/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-amber">Pending</span>
+                  ) : incomingRequesterIds.has(fighter.id) ? (
+                    <button
+                      onClick={() => setTab("partners")}
+                      className="rounded-md border border-burgundy/50 bg-burgundy/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-burgundy-light"
+                    >
+                      Respond
+                    </button>
                   ) : (
                     <button
                       onClick={() => sendRequest(fighter.id)}

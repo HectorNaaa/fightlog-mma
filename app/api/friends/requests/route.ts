@@ -84,14 +84,19 @@ export async function POST(req: NextRequest) {
     const receiver = await prisma.user.findUnique({ where: { id: receiverId }, select: { id: true, name: true } });
     if (!receiver) return NextResponse.json({ error: "Fighter not found" }, { status: 404 });
 
-    const [existingFriendship, existingRequest] = await Promise.all([
+    const [existingFriendship, outgoingRequest, incomingRequest] = await Promise.all([
       prisma.friendship.findUnique({ where: { userId_friendId: { userId: me.userId, friendId: receiverId } } }),
       prisma.friendRequest.findFirst({
         where: {
-          OR: [
-            { requesterId: me.userId, receiverId, status: "pending" },
-            { requesterId: receiverId, receiverId: me.userId, status: "pending" },
-          ],
+          requesterId: me.userId,
+          receiverId,
+        },
+      }),
+      prisma.friendRequest.findFirst({
+        where: {
+          requesterId: receiverId,
+          receiverId: me.userId,
+          status: "pending",
         },
       }),
     ]);
@@ -100,17 +105,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "You are already connected" }, { status: 409 });
     }
 
-    if (existingRequest) {
+    if (incomingRequest) {
+      return NextResponse.json(
+        { error: "This fighter already sent you a request", requestId: incomingRequest.id },
+        { status: 409 }
+      );
+    }
+
+    if (outgoingRequest?.status === "pending") {
       return NextResponse.json({ error: "A pending request already exists" }, { status: 409 });
     }
 
-    const request = await prisma.friendRequest.create({
-      data: {
-        requesterId: me.userId,
-        receiverId,
-        note,
-      },
-    });
+    const request = outgoingRequest
+      ? await prisma.friendRequest.update({
+          where: { id: outgoingRequest.id },
+          data: {
+            status: "pending",
+            note,
+          },
+        })
+      : await prisma.friendRequest.create({
+          data: {
+            requesterId: me.userId,
+            receiverId,
+            note,
+          },
+        });
 
     await prisma.activityEvent.create({
       data: {
@@ -123,6 +143,15 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ requestId: request.id, ok: true }, { status: 201 });
   } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      (error as { code?: string }).code === "P2002"
+    ) {
+      return NextResponse.json({ error: "A request already exists for this fighter" }, { status: 409 });
+    }
+
     console.error("[friends/requests:post] Internal error", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

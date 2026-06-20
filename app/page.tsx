@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useLanguage } from "@/contexts/language-context";
 import { LanguageSelector } from "@/components/ui/language-selector";
+import { useAuth } from "@/contexts/auth-context";
 
 function AnimatedOutlineText({ text }: { text: string }) {
   return (
@@ -62,7 +63,8 @@ function BackgroundAnimation() {
 }
 
 export default function LandingPage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const { user } = useAuth();
   return (
     <div className="min-h-screen bg-bg-primary flex flex-col relative">
       <BackgroundAnimation />
@@ -71,6 +73,11 @@ export default function LandingPage() {
           FIGHT<span className="text-burgundy">LOG</span>
         </div>
         <div className="flex items-center gap-4">
+          {user?.name && (
+            <span className="hidden text-xs uppercase tracking-wider text-stone-text md:inline">
+              {locale === "es" ? "Hola" : "Hi"}, {user.name.split(" ")[0]}
+            </span>
+          )}
           <LanguageSelector />
           <Link href="/auth/login" className="text-sm text-stone-text hover:text-beige-warm transition-colors uppercase tracking-wider hidden sm:inline">{t.nav.signIn}</Link>
           <Link href="/auth/signup" className="bg-burgundy text-beige-surface text-sm font-bold uppercase tracking-widest px-4 py-2 rounded hover:bg-burgundy-light transition-colors">{t.nav.getStarted}</Link>

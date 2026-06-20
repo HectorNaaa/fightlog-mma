@@ -8,6 +8,7 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
   const { locale, setLocale } = useLanguage();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -19,11 +20,28 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  useEffect(() => {
+    function onKeydown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setOpen(false);
+        buttonRef.current?.focus();
+      }
+    }
+
+    if (open) {
+      document.addEventListener("keydown", onKeydown);
+    }
+
+    return () => document.removeEventListener("keydown", onKeydown);
+  }, [open]);
+
   const current = LOCALES.find((l) => l.code === locale) ?? LOCALES[0];
+  const menuId = compact ? "language-menu-compact" : "language-menu";
 
   return (
     <div ref={ref} className="relative">
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
@@ -31,6 +49,7 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
           compact ? "text-xs" : "text-sm"
         )}
         aria-label="Select language"
+        aria-controls={menuId}
         aria-haspopup="menu"
         aria-expanded={open}
       >
@@ -40,12 +59,14 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 w-40 overflow-hidden rounded-xl border border-white/10 bg-bg-secondary/80 py-1 shadow-2xl backdrop-blur-xl z-50">
+        <div id={menuId} role="menu" className="absolute right-0 top-full mt-1 w-40 overflow-hidden rounded-xl border border-white/10 bg-bg-secondary/80 py-1 shadow-2xl backdrop-blur-xl z-50">
           {LOCALES.map((l) => (
             <button
               key={l.code}
               type="button"
               onClick={() => { setLocale(l.code as Locale); setOpen(false); }}
+              role="menuitemradio"
+              aria-checked={locale === l.code}
               className={cn(
                 "w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5 transition-colors text-left",
                 locale === l.code ? "text-beige-surface font-semibold" : "text-stone-text"
