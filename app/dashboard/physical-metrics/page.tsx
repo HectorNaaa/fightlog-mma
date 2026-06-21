@@ -90,7 +90,7 @@ export default function PhysicalMetricsPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">Physical Metrics</h1>
+          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{isEs ? "Métricas físicas" : "Physical Metrics"}</h1>
           <p className="text-sm text-stone-text mt-1">{isEs ? "Peso corporal, recuperación y salud" : "Body weight, recovery and health tracking"}</p>
         </div>
         <Button onClick={openNew}>+ {isEs ? "Registrar métricas" : "Log Metrics"}</Button>
@@ -169,11 +169,11 @@ export default function PhysicalMetricsPage() {
           <Input label="Sleep Hours" type="number" step="0.5" value={form.sleepHours ?? ""} onChange={f("sleepHours")} />
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Sleep Quality (1–10): {form.sleepQuality ?? 0}</label>
-            <input type="range" min={1} max={10} value={form.sleepQuality ?? 5} onChange={f("sleepQuality")} />
+            <input title="Sleep Quality" type="range" min={1} max={10} value={form.sleepQuality ?? 5} onChange={f("sleepQuality")} />
           </div>
           <div className="flex flex-col gap-1 col-span-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Recovery Score (1–10): {form.recoveryScore ?? 0}</label>
-            <input type="range" min={1} max={10} value={form.recoveryScore ?? 5} onChange={f("recoveryScore")} />
+            <input title="Recovery Score" type="range" min={1} max={10} value={form.recoveryScore ?? 5} onChange={f("recoveryScore")} />
           </div>
           <Input label="Calories (optional)" type="number" value={form.calories ?? ""} onChange={f("calories")} className="col-span-2" />
           <Textarea label="Strength Notes" value={form.strengthNotes ?? ""} onChange={f("strengthNotes")} rows={2} />

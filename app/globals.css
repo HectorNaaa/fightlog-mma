@@ -83,6 +83,14 @@ input[type="range"]::-webkit-slider-thumb {
 .animate-float-med { animation: float-med 6s ease-in-out infinite; }
 .animate-drift { animation: drift 12s ease-in-out infinite; }
 .animate-pulse-ring { animation: pulse-ring 5s ease-in-out infinite; }
+.anim-delay-0 { animation-delay: 0s; }
+.anim-delay-500 { animation-delay: 0.5s; }
+.anim-delay-1000 { animation-delay: 1s; }
+.anim-delay-1500 { animation-delay: 1.5s; }
+.anim-delay-2000 { animation-delay: 2s; }
+.anim-delay-3000 { animation-delay: 3s; }
+.anim-delay-3500 { animation-delay: 3.5s; }
+.anim-delay-4000 { animation-delay: 4s; }
 
 .hero-outline-wrap {
   display: inline-block;

@@ -87,7 +87,7 @@ export default function TrainingLogPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">Training Log</h1>
+          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{isEs ? "Diario de entreno" : "Training Log"}</h1>
           <p className="text-sm text-stone-text mt-1">{sessions.length} {isEs ? "sesiones registradas" : "sessions recorded"}</p>
         </div>
         <Button onClick={openNew}>+ {isEs ? "Nueva sesión" : "New Session"}</Button>
@@ -109,7 +109,7 @@ export default function TrainingLogPage() {
                   <th>{isEs ? "Agujetas" : "Soreness"}</th>
                   <th>{isEs ? "Peso" : "Weight"}</th>
                   <th>{isEs ? "Foco" : "Focus"}</th>
-                  <th>{isEs ? "Nota" : "Rating"}</th>
+                  <th>{isEs ? "Valoración" : "Rating"}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -152,23 +152,23 @@ export default function TrainingLogPage() {
           <Input label={isEs ? "Peso corporal (kg)" : "Body Weight (kg)"} type="number" step="0.1" value={form.bodyWeight ?? ""} onChange={f("bodyWeight")} />
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Intensidad (1–10): ${form.intensity}` : `Intensity (1–10): ${form.intensity}`}</label>
-            <input type="range" min={1} max={10} value={form.intensity} onChange={f("intensity")} />
+            <input title={isEs ? "Intensidad" : "Intensity"} type="range" min={1} max={10} value={form.intensity} onChange={f("intensity")} />
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Energía antes (1–10): ${form.energyBefore}` : `Energy Before (1–10): ${form.energyBefore}`}</label>
-            <input type="range" min={1} max={10} value={form.energyBefore} onChange={f("energyBefore")} />
+            <input title={isEs ? "Energía antes" : "Energy before"} type="range" min={1} max={10} value={form.energyBefore} onChange={f("energyBefore")} />
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Energía después (1–10): ${form.energyAfter}` : `Energy After (1–10): ${form.energyAfter}`}</label>
-            <input type="range" min={1} max={10} value={form.energyAfter} onChange={f("energyAfter")} />
+            <input title={isEs ? "Energía después" : "Energy after"} type="range" min={1} max={10} value={form.energyAfter} onChange={f("energyAfter")} />
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Agujetas (1–10): ${form.soreness}` : `Soreness (1–10): ${form.soreness}`}</label>
-            <input type="range" min={1} max={10} value={form.soreness} onChange={f("soreness")} />
+            <input title={isEs ? "Agujetas" : "Soreness"} type="range" min={1} max={10} value={form.soreness} onChange={f("soreness")} />
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Valoración personal (1–10): ${form.personalRating ?? 0}` : `Personal Rating (1–10): ${form.personalRating ?? 0}`}</label>
-            <input type="range" min={0} max={10} value={form.personalRating ?? 0} onChange={f("personalRating")} />
+            <input title={isEs ? "Valoración personal" : "Personal rating"} type="range" min={0} max={10} value={form.personalRating ?? 0} onChange={f("personalRating")} />
           </div>
           <Input label={isEs ? "Sensación" : "Mood"} value={form.mood ?? ""} onChange={f("mood")} placeholder={isEs ? "ej: fino, cansado, concentrado" : "e.g. Sharp, Tired, Focused"} />
           <Input label={isEs ? "Foco principal" : "Main Focus"} value={form.mainFocus ?? ""} onChange={f("mainFocus")} placeholder={isEs ? "ej: defensa de derribo" : "e.g. Takedown defense"} className="sm:col-span-2" />

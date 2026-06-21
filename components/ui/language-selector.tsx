@@ -5,7 +5,7 @@ import { LOCALES, type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export function LanguageSelector({ compact = false }: { compact?: boolean }) {
-  const { locale, setLocale } = useLanguage();
+  const { locale, setLocale, t } = useLanguage();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -37,6 +37,7 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
 
   const current = LOCALES.find((l) => l.code === locale) ?? LOCALES[0];
   const menuId = compact ? "language-menu-compact" : "language-menu";
+  const buttonLabel = `${t.common.selectLanguage}: ${current.label}`;
 
   return (
     <div ref={ref} className="relative">
@@ -45,16 +46,17 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex items-center gap-1.5 text-stone-text hover:text-beige-warm transition-colors",
-          compact ? "text-xs" : "text-sm"
+          "flex items-center gap-1.5 rounded-full border border-white/10 bg-bg-elevated/80 text-stone-text transition-colors hover:border-stone-muted hover:text-beige-warm",
+          compact ? "px-2.5 py-1 text-[11px]" : "px-3 py-2 text-sm"
         )}
-        aria-label="Select language"
+        aria-label={buttonLabel}
         aria-controls={menuId}
         aria-haspopup="menu"
-        aria-expanded={open}
+        title={buttonLabel}
       >
         <span>{current.flag}</span>
-        {!compact && <span className="uppercase tracking-wider">{current.code}</span>}
+        <span className={cn("font-semibold uppercase tracking-wider", compact ? "text-[10px]" : "text-xs")}>{compact ? current.code : current.label}</span>
+        {!compact && <span className="rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-widest text-beige-surface/80">{current.code}</span>}
         <span className="text-[10px] opacity-50">▾</span>
       </button>
 
@@ -65,16 +67,17 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
               key={l.code}
               type="button"
               onClick={() => { setLocale(l.code as Locale); setOpen(false); }}
-              role="menuitemradio"
-              aria-checked={locale === l.code}
+              role="menuitem"
               className={cn(
-                "w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-white/5 transition-colors text-left",
-                locale === l.code ? "text-beige-surface font-semibold" : "text-stone-text"
+                "w-full flex items-center gap-2 px-3 py-2 text-xs transition-colors text-left",
+                locale === l.code
+                  ? "bg-burgundy/15 text-beige-surface font-semibold ring-1 ring-inset ring-burgundy/30"
+                  : "text-stone-text hover:bg-white/5"
               )}
             >
               <span>{l.flag}</span>
               <span>{l.label}</span>
-              {locale === l.code && <span className="ml-auto text-burgundy text-[10px]">✓</span>}
+              {locale === l.code && <span className="ml-auto rounded-full bg-burgundy/25 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-beige-surface">✓</span>}
             </button>
           ))}
         </div>

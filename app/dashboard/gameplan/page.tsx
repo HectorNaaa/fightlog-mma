@@ -81,7 +81,7 @@ export default function GameplanPage() {
   if (!isIntermediate) {
     return (
       <div>
-        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface mb-6">Gameplan Builder</h1>
+        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface mb-6">{isEs ? "Constructor de gameplan" : "Gameplan Builder"}</h1>
         <div className="border border-navy/30 bg-navy/10 rounded-sm p-6 text-center max-w-lg mx-auto mt-10">
           <div className="text-4xl mb-3 opacity-30">◇</div>
           <div className="font-condensed text-xl font-bold uppercase tracking-widest text-navy-light mb-2">
@@ -100,7 +100,7 @@ export default function GameplanPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">Gameplan Builder</h1>
+          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{isEs ? "Constructor de gameplan" : "Gameplan Builder"}</h1>
           <p className="text-sm text-stone-text mt-1">{isEs ? "Construye y guarda setups tácticos" : "Build and save tactical setups"}</p>
         </div>
         <Button onClick={openNew}>+ {isEs ? "Añadir setup" : "Add Setup"}</Button>

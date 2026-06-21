@@ -47,23 +47,23 @@ function AnimatedOutlineText({ text }: { text: string }) {
 function BackgroundAnimation() {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none select-none" aria-hidden>
-      <div className="absolute top-[10%] left-[8%] w-64 h-64 rounded-full border border-burgundy/10 animate-pulse-ring" style={{ animationDelay: '0s' }} />
-      <div className="absolute top-[12%] left-[10%] w-44 h-44 rounded-full border border-burgundy/8 animate-pulse-ring" style={{ animationDelay: '1.5s' }} />
-      <div className="absolute top-[60%] right-[6%] w-80 h-80 rounded-full border border-stone-border/20 animate-pulse-ring" style={{ animationDelay: '2s' }} />
-      <div className="absolute top-[62%] right-[8%] w-52 h-52 rounded-full border border-stone-border/15 animate-pulse-ring" style={{ animationDelay: '3.5s' }} />
-      <div className="absolute top-[22%] left-[55%] text-7xl text-burgundy/5 animate-float-slow font-condensed font-black" style={{ animationDelay: '0.5s' }}>{String.fromCharCode(0x2B21)}</div>
-      <div className="absolute top-[45%] left-[80%] text-5xl text-stone-text/10 animate-float-med" style={{ animationDelay: '1s' }}>{String.fromCharCode(0x25C8)}</div>
-      <div className="absolute top-[75%] left-[20%] text-6xl text-burgundy/5 animate-drift" style={{ animationDelay: '2s' }}>{String.fromCharCode(0x25CE)}</div>
-      <div className="absolute top-[15%] right-[25%] text-4xl text-stone-text/8 animate-float-slow" style={{ animationDelay: '3s' }}>{String.fromCharCode(0x25B3)}</div>
-      <div className="absolute top-[50%] left-[5%] text-8xl text-stone-border/15 animate-float-med" style={{ animationDelay: '0s' }}>{String.fromCharCode(0x25C7)}</div>
-      <div className="absolute top-0 left-1/3 w-[500px] h-[500px] rounded-full bg-burgundy/[0.03] blur-[120px] animate-drift" style={{ animationDelay: '1s' }} />
-      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full bg-navy/[0.08] blur-[100px] animate-drift" style={{ animationDelay: '4s' }} />
+      <div className="absolute top-[10%] left-[8%] w-64 h-64 rounded-full border border-burgundy/10 animate-pulse-ring anim-delay-0" />
+      <div className="absolute top-[12%] left-[10%] w-44 h-44 rounded-full border border-burgundy/8 animate-pulse-ring anim-delay-1500" />
+      <div className="absolute top-[60%] right-[6%] w-80 h-80 rounded-full border border-stone-border/20 animate-pulse-ring anim-delay-2000" />
+      <div className="absolute top-[62%] right-[8%] w-52 h-52 rounded-full border border-stone-border/15 animate-pulse-ring anim-delay-3500" />
+      <div className="absolute top-[22%] left-[55%] text-7xl text-burgundy/5 animate-float-slow font-condensed font-black anim-delay-500">{String.fromCharCode(0x2B21)}</div>
+      <div className="absolute top-[45%] left-[80%] text-5xl text-stone-text/10 animate-float-med anim-delay-1000">{String.fromCharCode(0x25C8)}</div>
+      <div className="absolute top-[75%] left-[20%] text-6xl text-burgundy/5 animate-drift anim-delay-2000">{String.fromCharCode(0x25CE)}</div>
+      <div className="absolute top-[15%] right-[25%] text-4xl text-stone-text/8 animate-float-slow anim-delay-3000">{String.fromCharCode(0x25B3)}</div>
+      <div className="absolute top-[50%] left-[5%] text-8xl text-stone-border/15 animate-float-med anim-delay-0">{String.fromCharCode(0x25C7)}</div>
+      <div className="absolute top-0 left-1/3 w-[500px] h-[500px] rounded-full bg-burgundy/[0.03] blur-[120px] animate-drift anim-delay-1000" />
+      <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full bg-navy/[0.08] blur-[100px] animate-drift anim-delay-4000" />
     </div>
   );
 }
 
 export default function LandingPage() {
-  const { t, locale } = useLanguage();
+  const { t } = useLanguage();
   const { user } = useAuth();
   return (
     <div className="min-h-screen bg-bg-primary flex flex-col relative">
@@ -75,7 +75,7 @@ export default function LandingPage() {
         <div className="flex items-center gap-4">
           {user?.name && (
             <span className="hidden text-xs uppercase tracking-wider text-stone-text md:inline">
-              {locale === "es" ? "Hola" : "Hi"}, {user.name.split(" ")[0]}
+              {t.common.hello}, {user.name.split(" ")[0]}
             </span>
           )}
           <LanguageSelector />

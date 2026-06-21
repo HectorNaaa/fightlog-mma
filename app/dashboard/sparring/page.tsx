@@ -86,7 +86,7 @@ export default function SparringPage() {
   if (!isIntermediate) {
     return (
       <div>
-        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface mb-6">Sparring Review</h1>
+        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface mb-6">{isEs ? "Revisión de sparring" : "Sparring Review"}</h1>
         <div className="border border-navy/30 bg-navy/10 rounded-sm p-6 text-center max-w-lg mx-auto mt-10">
           <div className="text-4xl mb-3 opacity-30">⬡</div>
           <div className="font-condensed text-xl font-bold uppercase tracking-widest text-navy-light mb-2">Intermediate Feature</div>
@@ -100,7 +100,7 @@ export default function SparringPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">Sparring Review</h1>
+          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{isEs ? "Revisión de sparring" : "Sparring Review"}</h1>
           <p className="text-sm text-stone-text mt-1">{sessions.length} {isEs ? "sesiones registradas" : "sessions logged"}</p>
         </div>
         <Button onClick={openNew}>+ {isEs ? "Registrar sparring" : "Log Sparring"}</Button>
@@ -163,12 +163,12 @@ export default function SparringPage() {
           {(["cardioRating", "composureRating", "defenseRating", "overallRating"] as const).map((field) => (
             <div key={field} className="flex flex-col gap-1">
               <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{field.replace("Rating", "").replace(/([A-Z])/g, " $1")} (1–10): {form[field] ?? 0}</label>
-              <input type="range" min={1} max={10} value={form[field] ?? 5} onChange={f(field)} />
+              <input title={field} type="range" min={1} max={10} value={form[field] ?? 5} onChange={f(field)} />
             </div>
           ))}
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Damage Taken (1–10): {form.damageTaken ?? 0}</label>
-            <input type="range" min={0} max={10} value={form.damageTaken ?? 0} onChange={f("damageTaken")} />
+            <input title="Damage Taken" type="range" min={0} max={10} value={form.damageTaken ?? 0} onChange={f("damageTaken")} />
           </div>
           <Textarea label="Dominant Moments" value={form.dominantMoments ?? ""} onChange={f("dominantMoments")} rows={2} />
           <Textarea label="Mistakes" value={form.mistakes ?? ""} onChange={f("mistakes")} rows={2} />

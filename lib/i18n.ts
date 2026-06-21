@@ -10,6 +10,11 @@ export const LOCALES: { code: Locale; label: string; flag: string }[] = [
 
 export const translations = {
   en: {
+    common: {
+      welcome: "Welcome",
+      hello: "Hi",
+      selectLanguage: "Select language",
+    },
     // Nav
     nav: {
       signIn: "Sign In",
@@ -45,6 +50,9 @@ export const translations = {
       fighter: "Fighter",
       beginner: "Beginner",
       amateur: "Amateur",
+      professionalMode: "Professional Mode",
+      comingSoon: "Coming Soon",
+      locked: "Locked",
       nav: {
         dashboard: "Dashboard",
         trainingLog: "Training Log",
@@ -101,6 +109,11 @@ export const translations = {
     },
   },
   es: {
+    common: {
+      welcome: "Bienvenido",
+      hello: "Hola",
+      selectLanguage: "Seleccionar idioma",
+    },
     nav: {
       signIn: "Iniciar Sesión",
       getStarted: "Empezar Gratis",
@@ -132,6 +145,9 @@ export const translations = {
       fighter: "Luchador",
       beginner: "Principiante",
       amateur: "Amateur",
+      professionalMode: "Modo profesional",
+      comingSoon: "Próximamente",
+      locked: "Bloqueado",
       nav: {
         dashboard: "Panel",
         trainingLog: "Diario",
@@ -186,6 +202,11 @@ export const translations = {
     },
   },
   pt: {
+    common: {
+      welcome: "Bem-vindo",
+      hello: "Oi",
+      selectLanguage: "Selecionar idioma",
+    },
     nav: {
       signIn: "Entrar",
       getStarted: "Começar Grátis",
@@ -217,6 +238,9 @@ export const translations = {
       fighter: "Lutador",
       beginner: "Iniciante",
       amateur: "Amador",
+      professionalMode: "Modo profissional",
+      comingSoon: "Em breve",
+      locked: "Bloqueado",
       nav: {
         dashboard: "Painel",
         trainingLog: "Diário",
@@ -271,6 +295,11 @@ export const translations = {
     },
   },
   fr: {
+    common: {
+      welcome: "Bienvenue",
+      hello: "Salut",
+      selectLanguage: "Choisir la langue",
+    },
     nav: {
       signIn: "Connexion",
       getStarted: "Commencer",
@@ -302,6 +331,9 @@ export const translations = {
       fighter: "Combattant",
       beginner: "Débutant",
       amateur: "Amateur",
+      professionalMode: "Mode professionnel",
+      comingSoon: "Bientôt disponible",
+      locked: "Verrouillé",
       nav: {
         dashboard: "Tableau de Bord",
         trainingLog: "Journal",
@@ -356,6 +388,11 @@ export const translations = {
     },
   },
   it: {
+    common: {
+      welcome: "Benvenuto",
+      hello: "Ciao",
+      selectLanguage: "Seleziona lingua",
+    },
     nav: {
       signIn: "Accedi",
       getStarted: "Inizia Gratis",
@@ -387,6 +424,9 @@ export const translations = {
       fighter: "Fighter",
       beginner: "Principiante",
       amateur: "Amatoriale",
+      professionalMode: "Modalità professionale",
+      comingSoon: "Prossimamente",
+      locked: "Bloccato",
       nav: {
         dashboard: "Dashboard",
         trainingLog: "Diario",

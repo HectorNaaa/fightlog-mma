@@ -87,9 +87,9 @@ export function Sidebar() {
         })}
 
         <div className="mt-3 mx-1 border border-stone-border/50 rounded-sm p-3">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-stone-text/60 mb-1">Professional Mode</div>
-          <div className="text-[10px] text-stone-text/40 mb-2">Coming Soon</div>
-          <div className="text-[9px] text-stone-text/40 uppercase tracking-wider">🔒 Locked</div>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-stone-text/60 mb-1">{t.sidebar.professionalMode}</div>
+          <div className="text-[10px] text-stone-text/40 mb-2">{t.sidebar.comingSoon}</div>
+          <div className="text-[9px] text-stone-text/40 uppercase tracking-wider">🔒 {t.sidebar.locked}</div>
         </div>
       </nav>
 

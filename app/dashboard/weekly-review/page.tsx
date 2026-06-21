@@ -74,10 +74,10 @@ export default function WeeklyReviewPage() {
   if (!isIntermediate) {
     return (
       <div>
-        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface mb-6">Weekly Review</h1>
+        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface mb-6">{isEs ? "Revisión semanal" : "Weekly Review"}</h1>
         <div className="border border-navy/30 bg-navy/10 rounded-sm p-6 text-center max-w-lg mx-auto mt-10">
           <div className="text-4xl mb-3 opacity-30">□</div>
-          <div className="font-condensed text-xl font-bold uppercase tracking-widest text-navy-light mb-2">Intermediate Feature</div>
+          <div className="font-condensed text-xl font-bold uppercase tracking-widest text-navy-light mb-2">{isEs ? "Función intermedia" : "Intermediate Feature"}</div>
           <p className="text-sm text-stone-text">{isEs ? "La revisión semanal está disponible para nivel intermedio." : "Weekly Performance Review is available for Intermediate Amateur fighters."}</p>
         </div>
       </div>
@@ -88,7 +88,7 @@ export default function WeeklyReviewPage() {
     <div>
       <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">Weekly Review</h1>
+          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{isEs ? "Revisión semanal" : "Weekly Review"}</h1>
           <p className="text-sm text-stone-text mt-1">
             {start.toLocaleDateString(isEs ? "es-ES" : "en-US", { month: "short", day: "numeric" })} — {end.toLocaleDateString(isEs ? "es-ES" : "en-US", { month: "short", day: "numeric", year: "numeric" })}
           </p>
@@ -102,30 +102,30 @@ export default function WeeklyReviewPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <StatCard label="Sessions" value={weekSessions.length} accent="amber" />
-        <StatCard label="Total Minutes" value={totalMin} unit="min" accent="burgundy" />
-        <StatCard label="Avg Intensity" value={avgIntensity} unit="/ 10" accent="navy" />
-        <StatCard label="Avg Recovery" value={avgRecovery} unit="/ 10" />
+        <StatCard label={isEs ? "Sesiones" : "Sessions"} value={weekSessions.length} accent="amber" />
+        <StatCard label={isEs ? "Minutos totales" : "Total Minutes"} value={totalMin} unit="min" accent="burgundy" />
+        <StatCard label={isEs ? "Intensidad media" : "Avg Intensity"} value={avgIntensity} unit="/ 10" accent="navy" />
+        <StatCard label={isEs ? "Recuperación media" : "Avg Recovery"} value={avgRecovery} unit="/ 10" />
       </div>
 
       {/* Volume chart */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="md:col-span-2">
           <Card>
-            <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">Volume by Day</div></CardHeader>
+            <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{isEs ? "Volumen por día" : "Volume by Day"}</div></CardHeader>
             <CardBody>
               <MetricChart data={volumeByDay} color="#8b2635" height={160} />
             </CardBody>
           </Card>
         </div>
         <Card>
-          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">Week Summary</div></CardHeader>
+          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{isEs ? "Resumen semanal" : "Week Summary"}</div></CardHeader>
           <CardBody>
             <div className="space-y-3 text-sm">
-              <SummaryRow label="Most trained" value={topType} />
-              <SummaryRow label="Best session" value={bestRated ? `${bestRated.type} on ${formatDate(bestRated.date)}` : "—"} />
-              <SummaryRow label="Sessions/week" value={`${weekSessions.length} sessions`} />
-              <SummaryRow label="Total time" value={`${Math.floor(totalMin / 60)}h ${totalMin % 60}m`} />
+              <SummaryRow label={isEs ? "Más entrenado" : "Most trained"} value={topType} />
+              <SummaryRow label={isEs ? "Mejor sesión" : "Best session"} value={bestRated ? `${bestRated.type} on ${formatDate(bestRated.date)}` : "—"} />
+              <SummaryRow label={isEs ? "Sesiones/semana" : "Sessions/week"} value={`${weekSessions.length} sessions`} />
+              <SummaryRow label={isEs ? "Tiempo total" : "Total time"} value={`${Math.floor(totalMin / 60)}h ${totalMin % 60}m`} />
             </div>
           </CardBody>
         </Card>
@@ -133,7 +133,7 @@ export default function WeeklyReviewPage() {
 
       {/* Session list */}
       <Card>
-        <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">Sessions This Week</div></CardHeader>
+        <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{isEs ? "Sesiones de esta semana" : "Sessions This Week"}</div></CardHeader>
         <CardBody className="p-0">
           {weekSessions.length === 0 ? (
             <div className="p-6 text-center text-stone-text text-sm">{isEs ? "No hay sesiones esta semana." : "No sessions in this week."}</div>
@@ -141,12 +141,12 @@ export default function WeeklyReviewPage() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Day</th>
-                  <th>Type</th>
-                  <th>Duration</th>
-                  <th>Intensity</th>
-                  <th>Focus</th>
-                  <th>Rating</th>
+                  <th>{isEs ? "Día" : "Day"}</th>
+                  <th>{isEs ? "Tipo" : "Type"}</th>
+                  <th>{isEs ? "Duración" : "Duration"}</th>
+                  <th>{isEs ? "Intensidad" : "Intensity"}</th>
+                  <th>{isEs ? "Foco" : "Focus"}</th>
+                  <th>{isEs ? "Valoración" : "Rating"}</th>
                 </tr>
               </thead>
               <tbody>
