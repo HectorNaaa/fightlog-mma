@@ -46,6 +46,7 @@ const emptyForm = { date: "", type: "Boxing", duration: 60, intensity: 7, energy
 export default function DashboardPage() {
   const { user, refetch } = useAuth();
   const { locale, t } = useLanguage();
+  const isEs = locale === "es";
 
   function localeToIntl(l: string) {
     switch (l) {
