@@ -1,3 +1,4 @@
 {
+  "name": "fightlogapp",
   "buildCommand": "prisma generate && next build"
 }
