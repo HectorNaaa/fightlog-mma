@@ -68,7 +68,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-bg-primary flex flex-col relative">
       <BackgroundAnimation />
-      <nav className="relative z-10 flex items-center justify-between px-6 py-4 max-w-6xl mx-auto w-full">
+      <nav className="relative z-20 flex items-center justify-between px-6 py-4 max-w-6xl mx-auto w-full">
         <div className="font-condensed font-black text-2xl tracking-[0.2em] text-beige-surface">
           FIGHT<span className="text-burgundy">LOG</span>
         </div>

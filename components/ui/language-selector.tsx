@@ -11,13 +11,13 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
+    function handlePointerDown(e: PointerEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, []);
 
   useEffect(() => {
@@ -44,9 +44,9 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
       <button
         ref={buttonRef}
         type="button"
-        onClick={() => setOpen(!open)}
+        onPointerDown={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
         className={cn(
-          "flex items-center gap-1.5 rounded-full border border-white/10 bg-bg-elevated/80 text-stone-text transition-colors hover:border-stone-muted hover:text-beige-warm",
+          "flex items-center gap-1.5 rounded-full border border-white/10 bg-bg-elevated/80 text-stone-text transition-colors hover:border-stone-muted hover:text-beige-warm touch-manipulation",
           compact ? "px-2.5 py-1 text-[11px]" : "px-3 py-2 text-sm"
         )}
         aria-label={buttonLabel}
@@ -61,18 +61,19 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
       </button>
 
       {open && (
-        <div id={menuId} role="menu" className="absolute right-0 top-full mt-1 w-40 overflow-hidden rounded-xl border border-white/10 bg-bg-secondary/80 py-1 shadow-2xl backdrop-blur-xl z-50">
+        <div id={menuId} role="menu" className="absolute right-0 top-full mt-1 w-40 overflow-hidden rounded-xl border border-white/10 bg-bg-secondary/95 py-1 shadow-2xl backdrop-blur-xl z-[999]">
           {LOCALES.map((l) => (
             <button
               key={l.code}
               type="button"
+              onPointerDown={(e) => { e.stopPropagation(); }}
               onClick={() => { setLocale(l.code as Locale); setOpen(false); }}
               role="menuitem"
               className={cn(
-                "w-full flex items-center gap-2 px-3 py-2 text-xs transition-colors text-left",
+                "w-full flex items-center gap-2 px-3 py-2.5 text-xs transition-colors text-left cursor-pointer select-none",
                 locale === l.code
                   ? "bg-burgundy/15 text-beige-surface font-semibold ring-1 ring-inset ring-burgundy/30"
-                  : "text-stone-text hover:bg-white/5"
+                  : "text-stone-text hover:bg-white/5 active:bg-white/10"
               )}
             >
               <span>{l.flag}</span>
