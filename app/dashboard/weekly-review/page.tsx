@@ -35,8 +35,22 @@ function getWeekRange(offsetWeeks = 0) {
 
 export default function WeeklyReviewPage() {
   const { user } = useAuth();
-  const { locale } = useLanguage();
-  const isEs = locale === "es";
+  const { locale, t } = useLanguage();
+
+  function localeToIntl(l: string) {
+    switch (l) {
+      case "es":
+        return "es-ES";
+      case "pt":
+        return "pt-BR";
+      case "fr":
+        return "fr-FR";
+      case "it":
+        return "it-IT";
+      default:
+        return "en-US";
+    }
+  }
   const [sessions, setSessions] = useState<TrainingSession[]>([]);
   const [weekOffset, setWeekOffset] = useState(0);
 
@@ -74,11 +88,11 @@ export default function WeeklyReviewPage() {
   if (!isIntermediate) {
     return (
       <div>
-        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface mb-6">{isEs ? "Revisión semanal" : "Weekly Review"}</h1>
+        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface mb-6">{t.dashboard.weeklyReview}</h1>
         <div className="border border-navy/30 bg-navy/10 rounded-sm p-6 text-center max-w-lg mx-auto mt-10">
           <div className="text-4xl mb-3 opacity-30">□</div>
-          <div className="font-condensed text-xl font-bold uppercase tracking-widest text-navy-light mb-2">{isEs ? "Función intermedia" : "Intermediate Feature"}</div>
-          <p className="text-sm text-stone-text">{isEs ? "La revisión semanal está disponible para nivel intermedio." : "Weekly Performance Review is available for Intermediate Amateur fighters."}</p>
+          <div className="font-condensed text-xl font-bold uppercase tracking-widest text-navy-light mb-2">{t.dashboard.intermediateFeature}</div>
+          <p className="text-sm text-stone-text">{t.dashboard.weeklyPerformanceReview}</p>
         </div>
       </div>
     );
@@ -88,44 +102,44 @@ export default function WeeklyReviewPage() {
     <div>
       <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{isEs ? "Revisión semanal" : "Weekly Review"}</h1>
+          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{t.dashboard.weeklyReview}</h1>
           <p className="text-sm text-stone-text mt-1">
-            {start.toLocaleDateString(isEs ? "es-ES" : "en-US", { month: "short", day: "numeric" })} — {end.toLocaleDateString(isEs ? "es-ES" : "en-US", { month: "short", day: "numeric", year: "numeric" })}
+            {start.toLocaleDateString(localeToIntl(locale), { month: "short", day: "numeric" })} — {end.toLocaleDateString(localeToIntl(locale), { month: "short", day: "numeric", year: "numeric" })}
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" size="sm" onClick={() => setWeekOffset((w) => w + 1)}>← {isEs ? "Ant" : "Prev"}</Button>
-          {weekOffset > 0 && <Button variant="secondary" size="sm" onClick={() => setWeekOffset(0)}>{isEs ? "Esta semana" : "This Week"}</Button>}
-          {weekOffset > 0 && <Button variant="secondary" size="sm" onClick={() => setWeekOffset((w) => Math.max(0, w - 1))}>{isEs ? "Sig" : "Next"} →</Button>}
+          <Button variant="secondary" size="sm" onClick={() => setWeekOffset((w) => w + 1)}>← {t.dashboard.prev}</Button>
+          {weekOffset > 0 && <Button variant="secondary" size="sm" onClick={() => setWeekOffset(0)}>{t.dashboard.thisWeek}</Button>}
+          {weekOffset > 0 && <Button variant="secondary" size="sm" onClick={() => setWeekOffset((w) => Math.max(0, w - 1))}>{t.dashboard.next} →</Button>}
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <StatCard label={isEs ? "Sesiones" : "Sessions"} value={weekSessions.length} accent="amber" />
-        <StatCard label={isEs ? "Minutos totales" : "Total Minutes"} value={totalMin} unit="min" accent="burgundy" />
-        <StatCard label={isEs ? "Intensidad media" : "Avg Intensity"} value={avgIntensity} unit="/ 10" accent="navy" />
-        <StatCard label={isEs ? "Recuperación media" : "Avg Recovery"} value={avgRecovery} unit="/ 10" />
+        <StatCard label={t.mock.sessions} value={weekSessions.length} accent="amber" />
+        <StatCard label={t.dashboard.totalTime} value={totalMin} unit={t.dashboard.minutes} accent="burgundy" />
+        <StatCard label={t.mock.avgIntensity} value={avgIntensity} unit="/ 10" accent="navy" />
+        <StatCard label={t.dashboard.weekSummary} value={avgRecovery} unit="/ 10" />
       </div>
 
       {/* Volume chart */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="md:col-span-2">
           <Card>
-            <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{isEs ? "Volumen por día" : "Volume by Day"}</div></CardHeader>
+            <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t.dashboard.volumeByDay}</div></CardHeader>
             <CardBody>
               <MetricChart data={volumeByDay} color="#8b2635" height={160} />
             </CardBody>
           </Card>
         </div>
         <Card>
-          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{isEs ? "Resumen semanal" : "Week Summary"}</div></CardHeader>
+          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t.dashboard.weekSummary}</div></CardHeader>
           <CardBody>
             <div className="space-y-3 text-sm">
-              <SummaryRow label={isEs ? "Más entrenado" : "Most trained"} value={topType} />
-              <SummaryRow label={isEs ? "Mejor sesión" : "Best session"} value={bestRated ? `${bestRated.type} on ${formatDate(bestRated.date)}` : "—"} />
-              <SummaryRow label={isEs ? "Sesiones/semana" : "Sessions/week"} value={`${weekSessions.length} sessions`} />
-              <SummaryRow label={isEs ? "Tiempo total" : "Total time"} value={`${Math.floor(totalMin / 60)}h ${totalMin % 60}m`} />
+              <SummaryRow label={t.dashboard.mostTrained} value={topType} />
+              <SummaryRow label={t.dashboard.bestSession} value={bestRated ? `${bestRated.type} on ${formatDate(bestRated.date)}` : "—"} />
+              <SummaryRow label={t.dashboard.sessionsWeek} value={`${weekSessions.length} ${t.mock.sessions}`} />
+              <SummaryRow label={t.dashboard.totalTime} value={`${Math.floor(totalMin / 60)}h ${totalMin % 60}${t.dashboard.minutes}`} />
             </div>
           </CardBody>
         </Card>
@@ -133,26 +147,26 @@ export default function WeeklyReviewPage() {
 
       {/* Session list */}
       <Card>
-        <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{isEs ? "Sesiones de esta semana" : "Sessions This Week"}</div></CardHeader>
+        <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t.dashboard.sessionsThisWeek}</div></CardHeader>
         <CardBody className="p-0">
           {weekSessions.length === 0 ? (
-            <div className="p-6 text-center text-stone-text text-sm">{isEs ? "No hay sesiones esta semana." : "No sessions in this week."}</div>
+            <div className="p-6 text-center text-stone-text text-sm">{t.dashboard.noSessionsThisWeek}</div>
           ) : (
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>{isEs ? "Día" : "Day"}</th>
-                  <th>{isEs ? "Tipo" : "Type"}</th>
-                  <th>{isEs ? "Duración" : "Duration"}</th>
-                  <th>{isEs ? "Intensidad" : "Intensity"}</th>
-                  <th>{isEs ? "Foco" : "Focus"}</th>
-                  <th>{isEs ? "Valoración" : "Rating"}</th>
+                  <th>{t.dashboard.day}</th>
+                  <th>{t.dashboard.typeLabel}</th>
+                  <th>{t.dashboard.duration}</th>
+                  <th>{t.dashboard.intensity}</th>
+                  <th>{t.dashboard.focus}</th>
+                  <th>{t.dashboard.rating}</th>
                 </tr>
               </thead>
               <tbody>
                 {weekSessions.map((s) => (
                   <tr key={s.id}>
-                    <td className="text-stone-text">{new Date(s.date).toLocaleDateString(isEs ? "es-ES" : "en-US", { weekday: "short", month: "short", day: "numeric" })}</td>
+                    <td className="text-stone-text">{new Date(s.date).toLocaleDateString(localeToIntl(locale), { weekday: "short", month: "short", day: "numeric" })}</td>
                     <td><Badge label={s.type} /></td>
                     <td>{s.duration}m</td>
                     <td>{s.intensity}/10</td>

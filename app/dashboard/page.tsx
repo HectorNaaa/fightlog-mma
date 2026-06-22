@@ -45,8 +45,22 @@ const emptyForm = { date: "", type: "Boxing", duration: 60, intensity: 7, energy
 
 export default function DashboardPage() {
   const { user, refetch } = useAuth();
-  const { locale } = useLanguage();
-  const isEs = locale === "es";
+  const { locale, t } = useLanguage();
+
+  function localeToIntl(l: string) {
+    switch (l) {
+      case "es":
+        return "es-ES";
+      case "pt":
+        return "pt-BR";
+      case "fr":
+        return "fr-FR";
+      case "it":
+        return "it-IT";
+      default:
+        return "en-US";
+    }
+  }
   const [sessions, setSessions] = useState<Session[]>([]);
   const [tips, setTips] = useState<Tip[]>([]);
   const [fabOpen, setFabOpen] = useState(false);
@@ -105,20 +119,20 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs text-stone-text uppercase tracking-widest">{new Date().toLocaleDateString(isEs ? "es-ES" : "en-US", { weekday: "long", day: "numeric", month: "long" })}</p>
+          <p className="text-xs text-stone-text uppercase tracking-widest">{new Date().toLocaleDateString(localeToIntl(locale), { weekday: "long", day: "numeric", month: "long" })}</p>
           <h1 className="font-condensed font-black text-2xl uppercase tracking-wider text-beige-surface mt-0.5">
-            {isEs ? "Hola" : "Hi"}, {user?.name?.split(" ")[0]}
+            {t.common.hello}, {user?.name?.split(" ")[0]}
           </h1>
         </div>
-        <Link href="/api/export" className="text-[10px] text-stone-text/60 hover:text-stone-text uppercase tracking-widest border border-stone-border/50 px-2 py-1 rounded-sm transition-colors">{isEs ? "Exportar" : "Export"}</Link>
+        <Link href="/api/export" className="text-[10px] text-stone-text/60 hover:text-stone-text uppercase tracking-widest border border-stone-border/50 px-2 py-1 rounded-sm transition-colors">{t.dashboard.export}</Link>
       </div>
 
       {/* Streak Card */}
       <div className={cn("rounded-sm p-4 border", streak >= 7 ? "bg-amber/10 border-amber/30" : streak >= 3 ? "bg-burgundy/10 border-burgundy/20" : "bg-bg-card border-stone-border")}>
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] uppercase tracking-widest text-stone-text">{isEs ? "Racha de constancia" : "Consistency streak"}</span>
+          <span className="text-[10px] uppercase tracking-widest text-stone-text">{t.dashboard.consistencyStreak}</span>
           <span className={cn("font-condensed font-black text-3xl", streak >= 7 ? "text-amber" : streak >= 3 ? "text-burgundy-light" : "text-beige-surface")}>
-            {streak} <span className="text-sm font-normal text-stone-text">{isEs ? "días" : "days"}</span>
+            {streak} <span className="text-sm font-normal text-stone-text">{t.dashboard.days}</span>
           </span>
         </div>
         <p className="text-xs text-stone-text/80 italic">{getMotivation(streak, locale)}</p>
@@ -131,26 +145,30 @@ export default function DashboardPage() {
           })}
         </div>
         <div className="flex justify-between mt-1">
-          {["L","M","X","J","V","S","D"].map((d, i) => <span key={i} className="flex-1 text-center text-[8px] text-stone-text/50">{d}</span>)}
+          {Array.from({ length: 7 }, (_, i) => {
+            const d = new Date(); d.setDate(d.getDate() - (6 - i));
+            const label = d.toLocaleDateString(localeToIntl(locale), { weekday: "short" }).slice(0, 1).toUpperCase();
+            return <span key={i} className="flex-1 text-center text-[8px] text-stone-text/50">{label}</span>;
+          })}
         </div>
       </div>
 
       {/* Today focus */}
       <div className="bg-bg-card border border-stone-border rounded-sm p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] uppercase tracking-widest text-stone-text">{isEs ? "Foco de hoy" : "Today's focus"}</span>
+          <span className="text-[10px] uppercase tracking-widest text-stone-text">{t.dashboard.todayFocus}</span>
           <button onClick={() => setFocusEdit(!focusEdit)} className="text-[10px] text-burgundy hover:text-burgundy-light uppercase tracking-wider">
-            {focusEdit ? (isEs ? "Cancelar" : "Cancel") : (isEs ? "Editar" : "Edit")}
+            {focusEdit ? t.dashboard.cancel : t.dashboard.edit}
           </button>
         </div>
         {focusEdit ? (
           <div className="flex gap-2">
-              <input ref={focusRef} value={focusVal} onChange={e => setFocusVal(e.target.value)} onKeyDown={e => e.key === "Enter" && saveFocus()} placeholder={isEs ? "ej: Mantener la guardia al retroceder..." : "e.g. Keep guard while backing up..."} className="flex-1 bg-bg-elevated border border-stone-border rounded-sm px-3 py-1.5 text-sm text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber" maxLength={200} />
-            <button onClick={saveFocus} className="bg-burgundy text-beige-surface text-xs font-bold uppercase px-3 py-1.5 rounded-sm hover:bg-burgundy-light">OK</button>
+              <input ref={focusRef} value={focusVal} onChange={e => setFocusVal(e.target.value)} onKeyDown={e => e.key === "Enter" && saveFocus()} placeholder={t.dashboard.noFocusSet} className="flex-1 bg-bg-elevated border border-stone-border rounded-sm px-3 py-1.5 text-sm text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber" maxLength={200} />
+            <button onClick={saveFocus} className="bg-burgundy text-beige-surface text-xs font-bold uppercase px-3 py-1.5 rounded-sm hover:bg-burgundy-light">{t.dashboard.ok}</button>
           </div>
         ) : (
           <p className={cn("text-sm", user?.todayFocus ? "text-beige-warm" : "text-stone-text/50 italic")}>
-              {user?.todayFocus ?? (isEs ? "Sin foco definido. Toca Editar para añadir uno." : "No focus set. Tap Edit to add one.")}
+              {user?.todayFocus ?? t.dashboard.noFocusSet}
           </p>
         )}
       </div>
@@ -158,19 +176,19 @@ export default function DashboardPage() {
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-bg-card border border-stone-border rounded-sm p-3">
-          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-1">{isEs ? "Esta semana" : "This week"}</div>
-          <div className="font-condensed font-black text-2xl text-amber">{weeklySessions.length}<span className="text-sm font-normal text-stone-text ml-1">{isEs ? "entrenamientos" : "sessions"}</span></div>
+          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-1">{t.mock.thisWeek}</div>
+          <div className="font-condensed font-black text-2xl text-amber">{weeklySessions.length}<span className="text-sm font-normal text-stone-text ml-1">{t.mock.sessions}</span></div>
         </div>
         <div className="bg-bg-card border border-stone-border rounded-sm p-3">
-          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-1">{isEs ? "Volumen" : "Volume"}</div>
-          <div className="font-condensed font-black text-2xl text-burgundy-light">{weeklyMinutes}<span className="text-sm font-normal text-stone-text ml-1">min</span></div>
+          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-1">{t.mock.volume}</div>
+          <div className="font-condensed font-black text-2xl text-burgundy-light">{weeklyMinutes}<span className="text-sm font-normal text-stone-text ml-1">{t.dashboard.minutes}</span></div>
         </div>
       </div>
 
       {/* Volume chart */}
       {chartData.length > 0 && (
         <div className="bg-bg-card border border-stone-border rounded-sm p-4">
-          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-3">{isEs ? "Volumen últimas sesiones" : "Recent sessions volume"}</div>
+          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-3">{t.dashboard.recentSessionsVolume}</div>
           <MetricChart data={chartData} color="#8b2635" height={120} />
         </div>
       )}
@@ -179,8 +197,8 @@ export default function DashboardPage() {
       {tips.length > 0 && (
         <div className="bg-bg-card border border-stone-border rounded-sm p-4">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] uppercase tracking-widest text-stone-text">{isEs ? "Tips de aliados" : "Teammate tips"}</span>
-            <Link href="/dashboard/community" className="text-[10px] text-burgundy hover:text-burgundy-light uppercase tracking-wider">{isEs ? "Ver todos" : "View all"}</Link>
+            <span className="text-[10px] uppercase tracking-widest text-stone-text">{t.dashboard.teammateTips}</span>
+            <Link href="/dashboard/community" className="text-[10px] text-burgundy hover:text-burgundy-light uppercase tracking-wider">{t.dashboard.viewAll}</Link>
           </div>
           <div className="space-y-2">
             {tips.slice(0, 3).map(tip => (
@@ -192,7 +210,7 @@ export default function DashboardPage() {
                 <p className="text-xs text-stone-text/90 leading-relaxed">{tip.tacticNote}</p>
                 <button onClick={() => toggleRespeto(tip.sessionId)} className={cn("mt-2 text-[10px] flex items-center gap-1 uppercase tracking-wider transition-colors", tip.hasRespeto ? "text-burgundy" : "text-stone-text/50 hover:text-stone-text")}>
                   <span>{tip.hasRespeto ? "♥" : "♡"}</span>
-                  <span>{tip.respetos} {isEs ? `respeto${tip.respetos !== 1 ? "s" : ""}` : `respect${tip.respetos !== 1 ? "s" : ""}`}</span>
+                  <span>{tip.respetos} {locale === "es" ? `respeto${tip.respetos !== 1 ? "s" : ""}` : `respect${tip.respetos !== 1 ? "s" : ""}`}</span>
                 </button>
               </div>
             ))}
@@ -203,12 +221,12 @@ export default function DashboardPage() {
       {/* Last session */}
       {last && (
         <div className="bg-bg-card border border-stone-border rounded-sm p-4">
-          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-3">{isEs ? "Último entreno" : "Last session"}</div>
+          <div className="text-[10px] text-stone-text uppercase tracking-widest mb-3">{t.dashboard.lastSession}</div>
           <div className="flex items-center gap-2 mb-2"><Badge label={last.type} /><span className="text-xs text-stone-text">{formatDate(last.date)}</span></div>
           <div className="grid grid-cols-3 gap-2">
-            <div><div className="text-[9px] text-stone-text uppercase">{isEs ? "Duración" : "Duration"}</div><div className="font-condensed font-bold text-lg text-beige-surface">{last.duration}<span className="text-[10px] text-stone-text">m</span></div></div>
-            <div><div className="text-[9px] text-stone-text uppercase">{isEs ? "Int." : "Int."}</div><div className="font-condensed font-bold text-lg text-amber">{last.intensity}<span className="text-[10px] text-stone-text">/10</span></div></div>
-            <div><div className="text-[9px] text-stone-text uppercase">{isEs ? "Energía" : "Energy"}</div><div className="font-condensed font-bold text-lg text-beige-surface">{last.energyBefore}→{last.energyAfter}</div></div>
+            <div><div className="text-[9px] text-stone-text uppercase">{t.dashboard.duration}</div><div className="font-condensed font-bold text-lg text-beige-surface">{last.duration}<span className="text-[10px] text-stone-text">{t.dashboard.minutes}</span></div></div>
+            <div><div className="text-[9px] text-stone-text uppercase">Int.</div><div className="font-condensed font-bold text-lg text-amber">{last.intensity}<span className="text-[10px] text-stone-text">/10</span></div></div>
+            <div><div className="text-[9px] text-stone-text uppercase">{t.dashboard.energy}</div><div className="font-condensed font-bold text-lg text-beige-surface">{last.energyBefore}→{last.energyAfter}</div></div>
           </div>
           {last.mainFocus && <p className="text-xs text-stone-text mt-2 italic">&ldquo;{last.mainFocus}&rdquo;</p>}
         </div>
