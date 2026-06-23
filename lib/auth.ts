@@ -56,10 +56,20 @@ export function verifyToken(token: string): JWTPayload | null {
 }
 
 export async function getAuthUser(): Promise<JWTPayload | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
-  if (!token) return null;
-  return verifyToken(token);
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(COOKIE_NAME)?.value;
+    if (!token) return null;
+    return verifyToken(token);
+  } catch (err) {
+    // If auth is misconfigured (missing/short secret) we don't want to throw and cause a 500
+    // Return null so API handlers can respond with 401 instead of an internal server error.
+    if (err instanceof AuthConfigError) {
+      console.error("[auth] Configuration error while reading auth cookie:", err.message);
+      return null;
+    }
+    throw err;
+  }
 }
 
 export function createAuthCookie(token: string) {
