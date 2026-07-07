@@ -32,14 +32,13 @@ export const TRAINING_TYPES = [
 
 export const DISCIPLINES = [
   "General Training",
-  "Team Sports",
-  "Strength Training",
-  "Endurance Training",
+  "MMA",
   "Boxing",
+  "Kickboxing",
   "Muay Thai",
   "Wrestling",
   "BJJ",
-  "Kickboxing",
+  "Grappling",
   "Judo",
 ] as const;
 
