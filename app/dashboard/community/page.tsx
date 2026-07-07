@@ -155,7 +155,8 @@ export default function CommunityPage() {
       setFriends(Array.isArray(friendsData) ? friendsData : []);
       setIncomingRequests(Array.isArray(requestsData.incoming) ? requestsData.incoming : []);
       setOutgoingRequests(Array.isArray(requestsData.outgoing) ? requestsData.outgoing : []);
-      setFeed(feedData);
+    // Normalize feedData: if the response was an error JSON (no .events), treat as null
+    setFeed(feedRes.ok && feedData != null && Array.isArray(feedData.events) ? feedData : null);
       setNodes(Array.isArray(nodesData) ? nodesData : []);
       setFighters(Array.isArray(fightersData) ? fightersData : []);
     } catch {
@@ -359,7 +360,7 @@ export default function CommunityPage() {
             <div className="rounded-xl border border-stone-border bg-bg-card p-4">
               <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-light">Fighters You May Know</h3>
               <div className="mt-3 space-y-2">
-                {(feed?.recommendations.fightersYouMayKnow || []).slice(0, 5).map((fighter) => (
+                {(feed?.recommendations?.fightersYouMayKnow || []).slice(0, 5).map((fighter) => (
                   <div key={fighter.id} className="rounded-lg border border-stone-border/70 bg-bg-elevated p-3">
                     <p className="text-sm font-semibold text-white">{fighter.profile?.displayName || fighter.name}</p>
                     <p className="text-xs text-stone-light">{fighter.primaryDiscipline} · {fighter.gymName || "Independent"}</p>
@@ -374,7 +375,7 @@ export default function CommunityPage() {
             <div className="rounded-xl border border-stone-border bg-bg-card p-4">
               <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-light">Popular In Your Network</h3>
               <div className="mt-3 space-y-2">
-                {(feed?.recommendations.popularTechniqueNodes || []).slice(0, 5).map((node) => (
+                {(feed?.recommendations?.popularTechniqueNodes || []).slice(0, 5).map((node) => (
                   <div key={node.id} className="rounded-lg border border-stone-border/70 bg-bg-elevated p-3">
                     <p className="text-sm font-semibold text-white">{node.title}</p>
                     <p className="text-xs text-stone-light">{node.discipline || "General"} · {node.saves} saves · {node.likes} likes</p>

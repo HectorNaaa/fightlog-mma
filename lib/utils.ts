@@ -43,9 +43,9 @@ export const DISCIPLINES = [
 ] as const;
 
 export const LEVELS: { value: string; label: string; disabled?: boolean }[] = [
-  { value: "beginner", label: "Beginner" },
-  { value: "intermediate", label: "Intermediate Amateur" },
-  { value: "professional", label: "Professional (Coming Soon)", disabled: true },
+  { value: "beginner", label: "Amateur Beginner" },
+  { value: "intermediate", label: "Amateur Intermediate" },
+  { value: "professional", label: "Pro (Coming Soon)", disabled: true },
 ];
 
 export const STRIKING_TECHNIQUES = [

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input, Textarea, Select } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
-import { formatDate, formatDateInput, TRAINING_TYPES } from "@/lib/utils";
+import { formatDate, formatDateInput, TRAINING_TYPES, DISCIPLINES } from "@/lib/utils";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/language-context";
@@ -71,6 +71,10 @@ export default function DashboardPage() {
   const [focusVal, setFocusVal] = useState("");
   const focusRef = useRef<HTMLInputElement>(null);
 
+  const [disciplines, setDisciplines] = useState<string[]>([]);
+  const [selectedDisc, setSelectedDisc] = useState("");
+  const [loadingDisc, setLoadingDisc] = useState(false);
+
   const load = async () => {
     const [s, t] = await Promise.all([
       fetch("/api/training").then(r => r.json()).catch(() => []),
@@ -78,6 +82,9 @@ export default function DashboardPage() {
     ]);
     setSessions(Array.isArray(s) ? s : []);
     setTips(Array.isArray(t) ? t : []);
+
+    const prof = await fetch("/api/user/profile").then(r => r.ok ? r.json() : null).catch(() => null);
+    setDisciplines(Array.isArray(prof?.disciplines) ? prof.disciplines : []);
   };
 
   useEffect(() => { load(); }, []);
@@ -94,6 +101,22 @@ export default function DashboardPage() {
     await fetch("/api/user/profile", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ todayFocus: focusVal }) });
     await refetch();
     setFocusEdit(false);
+  };
+
+  const addDisc = async () => {
+    if (!selectedDisc || loadingDisc) return;
+    const next = [...new Set([...disciplines, selectedDisc])];
+    setLoadingDisc(true);
+    await fetch("/api/user/profile", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ disciplines: next }) }).catch(() => null);
+    setDisciplines(next);
+    setSelectedDisc("");
+    setLoadingDisc(false);
+  };
+
+  const removeDisc = async (name: string) => {
+    const next = disciplines.filter(d => d !== name);
+    setDisciplines(next);
+    await fetch("/api/user/profile", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ disciplines: next }) }).catch(() => null);
   };
 
   const saveSession = async () => {
@@ -183,6 +206,39 @@ export default function DashboardPage() {
         <div className="bg-bg-card border border-stone-border rounded-sm p-3">
           <div className="text-[10px] text-stone-text uppercase tracking-widest mb-1">{t.mock.volume}</div>
           <div className="font-condensed font-black text-2xl text-burgundy-light">{weeklyMinutes}<span className="text-sm font-normal text-stone-text ml-1">{t.dashboard.minutes}</span></div>
+        </div>
+      </div>
+
+      {/* Disciplines */}
+      <div className="bg-bg-card border border-stone-border rounded-sm p-4">
+        <div className="text-[10px] text-stone-text uppercase tracking-widest mb-3">{isEs ? "Mis deportes y disciplinas" : "My Sports & Disciplines"}</div>
+        <div className="flex flex-wrap gap-2 mb-3">
+          {disciplines.length === 0 && <span className="text-xs text-stone-text/50 italic">{isEs ? "Sin disciplinas adicionales" : "No additional disciplines added"}</span>}
+          {disciplines.map(d => (
+            <button key={d} onClick={() => removeDisc(d)} title={isEs ? `Eliminar ${d}` : `Remove ${d}`} className="text-[11px] bg-bg-elevated border border-stone-border px-2.5 py-1 rounded-sm text-beige-warm flex items-center gap-1.5 hover:border-burgundy/60 hover:text-white transition-colors">
+              {d} <span className="text-stone-text/60 text-xs">×</span>
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <select
+            value={selectedDisc}
+            onChange={e => setSelectedDisc(e.target.value)}
+            title={isEs ? "Seleccionar disciplina" : "Select discipline"}
+            className="flex-1 bg-bg-elevated border border-stone-border rounded-sm px-3 py-1.5 text-sm text-beige-warm placeholder:text-stone-text focus:outline-none focus:border-amber"
+          >
+            <option value="">{isEs ? "Añadir disciplina..." : "Add discipline..."}</option>
+            {DISCIPLINES.filter(d => !disciplines.includes(d)).map(d => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+          <button
+            onClick={addDisc}
+            disabled={!selectedDisc || loadingDisc}
+            className="bg-burgundy text-beige-surface text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm hover:bg-burgundy-light disabled:opacity-50 transition-colors"
+          >
+            {isEs ? "Añadir" : "Add"}
+          </button>
         </div>
       </div>
 

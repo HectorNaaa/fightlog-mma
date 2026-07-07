@@ -208,8 +208,8 @@ export default function SignupPage() {
                   title={t.auth.level}
                   className="rounded-lg border border-stone-border bg-[#222224] px-3 py-2.5 text-sm text-white focus:border-burgundy-light focus:outline-none focus:ring-2 focus:ring-burgundy/30"
                 >
-                  {LEVELS.filter((l) => !l.disabled).map((l) => (
-                    <option key={l.value} value={l.value}>{l.label}</option>
+                  {LEVELS.map((l) => (
+                    <option key={l.value} value={l.value} disabled={l.disabled}>{l.label}</option>
                   ))}
                 </select>
               </div>
