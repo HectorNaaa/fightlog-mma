@@ -12,14 +12,15 @@ const config: Config = {
     "animate-drift",
     "animate-pulse-ring",
   ],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
         bg: {
-          primary: "#111111",
-          secondary: "#1a1a1a",
-          card: "#1e1e1e",
-          elevated: "#242424",
+          primary: "rgb(var(--color-bg-primary) / <alpha-value>)",
+          secondary: "rgb(var(--color-bg-secondary) / <alpha-value>)",
+          card: "rgb(var(--color-bg-card) / <alpha-value>)",
+          elevated: "rgb(var(--color-bg-elevated) / <alpha-value>)",
         },
         burgundy: {
           DEFAULT: "#8b2635",
@@ -37,8 +38,8 @@ const config: Config = {
           DEFAULT: "#c4a882",
           light: "#d4bc9e",
           dark: "#a8906a",
-          surface: "#f0ebe0",
-          warm: "#e8e0d0",
+          surface: "rgb(var(--color-text-strong) / <alpha-value>)",
+          warm: "rgb(var(--color-text-body) / <alpha-value>)",
         },
         amber: {
           DEFAULT: "#d4a017",
@@ -47,11 +48,12 @@ const config: Config = {
           muted: "#9a7010",
         },
         stone: {
-          border: "#2a2a2a",
-          muted: "#3a3a3a",
-          text: "#8a8278",
-          light: "#b0a898",
+          border: "rgb(var(--color-stone-border) / <alpha-value>)",
+          muted: "rgb(var(--color-stone-muted) / <alpha-value>)",
+          text: "rgb(var(--color-stone-text) / <alpha-value>)",
+          light: "rgb(var(--color-stone-light) / <alpha-value>)",
         },
+        line: "rgb(var(--color-line) / <alpha-value>)",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],

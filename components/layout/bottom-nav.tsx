@@ -77,8 +77,8 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-bg-secondary/70 shadow-[0_-12px_40px_rgba(0,0,0,0.35)] backdrop-blur-2xl safe-area-pb">
-      <div className="mx-auto flex max-w-screen-md items-stretch gap-1 overflow-x-auto px-2 py-2">
+    <nav className="lg:hidden fixed inset-x-0 bottom-0 z-[100] border-t border-line/10 bg-bg-secondary/90 shadow-[0_-12px_40px_rgba(0,0,0,0.35)] backdrop-blur-2xl safe-area-pb">
+      <div className="mx-auto flex max-w-screen-md items-stretch gap-0.5 px-1 py-2">
         {navItems.map((item) => {
           const active = item.exact
             ? pathname === item.href
@@ -89,13 +89,13 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "relative flex min-w-[72px] flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] transition-all",
+                "relative flex min-w-0 flex-1 basis-0 flex-col items-center justify-center gap-1 rounded-2xl px-0.5 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] transition-all",
                 active
                   ? "text-beige-surface bg-burgundy/20 shadow-[0_0_0_1px_rgba(180,28,28,0.25)]"
                   : "text-stone-text hover:text-beige-warm"
               )}
             >
-              <span className={cn("flex h-8 w-8 items-center justify-center rounded-full border transition-all", active ? "border-burgundy/40 bg-burgundy/15 text-burgundy-light" : "border-white/10 bg-white/5 text-stone-text")}>
+              <span className={cn("flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full border transition-all", active ? "border-burgundy/40 bg-burgundy/15 text-burgundy-light" : "border-line/10 bg-line/5 text-stone-text")}>
                 <Icon />
               </span>
               {active && (

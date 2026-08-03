@@ -188,7 +188,7 @@ export default function DashboardPage() {
         {focusEdit ? (
           <div className="flex gap-2">
               <input ref={focusRef} value={focusVal} onChange={e => setFocusVal(e.target.value)} onKeyDown={e => e.key === "Enter" && saveFocus()} placeholder={t.dashboard.noFocusSet} className="flex-1 bg-bg-elevated border border-stone-border rounded-sm px-3 py-1.5 text-sm text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber" maxLength={200} />
-            <button onClick={saveFocus} className="bg-burgundy text-beige-surface text-xs font-bold uppercase px-3 py-1.5 rounded-sm hover:bg-burgundy-light">{t.dashboard.ok}</button>
+            <button onClick={saveFocus} className="bg-burgundy text-white text-xs font-bold uppercase px-3 py-1.5 rounded-sm hover:bg-burgundy-light">{t.dashboard.ok}</button>
           </div>
         ) : (
           <p className={cn("text-sm", user?.todayFocus ? "text-beige-warm" : "text-stone-text/50 italic")}>
@@ -235,7 +235,7 @@ export default function DashboardPage() {
           <button
             onClick={addDisc}
             disabled={!selectedDisc || loadingDisc}
-            className="bg-burgundy text-beige-surface text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm hover:bg-burgundy-light disabled:opacity-50 transition-colors"
+            className="bg-burgundy text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm hover:bg-burgundy-light disabled:opacity-50 transition-colors"
           >
             {isEs ? "Añadir" : "Add"}
           </button>
@@ -304,7 +304,7 @@ export default function DashboardPage() {
       )}
 
       {/* FAB */}
-      <button onClick={() => setFabOpen(true)} className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-40 w-14 h-14 bg-burgundy hover:bg-burgundy-light text-beige-surface rounded-full shadow-lg flex items-center justify-center text-2xl font-light transition-all active:scale-95">
+      <button onClick={() => setFabOpen(true)} className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-40 w-14 h-14 bg-burgundy hover:bg-burgundy-light text-white rounded-full shadow-lg flex items-center justify-center text-2xl font-light transition-all active:scale-95">
         +
       </button>
 

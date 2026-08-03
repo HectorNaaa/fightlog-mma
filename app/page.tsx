@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useLanguage } from "@/contexts/language-context";
 import { LanguageSelector } from "@/components/ui/language-selector";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/contexts/auth-context";
 
 function AnimatedOutlineText({ text }: { text: string }) {
@@ -78,9 +79,10 @@ export default function LandingPage() {
               {t.common.hello}, {user.name.split(" ")[0]}
             </span>
           )}
+          <ThemeToggle compact />
           <LanguageSelector />
           <Link href="/auth/login" className="text-sm text-stone-text hover:text-beige-warm transition-colors uppercase tracking-wider hidden sm:inline">{t.nav.signIn}</Link>
-          <Link href="/auth/signup" className="bg-burgundy text-beige-surface text-sm font-bold uppercase tracking-widest px-4 py-2 rounded hover:bg-burgundy-light transition-colors">{t.nav.getStarted}</Link>
+          <Link href="/auth/signup" className="bg-burgundy text-white text-sm font-bold uppercase tracking-widest px-4 py-2 rounded hover:bg-burgundy-light transition-colors">{t.nav.getStarted}</Link>
         </div>
       </nav>
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center pt-8 pb-20">
@@ -92,7 +94,7 @@ export default function LandingPage() {
           </h1>
           <p className="text-base md:text-lg text-stone-text max-w-xl mx-auto mb-10 leading-relaxed">{t.landing.heroSub}</p>
           <div className="flex flex-wrap gap-3 justify-center mb-16">
-            <Link href="/auth/signup" className="bg-burgundy text-beige-surface font-bold uppercase tracking-widest px-7 py-3.5 rounded hover:bg-burgundy-light transition-colors text-sm">{t.landing.ctaPrimary}</Link>
+            <Link href="/auth/signup" className="bg-burgundy text-white font-bold uppercase tracking-widest px-7 py-3.5 rounded hover:bg-burgundy-light transition-colors text-sm">{t.landing.ctaPrimary}</Link>
             <Link href="/auth/login" className="border border-stone-border text-beige-warm font-semibold uppercase tracking-wider px-7 py-3.5 rounded hover:border-stone-muted transition-colors text-sm">{t.landing.ctaSecondary}</Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-stone-border/30 rounded-sm overflow-hidden border border-stone-border/30">

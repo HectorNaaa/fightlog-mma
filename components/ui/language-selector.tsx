@@ -46,7 +46,7 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
         type="button"
         onPointerDown={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
         className={cn(
-          "flex items-center gap-1.5 rounded-full border border-white/10 bg-bg-elevated/80 text-stone-text transition-colors hover:border-stone-muted hover:text-beige-warm touch-manipulation",
+          "flex items-center gap-1.5 rounded-full border border-line/10 bg-bg-elevated/80 text-stone-text transition-colors hover:border-stone-muted hover:text-beige-warm touch-manipulation",
           compact ? "px-2.5 py-1 text-[11px]" : "px-3 py-2 text-sm"
         )}
         aria-label={buttonLabel}
@@ -56,12 +56,12 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
       >
         <span>{current.flag}</span>
         <span className={cn("font-semibold uppercase tracking-wider", compact ? "text-[10px]" : "text-xs")}>{compact ? current.code : current.label}</span>
-        {!compact && <span className="rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-widest text-beige-surface/80">{current.code}</span>}
+        {!compact && <span className="rounded-full border border-line/10 bg-line/5 px-1.5 py-0.5 text-[10px] uppercase tracking-widest text-beige-surface/80">{current.code}</span>}
         <span className="text-[10px] opacity-50">▾</span>
       </button>
 
       {open && (
-        <div id={menuId} role="menu" className="absolute right-0 top-full mt-1 w-40 overflow-hidden rounded-xl border border-white/10 bg-bg-secondary/95 py-1 shadow-2xl backdrop-blur-xl z-[999]">
+        <div id={menuId} role="menu" className="absolute right-0 top-full mt-1 w-40 overflow-hidden rounded-xl border border-line/10 bg-bg-secondary/95 py-1 shadow-2xl backdrop-blur-xl z-[999]">
           {LOCALES.map((l) => (
             <button
               key={l.code}
@@ -73,7 +73,7 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
                 "w-full flex items-center gap-2 px-3 py-2.5 text-xs transition-colors text-left cursor-pointer select-none",
                 locale === l.code
                   ? "bg-burgundy/15 text-beige-surface font-semibold ring-1 ring-inset ring-burgundy/30"
-                  : "text-stone-text hover:bg-white/5 active:bg-white/10"
+                  : "text-stone-text hover:bg-line/5 active:bg-line/10"
               )}
             >
               <span>{l.flag}</span>

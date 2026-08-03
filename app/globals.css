@@ -2,11 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+:root,
+html.dark {
   --background: #111111;
   --foreground: #e8e2d6;
   --font-inter: "Inter", system-ui, sans-serif;
   --font-barlow: "Barlow Condensed", "Impact", "Arial Narrow", sans-serif;
+
+  /* Dark theme (default) surface + text tokens, as "R G B" for rgb(var(--x) / alpha) */
+  --color-bg-primary: 17 17 17;
+  --color-bg-secondary: 26 26 26;
+  --color-bg-card: 30 30 30;
+  --color-bg-elevated: 36 36 36;
+
+  --color-stone-border: 42 42 42;
+  --color-stone-muted: 58 58 58;
+  --color-stone-text: 138 130 120;
+  --color-stone-light: 176 168 152;
+
+  --color-text-strong: 240 235 224;
+  --color-text-body: 232 224 208;
+
+  /* subtle hairline borders/tints: white-based on dark surfaces */
+  --color-line: 255 255 255;
+}
+
+html.light {
+  --background: #f8f6f2;
+  --foreground: #211d16;
+
+  --color-bg-primary: 248 246 242;
+  --color-bg-secondary: 255 255 255;
+  --color-bg-card: 255 255 255;
+  --color-bg-elevated: 240 237 230;
+
+  --color-stone-border: 227 221 210;
+  --color-stone-muted: 205 197 182;
+  --color-stone-text: 107 100 89;
+  --color-stone-light: 74 69 60;
+
+  --color-text-strong: 28 25 20;
+  --color-text-body: 46 41 33;
+
+  /* subtle hairline borders/tints: black-based on light surfaces */
+  --color-line: 0 0 0;
 }
 
 * {
@@ -14,11 +53,12 @@
 }
 
 body {
-  background-color: #111111;
-  color: #e8e2d6;
+  background-color: rgb(var(--color-bg-primary));
+  color: rgb(var(--color-text-body));
   font-family: var(--font-inter);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Scrollbar */
@@ -91,6 +131,13 @@ input[type="range"]::-webkit-slider-thumb {
 .anim-delay-3000 { animation-delay: 3s; }
 .anim-delay-3500 { animation-delay: 3.5s; }
 .anim-delay-4000 { animation-delay: 4s; }
+
+/* Bottom nav / iOS home-indicator safe area: keeps the static mobile
+   nav bar's icons clear of the device gesture area instead of being
+   clipped/hidden behind it. */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
 
 .hero-outline-wrap {
   display: inline-block;
