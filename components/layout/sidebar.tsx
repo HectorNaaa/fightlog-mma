@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
 import { LanguageSelector } from "@/components/ui/language-selector";
+import { PushNotificationToggle } from "@/components/notifications/push-manager";
 import { cn } from "@/lib/utils";
 
 export function Sidebar() {
@@ -16,6 +17,7 @@ export function Sidebar() {
     { href: "/dashboard", label: t.sidebar.nav.dashboard, icon: "⬡", exact: true },
     { href: "/dashboard/training-log", label: t.sidebar.nav.trainingLog, icon: "◈" },
     { href: "/dashboard/community", label: t.sidebar.nav.community, icon: "◉" },
+    { href: "/dashboard/gyms", label: t.sidebar.nav.gyms, icon: "🏋" },
     { href: "/dashboard/technical-tracker", label: t.sidebar.nav.technical, icon: "◎" },
     { href: "/dashboard/gameplan", label: t.sidebar.nav.gameplan, icon: "◇" },
     { href: "/dashboard/physical-metrics", label: t.sidebar.nav.metrics, icon: "△" },
@@ -94,6 +96,9 @@ export function Sidebar() {
       </nav>
 
       <div className="px-4 py-4 border-t border-stone-border">
+        <div className="mb-3">
+          <PushNotificationToggle />
+        </div>
         <div className="flex items-center justify-between">
           <button
             onClick={handleLogout}

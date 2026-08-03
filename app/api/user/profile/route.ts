@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
+import { geocodePostalCode } from "@/lib/geocode";
 import { z } from "zod";
 
 const updateSchema = z.object({
@@ -11,6 +12,8 @@ const updateSchema = z.object({
   beltRank: z.string().max(60).optional().nullable(),
   weightClass: z.string().max(60).optional().nullable(),
   city: z.string().max(80).optional().nullable(),
+  postalCode: z.string().max(20).optional().nullable(),
+  countryCode: z.string().length(2).optional(),
   bio: z.string().max(600).optional().nullable(),
   isPublic: z.boolean().optional(),
   visibility: z.enum(["private", "friends", "public"]).optional(),
@@ -39,6 +42,9 @@ export async function GET() {
           beltRank: true,
           weightClass: true,
           city: true,
+          postalCode: true,
+          latitude: true,
+          longitude: true,
           bio: true,
           isPublic: true,
           visibility: true,
@@ -74,7 +80,15 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Invalid data" }, { status: 400 });
     }
 
-    const { disciplines, ...rest } = parsed.data;
+    const { disciplines, countryCode, ...rest } = parsed.data;
+
+    // Geocode outside the transaction (network call) so we never hold a DB
+    // transaction open while waiting on a third-party API. Best-effort: if it
+    // fails, we just keep whatever coordinates already existed.
+    let geocoded: { latitude: number; longitude: number } | null = null;
+    if (typeof rest.postalCode === "string" && rest.postalCode.trim()) {
+      geocoded = await geocodePostalCode(rest.postalCode, countryCode);
+    }
 
     const updated = await prisma.$transaction(async (tx) => {
       const userUpdate = await tx.user.update({
@@ -98,6 +112,8 @@ export async function PUT(req: NextRequest) {
           bio: rest.bio,
           isPublic: rest.isPublic,
           visibility: rest.visibility,
+          ...(rest.postalCode !== undefined ? { postalCode: rest.postalCode } : {}),
+          ...(geocoded ? { latitude: geocoded.latitude, longitude: geocoded.longitude } : {}),
         },
         create: {
           userId: me.userId,
@@ -110,6 +126,9 @@ export async function PUT(req: NextRequest) {
           bio: rest.bio,
           isPublic: rest.isPublic ?? false,
           visibility: rest.visibility ?? "private",
+          postalCode: rest.postalCode ?? undefined,
+          latitude: geocoded?.latitude,
+          longitude: geocoded?.longitude,
         },
       });
 

@@ -58,6 +58,7 @@ export async function GET(req: NextRequest) {
         },
         userGyms: {
           select: {
+            isPrimary: true,
             gym: { select: { id: true, name: true } },
           },
         },
@@ -100,6 +101,7 @@ export async function GET(req: NextRequest) {
           .map((ug) => ug.gym.name);
 
         const isFriend = myFriendIds.includes(user.id);
+        const primaryGymLink = user.userGyms.find((ug) => ug.isPrimary) || user.userGyms[0];
 
         return {
           id: user.id,
@@ -107,6 +109,7 @@ export async function GET(req: NextRequest) {
           name: user.name,
           level: user.level,
           gymName: user.gymName,
+          primaryGymId: primaryGymLink?.gym.id ?? null,
           primaryDiscipline: user.discipline,
           profile: user.profile,
           disciplines: user.userDisciplines.map((ud) => ud.discipline.name),

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
+import { sendPushToUser } from "@/lib/push-server";
 
 const requestSchema = z.object({
   receiverId: z.string().min(1),
@@ -140,6 +141,12 @@ export async function POST(req: NextRequest) {
         metadata: { receiverId },
       },
     });
+
+    sendPushToUser(receiverId, {
+      title: "New friend request",
+      body: `${me.name} wants to connect on FightLog.`,
+      url: "/dashboard/community",
+    }).catch(() => {});
 
     return NextResponse.json({ requestId: request.id, ok: true }, { status: 201 });
   } catch (error) {

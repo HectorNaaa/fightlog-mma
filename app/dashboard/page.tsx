@@ -105,7 +105,7 @@ export default function DashboardPage() {
 
   const addDisc = async () => {
     if (!selectedDisc || loadingDisc) return;
-    const next = [...new Set([...disciplines, selectedDisc])];
+    const next = Array.from(new Set([...disciplines, selectedDisc]));
     setLoadingDisc(true);
     await fetch("/api/user/profile", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ disciplines: next }) }).catch(() => null);
     setDisciplines(next);

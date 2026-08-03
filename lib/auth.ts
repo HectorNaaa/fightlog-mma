@@ -43,8 +43,12 @@ export async function verifyPassword(
   return bcrypt.compare(password, hash);
 }
 
+// Sessions renew on every authenticated request (see /api/auth/me), so this
+// absolute ceiling only matters for fully inactive users.
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 180; // 180 days
+
 export function signToken(payload: JWTPayload): string {
-  return jwt.sign(payload, getJwtSecret(), { expiresIn: "30d" });
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: SESSION_MAX_AGE_SECONDS });
 }
 
 export function verifyToken(token: string): JWTPayload | null {
@@ -79,7 +83,7 @@ export function createAuthCookie(token: string) {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax" as const,
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: SESSION_MAX_AGE_SECONDS,
     path: "/",
   };
 }

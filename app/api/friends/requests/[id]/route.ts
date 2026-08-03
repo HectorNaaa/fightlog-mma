@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
+import { sendPushToUser } from "@/lib/push-server";
 
 const actionSchema = z.object({
   action: z.enum(["accept", "reject", "cancel"]),
@@ -85,6 +86,12 @@ export async function PATCH(
         ],
       });
     });
+
+    sendPushToUser(friendRequest.requesterId, {
+      title: "Friend request accepted",
+      body: `${me.name} accepted your friend request.`,
+      url: "/dashboard/community",
+    }).catch(() => {});
 
     return NextResponse.json({ ok: true });
   } catch (error) {

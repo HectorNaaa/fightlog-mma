@@ -1,0 +1,17 @@
+{
+  "name": "FightLog",
+  "short_name": "FightLog",
+  "description": "Track sparring. Map weaknesses. Improve faster. The training operating system for fighters.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#15151a",
+  "theme_color": "#7a1f2b",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

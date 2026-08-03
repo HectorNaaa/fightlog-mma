@@ -25,6 +25,12 @@ export const metadata: Metadata = {
   description:
     "The training operating system for athletes. Track sessions, skills, plans, and performance across any sport.",
   keywords: ["athlete", "training log", "sports performance", "coaching", "recovery"],
+  manifest: "/manifest.json",
+  icons: { icon: "/favicon.ico", apple: "/favicon.ico" },
+};
+
+export const viewport = {
+  themeColor: "#7a1f2b",
 };
 
 const SUPPORTED_LOCALES: Locale[] = ["en", "es", "pt", "fr", "it"];

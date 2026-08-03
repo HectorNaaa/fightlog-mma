@@ -30,8 +30,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUser = async () => {
-    setLoading(true);
+  const fetchUser = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const res = await fetch("/api/auth/me", {
         method: "GET",
@@ -47,12 +47,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       setUser(null);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchUser();
+
+    // Keep the session alive while the app is open: periodically ping
+    // /api/auth/me (which slides the cookie expiry forward) and refresh
+    // whenever the tab regains focus/visibility after being idle.
+    const REFRESH_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        fetchUser(true);
+      }
+    }, REFRESH_INTERVAL_MS);
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        fetchUser(true);
+      }
+    };
+    const handleFocus = () => fetchUser(true);
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("focus", handleFocus);
+    };
   }, []);
 
   const logout = async () => {

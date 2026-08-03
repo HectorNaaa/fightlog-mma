@@ -1,15 +1,27 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type TabKey = "feed" | "fighters" | "partners" | "nodes";
+const NearbyMap = dynamic(() => import("@/components/map/nearby-map"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-[340px] items-center justify-center rounded-xl border border-stone-border bg-bg-elevated text-sm text-stone-text">
+      Loading map...
+    </div>
+  ),
+});
+
+type TabKey = "feed" | "fighters" | "nearby" | "partners" | "nodes";
 
 interface Friend {
   id: string;
   friendshipId: string;
   name: string;
   gymName?: string | null;
+  primaryGymId?: string | null;
   level: string;
   primaryDiscipline: string;
   weeklySessionCount: number;
@@ -25,6 +37,7 @@ interface FighterCandidate {
   name: string;
   level: string;
   gymName?: string | null;
+  primaryGymId?: string | null;
   primaryDiscipline: string;
   profile?: {
     username?: string;
@@ -106,6 +119,36 @@ interface FeedResponse {
   };
 }
 
+interface NearbyFighter {
+  id: string;
+  name: string;
+  level: string;
+  gymName?: string | null;
+  primaryDiscipline: string;
+  isFriend: boolean;
+  distanceKm: number;
+  latitude: number;
+  longitude: number;
+  profile?: { username?: string; displayName?: string; city?: string; beltRank?: string } | null;
+}
+
+interface NearbyGym {
+  id: string;
+  name: string;
+  city?: string | null;
+  latitude: number;
+  longitude: number;
+  distanceKm: number;
+}
+
+interface NearbyResponse {
+  needsLocation: boolean;
+  center?: { latitude: number; longitude: number; city?: string | null; postalCode?: string | null };
+  radiusKm?: number;
+  fighters: NearbyFighter[];
+  gyms: NearbyGym[];
+}
+
 export default function CommunityPage() {
   const [tab, setTab] = useState<TabKey>("feed");
   const [loading, setLoading] = useState(true);
@@ -129,6 +172,54 @@ export default function CommunityPage() {
     description: "",
     visibility: "private" as "private" | "friends" | "public",
   });
+
+  const [nearby, setNearby] = useState<NearbyResponse | null>(null);
+  const [nearbyLoading, setNearbyLoading] = useState(false);
+  const [postalCodeInput, setPostalCodeInput] = useState("");
+  const [savingPostalCode, setSavingPostalCode] = useState(false);
+
+  const loadNearby = async () => {
+    setNearbyLoading(true);
+    try {
+      const res = await fetch("/api/fighters/nearby", { cache: "no-store" });
+      const data = await res.json().catch(() => null);
+      setNearby(res.ok && data ? data : { needsLocation: true, fighters: [], gyms: [] });
+    } catch {
+      setNearby({ needsLocation: true, fighters: [], gyms: [] });
+    } finally {
+      setNearbyLoading(false);
+    }
+  };
+
+  const savePostalCode = async () => {
+    if (!postalCodeInput.trim() || savingPostalCode) return;
+    setSavingPostalCode(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postalCode: postalCodeInput.trim() }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Could not save postal code");
+        return;
+      }
+      await loadNearby();
+    } catch {
+      setError("Network error saving postal code");
+    } finally {
+      setSavingPostalCode(false);
+    }
+  };
+
+  useEffect(() => {
+    if (tab === "nearby" && nearby === null) {
+      loadNearby();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
 
   const loadAll = async (query = "") => {
     setLoading(true);
@@ -174,12 +265,13 @@ export default function CommunityPage() {
     if (!search.trim()) return fighters;
     const q = search.toLowerCase();
     return fighters.filter((fighter) => {
-      const display = fighter.profile?.displayName || fighter.name;
+      const name = fighter.name || "";
+      const display = fighter.profile?.displayName || name;
       return (
-        fighter.name.toLowerCase().includes(q) ||
+        name.toLowerCase().includes(q) ||
         display.toLowerCase().includes(q) ||
         (fighter.profile?.username || "").toLowerCase().includes(q) ||
-        fighter.primaryDiscipline.toLowerCase().includes(q)
+        (fighter.primaryDiscipline || "").toLowerCase().includes(q)
       );
     });
   }, [fighters, search]);
@@ -313,6 +405,7 @@ export default function CommunityPage() {
         {([
           { key: "feed", label: "Learning Feed" },
           { key: "fighters", label: "Find Fighters" },
+          { key: "nearby", label: "Nearby" },
           { key: "partners", label: "Partners" },
           { key: "nodes", label: "Technique Graph" },
         ] as Array<{ key: TabKey; label: string }>).map((item) => (
@@ -342,7 +435,7 @@ export default function CommunityPage() {
               {(feed?.events || []).slice(0, 12).map((event) => (
                 <div key={event.id} className="rounded-lg border border-stone-border/70 bg-bg-elevated p-3">
                   <p className="text-sm text-white">
-                    <span className="font-semibold text-burgundy-light">{event.user.profile?.displayName || event.user.name}</span>{" "}
+                    <span className="font-semibold text-burgundy-light">{event.user?.profile?.displayName || event.user?.name || "Someone"}</span>{" "}
                     {event.message}
                   </p>
                   <p className="mt-1 text-[11px] uppercase tracking-wider text-stone-text">{new Date(event.createdAt).toLocaleString()}</p>
@@ -417,12 +510,18 @@ export default function CommunityPage() {
                   <div>
                     <p className="text-sm font-semibold text-white">{fighter.profile?.displayName || fighter.name}</p>
                     <p className="text-xs text-stone-light">
-                      @{fighter.profile?.username || fighter.name.toLowerCase().replace(/\s+/g, "")}
+                      @{fighter.profile?.username || (fighter.name || "fighter").toLowerCase().replace(/\s+/g, "")}
                       {" · "}
                       {fighter.primaryDiscipline}
                     </p>
                     <p className="mt-1 text-xs text-stone-text">
-                      {fighter.gymName || "No gym listed"}
+                      {fighter.primaryGymId ? (
+                        <Link href={`/dashboard/gyms/${fighter.primaryGymId}`} className="text-burgundy-light hover:underline">
+                          {fighter.gymName || "View gym"}
+                        </Link>
+                      ) : (
+                        fighter.gymName || "No gym listed"
+                      )}
                       {fighter.profile?.city ? ` · ${fighter.profile.city}` : ""}
                     </p>
                   </div>
@@ -461,6 +560,92 @@ export default function CommunityPage() {
               </div>
             )}
           </div>
+        </section>
+      )}
+
+      {!loading && tab === "nearby" && (
+        <section className="space-y-4">
+          <div className="rounded-xl border border-stone-border bg-bg-card p-4">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-light">Find fighters near you</h3>
+            <p className="mt-1 text-xs text-stone-text">
+              Set your postal code to discover nearby fighters and gyms on the map. This is only used to estimate distance.
+            </p>
+            <div className="mt-3 flex gap-2">
+              <input
+                value={postalCodeInput}
+                onChange={(e) => setPostalCodeInput(e.target.value)}
+                placeholder={nearby?.center?.postalCode || "Postal / ZIP code"}
+                className="flex-1 rounded-lg border border-stone-border bg-bg-elevated px-3 py-2 text-sm text-white placeholder:text-stone-text focus:border-burgundy-light focus:outline-none"
+              />
+              <button
+                onClick={savePostalCode}
+                disabled={savingPostalCode}
+                className="rounded-lg bg-burgundy px-4 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-burgundy-light disabled:opacity-60"
+              >
+                {savingPostalCode ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+
+          {nearbyLoading && <div className="text-sm text-stone-text">Locating nearby fighters...</div>}
+
+          {!nearbyLoading && nearby?.needsLocation && (
+            <div className="rounded-xl border border-dashed border-stone-border bg-bg-card p-5 text-sm text-stone-text">
+              Add your postal code above to unlock the nearby map and fighter list.
+            </div>
+          )}
+
+          {!nearbyLoading && nearby && !nearby.needsLocation && nearby.center && (
+            <>
+              <NearbyMap
+                center={{ latitude: nearby.center.latitude, longitude: nearby.center.longitude }}
+                fighters={(nearby.fighters || []).map((f) => ({
+                  id: f.id,
+                  label: f.profile?.displayName || f.name,
+                  sublabel: `${f.primaryDiscipline} · ${f.distanceKm} km`,
+                  latitude: f.latitude,
+                  longitude: f.longitude,
+                }))}
+                gyms={nearby.gyms || []}
+              />
+
+              <div className="grid gap-3">
+                {(nearby.fighters || []).map((fighter) => (
+                  <div key={fighter.id} className="rounded-xl border border-stone-border bg-bg-card p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-white">{fighter.profile?.displayName || fighter.name}</p>
+                        <p className="text-xs text-stone-light">
+                          {fighter.primaryDiscipline} · {fighter.distanceKm} km away
+                        </p>
+                        <p className="mt-1 text-xs text-stone-text">
+                          {fighter.gymName || "No gym listed"}
+                          {fighter.profile?.city ? ` · ${fighter.profile.city}` : ""}
+                        </p>
+                      </div>
+                      {fighter.isFriend ? (
+                        <span className="rounded-md border border-burgundy/50 bg-burgundy/20 px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-burgundy-light">Connected</span>
+                      ) : outgoingReceiverIds.has(fighter.id) ? (
+                        <span className="rounded-md border border-amber/30 bg-amber/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-amber">Pending</span>
+                      ) : (
+                        <button
+                          onClick={() => sendRequest(fighter.id)}
+                          className="rounded-md border border-stone-border bg-bg-elevated px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white hover:border-burgundy-light"
+                        >
+                          Send Request
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {(nearby.fighters || []).length === 0 && (
+                  <div className="rounded-xl border border-dashed border-stone-border bg-bg-card p-5 text-sm text-stone-text">
+                    No fighters found within {nearby.radiusKm ?? 100} km yet. Check back as more fighters join.
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </section>
       )}
 
@@ -507,7 +692,16 @@ export default function CommunityPage() {
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold text-white">{friend.name}</p>
-                      <p className="text-xs text-stone-light">{friend.primaryDiscipline} · {friend.gymName || "No gym"}</p>
+                      <p className="text-xs text-stone-light">
+                        {friend.primaryDiscipline} ·{" "}
+                        {friend.primaryGymId ? (
+                          <Link href={`/dashboard/gyms/${friend.primaryGymId}`} className="text-burgundy-light hover:underline">
+                            {friend.gymName || "View gym"}
+                          </Link>
+                        ) : (
+                          friend.gymName || "No gym"
+                        )}
+                      </p>
                     </div>
                     <button
                       onClick={() => toggleTrainingPartner(friend.friendshipId, friend.isTrainingPartner)}
@@ -603,7 +797,7 @@ export default function CommunityPage() {
                     </p>
                     {node.description && <p className="mt-2 text-sm text-stone-light">{node.description}</p>}
                   </div>
-                  <span className="rounded bg-bg-elevated px-2 py-1 text-[11px] uppercase tracking-wider text-stone-light">{node.createdBy.profile?.displayName || node.createdBy.name}</span>
+                  <span className="rounded bg-bg-elevated px-2 py-1 text-[11px] uppercase tracking-wider text-stone-light">{node.createdBy?.profile?.displayName || node.createdBy?.name || "Unknown"}</span>
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
