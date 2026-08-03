@@ -44,8 +44,9 @@ export async function verifyPassword(
 }
 
 // Sessions renew on every authenticated request (see /api/auth/me), so this
-// absolute ceiling only matters for fully inactive users.
-const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 180; // 180 days
+// absolute ceiling only matters for fully inactive users — a full year of no
+// visits at all before they'd ever need to type their password again.
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 365; // 365 days
 
 export function signToken(payload: JWTPayload): string {
   return jwt.sign(payload, getJwtSecret(), { expiresIn: SESSION_MAX_AGE_SECONDS });

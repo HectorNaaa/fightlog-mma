@@ -12,7 +12,8 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const isEs = locale === "es";
 
   const navItems = [
     { href: "/dashboard", label: t.sidebar.nav.dashboard, icon: "⬡", exact: true },
@@ -24,6 +25,7 @@ export function Sidebar() {
     { href: "/dashboard/physical-metrics", label: t.sidebar.nav.metrics, icon: "△" },
     { href: "/dashboard/sparring", label: t.sidebar.nav.sparring, icon: "⬡" },
     { href: "/dashboard/weekly-review", label: t.sidebar.nav.weeklyReview, icon: "□" },
+    { href: "/dashboard/account", label: isEs ? "Mi Cuenta" : "My Account", icon: "⚙" },
   ];
 
   const handleLogout = async () => {

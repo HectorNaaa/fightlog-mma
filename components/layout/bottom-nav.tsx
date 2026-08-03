@@ -63,6 +63,13 @@ const GymIcon = () => (
   </svg>
 );
 
+const AccountIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
 export function BottomNav() {
   const pathname = usePathname();
 
@@ -74,6 +81,7 @@ export function BottomNav() {
     { href: "/dashboard/technical-tracker", icon: TechnicalIcon },
     { href: "/dashboard/gameplan", icon: PlanIcon },
     { href: "/dashboard/physical-metrics", icon: MetricsIcon },
+    { href: "/dashboard/account", icon: AccountIcon },
   ];
 
   return (
