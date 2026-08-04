@@ -30,7 +30,7 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
   return null;
 };
 
-export function MetricChart({ data, color = "#d4a017", type = "area", height = 200 }: ChartProps) {
+export function MetricChart({ data, color = "#c9a875", type = "area", height = 200 }: ChartProps) {
   const chartData = data.map((d) => ({ name: d.label, value: d.value }));
 
   if (type === "line") {

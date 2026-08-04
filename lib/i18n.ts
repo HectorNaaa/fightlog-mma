@@ -698,3 +698,16 @@ export const translations = {
 } as const;
 
 export type Translations = (typeof translations)["en"];
+
+/**
+ * Ad-hoc translation helper for strings not covered by the structured
+ * `translations` tree above. Pass the current locale plus a dict with at
+ * least `en`; any locale without an explicit entry falls back to `en`.
+ * Usage: `tr(locale, { en: "Save", es: "Guardar", pt: "Salvar", fr: "Enregistrer", it: "Salva" })`
+ */
+export function tr(
+  locale: Locale,
+  dict: { en: string; es?: string; pt?: string; fr?: string; it?: string }
+): string {
+  return dict[locale] ?? dict.en;
+}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/contexts/language-context";
+import { tr } from "@/lib/i18n";
 
 interface GymMember {
   id: string;
@@ -30,7 +31,7 @@ export default function GymProfilePage() {
   const params = useParams<{ id: string }>();
   const gymId = params?.id;
   const { locale } = useLanguage();
-  const isEs = locale === "es";
+  const t = (en: string, es: string, pt: string, fr: string, it: string) => tr(locale, { en, es, pt, fr, it });
 
   const [gym, setGym] = useState<GymDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,13 +46,13 @@ export default function GymProfilePage() {
       const res = await fetch(`/api/gyms/${gymId}`, { cache: "no-store" });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data) {
-        setError(data?.error ?? (isEs ? "Gimnasio no encontrado" : "Gym not found"));
+        setError(data?.error ?? t("Gym not found", "Gimnasio no encontrado", "Academia não encontrada", "Salle introuvable", "Palestra non trovata"));
         setGym(null);
         return;
       }
       setGym(data);
     } catch {
-      setError(isEs ? "Error de red al cargar el gimnasio." : "Network error loading gym.");
+      setError(t("Network error loading gym.", "Error de red al cargar el gimnasio.", "Erro de rede ao carregar a academia.", "Erreur réseau lors du chargement de la salle.", "Errore di rete durante il caricamento della palestra."));
     } finally {
       setLoading(false);
     }
@@ -77,14 +78,14 @@ export default function GymProfilePage() {
     }
   };
 
-  if (loading) return <div className="text-sm text-stone-text">{isEs ? "Cargando perfil del gimnasio..." : "Loading gym profile..."}</div>;
+  if (loading) return <div className="text-sm text-stone-text">{t("Loading gym profile...", "Cargando perfil del gimnasio...", "Carregando perfil da academia...", "Chargement du profil de la salle...", "Caricamento profilo palestra...")}</div>;
 
   if (error || !gym) {
     return (
       <div className="rounded-xl border border-dashed border-stone-border bg-bg-card p-5 text-sm text-stone-text">
-        {error || (isEs ? "Gimnasio no encontrado." : "Gym not found.")}{" "}
+        {error || t("Gym not found.", "Gimnasio no encontrado.", "Academia não encontrada.", "Salle introuvable.", "Palestra non trovata.")}{" "}
         <Link href="/dashboard/gyms" className="text-burgundy-light hover:underline">
-          {isEs ? "Volver a Gimnasios" : "Back to Gyms"}
+          {t("Back to Gyms", "Volver a Gimnasios", "Voltar às academias", "Retour aux salles", "Torna alle palestre")}
         </Link>
       </div>
     );
@@ -94,31 +95,31 @@ export default function GymProfilePage() {
     <div className="space-y-5">
       <header className="rounded-xl border border-stone-border bg-bg-card p-5 shadow-[0_12px_30px_rgba(0,0,0,0.24)]">
         <Link href="/dashboard/gyms" className="text-xs text-stone-text hover:text-white">
-          {isEs ? "← Volver a Gimnasios" : "← Back to Gyms"}
+          {t("← Back to Gyms", "← Volver a Gimnasios", "← Voltar às academias", "← Retour aux salles", "← Torna alle palestre")}
         </Link>
         <h1 className="mt-2 font-condensed text-2xl font-black uppercase tracking-[0.14em] text-white">{gym.name}</h1>
-        <p className="mt-1 text-sm text-stone-light">{gym.city || (isEs ? "Ubicación no definida" : "Location not set")}</p>
+        <p className="mt-1 text-sm text-stone-light">{gym.city || t("Location not set", "Ubicación no definida", "Localização não definida", "Emplacement non défini", "Posizione non definita")}</p>
         {gym.description && <p className="mt-2 text-sm text-stone-text">{gym.description}</p>}
 
         <div className="mt-4 flex flex-wrap gap-2">
           {gym.isMember ? (
             <>
               <span className="rounded-md border border-burgundy/50 bg-burgundy/20 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-burgundy-light">
-                {isEs ? "Entrenas aquí" : "You train here"}
+                {t("You train here", "Entrenas aquí", "Você treina aqui", "Vous vous entraînez ici", "Ti alleni qui")}
               </span>
               <button
                 onClick={() => performAction("setPrimary")}
                 disabled={busy}
                 className="rounded-md border border-stone-border bg-bg-elevated px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-white hover:border-burgundy-light disabled:opacity-60"
               >
-                {isEs ? "Marcar como gimnasio principal" : "Set as primary gym"}
+                {t("Set as primary gym", "Marcar como gimnasio principal", "Definir como academia principal", "Définir comme salle principale", "Imposta come palestra principale")}
               </button>
               <button
                 onClick={() => performAction("leave")}
                 disabled={busy}
                 className="rounded-md border border-stone-border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-stone-light hover:text-white disabled:opacity-60"
               >
-                {isEs ? "Abandonar gimnasio" : "Leave gym"}
+                {t("Leave gym", "Abandonar gimnasio", "Sair da academia", "Quitter la salle", "Lascia la palestra")}
               </button>
             </>
           ) : (
@@ -127,7 +128,7 @@ export default function GymProfilePage() {
               disabled={busy}
               className="rounded-md bg-burgundy px-4 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-burgundy-light disabled:opacity-60"
             >
-              {isEs ? "Unirte a este gimnasio" : "Join this gym"}
+              {t("Join this gym", "Unirte a este gimnasio", "Junte-se a esta academia", "Rejoindre cette salle", "Unisciti a questa palestra")}
             </button>
           )}
         </div>
@@ -135,7 +136,7 @@ export default function GymProfilePage() {
 
       <div className="rounded-xl border border-stone-border bg-bg-card p-4">
         <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-light">
-          {isEs ? "Atletas" : "Athletes"} ({gym.members.length})
+          {t("Athletes", "Atletas", "Atletas", "Athlètes", "Atleti")} ({gym.members.length})
         </h3>
         <div className="mt-3 grid gap-2">
           {gym.members.map((member) => (
@@ -148,12 +149,12 @@ export default function GymProfilePage() {
                 </p>
               </div>
               {member.isPrimary && (
-                <span className="rounded bg-bg-card px-2 py-1 text-[11px] uppercase tracking-wider text-amber">{isEs ? "Principal" : "Primary"}</span>
+                <span className="rounded bg-bg-card px-2 py-1 text-[11px] uppercase tracking-wider text-amber">{t("Primary", "Principal", "Principal", "Principale", "Principale")}</span>
               )}
             </div>
           ))}
           {gym.members.length === 0 && (
-            <p className="text-sm text-stone-text">{isEs ? "Aún no hay atletas afiliados a este gimnasio." : "No athletes affiliated with this gym yet."}</p>
+            <p className="text-sm text-stone-text">{t("No athletes affiliated with this gym yet.", "Aún no hay atletas afiliados a este gimnasio.", "Ainda não há atletas afiliados a esta academia.", "Aucun athlète affilié à cette salle pour le moment.", "Ancora nessun atleta affiliato a questa palestra.")}</p>
           )}
         </div>
       </div>

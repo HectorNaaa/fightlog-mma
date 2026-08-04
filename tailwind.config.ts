@@ -29,10 +29,10 @@ const config: Config = {
           muted: "#5a1a22",
         },
         navy: {
-          DEFAULT: "#2d3a5e",
-          light: "#3d4f7c",
-          dark: "#1e2840",
-          muted: "#1a2238",
+          DEFAULT: "#2a2622",
+          light: "#453f38",
+          dark: "#171512",
+          muted: "#0f0d0b",
         },
         beige: {
           DEFAULT: "#c4a882",
@@ -42,10 +42,10 @@ const config: Config = {
           warm: "rgb(var(--color-text-body) / <alpha-value>)",
         },
         amber: {
-          DEFAULT: "#d4a017",
-          light: "#e6b420",
-          dark: "#b8880d",
-          muted: "#9a7010",
+          DEFAULT: "#c9a875",
+          light: "#d9bf94",
+          dark: "#a8865a",
+          muted: "#8c6f48",
         },
         stone: {
           border: "rgb(var(--color-stone-border) / <alpha-value>)",

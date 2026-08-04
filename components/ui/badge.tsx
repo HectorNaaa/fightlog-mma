@@ -3,14 +3,14 @@ import { cn } from "@/lib/utils";
 const typeColors: Record<string, string> = {
   "General Training": "bg-burgundy/20 text-burgundy-light border-burgundy/30",
   Boxing: "bg-amber/20 text-amber-light border-amber/30",
-  "Muay Thai": "bg-orange-900/20 text-orange-400 border-orange-900/30",
-  Wrestling: "bg-navy/30 text-navy-light border-navy/40",
-  BJJ: "bg-blue-900/20 text-blue-400 border-blue-900/30",
-  Grappling: "bg-teal-900/20 text-teal-400 border-teal-900/30",
+  "Muay Thai": "bg-burgundy-dark/25 text-burgundy-light border-burgundy-dark/40",
+  Wrestling: "bg-navy/40 text-beige-surface border-navy/50",
+  BJJ: "bg-stone-muted/30 text-beige-light border-stone-muted/40",
+  Grappling: "bg-beige-dark/20 text-beige-dark border-beige-dark/30",
   Strength: "bg-stone-muted/30 text-beige-light border-stone-muted/40",
-  Conditioning: "bg-green-900/20 text-green-400 border-green-900/30",
-  Mobility: "bg-purple-900/20 text-purple-400 border-purple-900/30",
-  Recovery: "bg-indigo-900/20 text-indigo-400 border-indigo-900/30",
+  Conditioning: "bg-burgundy/10 text-burgundy-light border-burgundy/20",
+  Mobility: "bg-beige/20 text-beige-dark border-beige/30",
+  Recovery: "bg-navy/25 text-beige-surface border-navy/35",
 };
 
 interface BadgeProps {
