@@ -10,6 +10,7 @@ const updateSchema = z.object({
   displayName: z.string().min(2).max(80).optional(),
   avatarUrl: z.string().url().max(500).optional().nullable(),
   level: z.enum(["beginner", "intermediate"]).optional(),
+  discipline: z.string().min(1).max(60).optional(),
   beltRank: z.string().max(60).optional().nullable(),
   weightClass: z.string().max(60).optional().nullable(),
   city: z.string().max(80).optional().nullable(),
@@ -99,8 +100,9 @@ export async function PUT(req: NextRequest) {
           gymName: rest.gymName,
           name: rest.displayName,
           level: rest.level,
+          discipline: rest.discipline,
         },
-        select: { id: true, name: true, gymName: true, todayFocus: true, level: true },
+        select: { id: true, name: true, gymName: true, todayFocus: true, level: true, discipline: true },
       });
 
       await tx.profile.upsert({

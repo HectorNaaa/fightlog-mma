@@ -52,6 +52,15 @@ html.light {
   box-sizing: border-box;
 }
 
+html,
+body {
+  /* Prevent any accidental horizontal overflow (e.g. from a fixed-width
+     child, negative margin, or 100vw usage that ignores the scrollbar
+     gutter) from letting the whole page pan sideways on mobile. */
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   background-color: rgb(var(--color-bg-primary));
   color: rgb(var(--color-text-body));
@@ -59,6 +68,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.2s ease, color 0.2s ease;
+  width: 100%;
 }
 
 /* Scrollbar */

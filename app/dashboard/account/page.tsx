@@ -14,6 +14,7 @@ interface ProfileResponse {
   name: string;
   email: string;
   level: string;
+  discipline?: string;
   gymName?: string | null;
   disciplines?: string[];
   profile?: {
@@ -28,6 +29,7 @@ interface ProfileResponse {
 interface AccountForm {
   displayName: string;
   level: string;
+  discipline: string;
   gymName: string;
   postalCode: string;
   city: string;
@@ -38,6 +40,7 @@ interface AccountForm {
 const emptyForm: AccountForm = {
   displayName: "",
   level: "beginner",
+  discipline: "MMA",
   gymName: "",
   postalCode: "",
   city: "",
@@ -70,6 +73,7 @@ export default function AccountPage() {
           setForm({
             displayName: data.profile?.displayName ?? data.name ?? "",
             level: data.level ?? "beginner",
+            discipline: data.discipline ?? "MMA",
             gymName: data.gymName ?? "",
             postalCode: data.profile?.postalCode ?? "",
             city: data.profile?.city ?? "",
@@ -98,6 +102,7 @@ export default function AccountPage() {
         body: JSON.stringify({
           displayName: form.displayName || undefined,
           level: form.level,
+          discipline: form.discipline || undefined,
           gymName: form.gymName || null,
           postalCode: form.postalCode || null,
           city: form.city || null,
@@ -197,6 +202,11 @@ export default function AccountPage() {
           <Select label={isEs ? "Nivel" : "Level"} value={form.level} onChange={f("level")}>
             {LEVELS.map((l) => (
               <option key={l.value} value={l.value} disabled={l.disabled}>{l.label}</option>
+            ))}
+          </Select>
+          <Select label={isEs ? "Disciplina principal" : "Primary discipline"} value={form.discipline} onChange={f("discipline")}>
+            {DISCIPLINES.map((d) => (
+              <option key={d} value={d}>{d}</option>
             ))}
           </Select>
           <Input label={isEs ? "Gimnasio (opcional)" : "Gym (optional)"} value={form.gymName} onChange={f("gymName")} placeholder={isEs ? "Nombre de tu gimnasio" : "Your gym's name"} maxLength={80} />

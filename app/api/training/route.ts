@@ -21,6 +21,10 @@ const sessionSchema = z.object({
   dailyFocus: z.string().max(200).optional().nullable(),
   tacticNote: z.string().max(500).optional().nullable(),
   tacticPublic: z.boolean().optional(),
+  isFight: z.boolean().optional(),
+  opponentName: z.string().max(80).optional().nullable(),
+  fightResult: z.string().max(20).optional().nullable(),
+  fightMethod: z.string().max(80).optional().nullable(),
 });
 
 export async function GET() {

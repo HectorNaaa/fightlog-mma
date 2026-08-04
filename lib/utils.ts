@@ -48,6 +48,17 @@ export const LEVELS: { value: string; label: string; disabled?: boolean }[] = [
   { value: "professional", label: "Pro (Coming Soon)", disabled: true },
 ];
 
+export const FIGHT_RESULTS = ["win", "loss", "draw", "no_contest"] as const;
+
+export const FIGHT_METHODS = [
+  "Decision",
+  "KO",
+  "TKO",
+  "Submission",
+  "Points",
+  "Disqualification",
+] as const;
+
 export const STRIKING_TECHNIQUES = [
   "Jab",
   "Cross",

@@ -17,14 +17,9 @@ export function Sidebar() {
 
   const navItems = [
     { href: "/dashboard", label: t.sidebar.nav.dashboard, icon: "⬡", exact: true },
-    { href: "/dashboard/training-log", label: t.sidebar.nav.trainingLog, icon: "◈" },
     { href: "/dashboard/community", label: t.sidebar.nav.community, icon: "◉" },
-    { href: "/dashboard/gyms", label: t.sidebar.nav.gyms, icon: "🏋" },
     { href: "/dashboard/technical-tracker", label: t.sidebar.nav.technical, icon: "◎" },
-    { href: "/dashboard/gameplan", label: t.sidebar.nav.gameplan, icon: "◇" },
     { href: "/dashboard/physical-metrics", label: t.sidebar.nav.metrics, icon: "△" },
-    { href: "/dashboard/sparring", label: t.sidebar.nav.sparring, icon: "⬡" },
-    { href: "/dashboard/weekly-review", label: t.sidebar.nav.weeklyReview, icon: "□" },
     { href: "/dashboard/account", label: isEs ? "Mi Cuenta" : "My Account", icon: "⚙" },
   ];
 
@@ -66,26 +61,20 @@ export function Sidebar() {
       <nav className="flex-1 px-2 py-3 overflow-y-auto">
         {navItems.map((item) => {
           const active = (item as { exact?: boolean }).exact ? pathname === item.href : pathname.startsWith(item.href);
-          const isLocked =
-            user?.level === "beginner" &&
-            ["/dashboard/gameplan", "/dashboard/sparring", "/dashboard/weekly-review"].includes(item.href);
 
           return (
             <Link
               key={item.href}
-              href={isLocked ? "#" : item.href}
+              href={item.href}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-sm mb-0.5 text-sm font-medium transition-all group",
                 active
                   ? "bg-burgundy/20 text-beige-surface border border-burgundy/30"
-                  : isLocked
-                  ? "text-stone-text/50 cursor-not-allowed"
                   : "text-stone-text hover:text-beige-warm hover:bg-bg-elevated"
               )}
             >
               <span className="text-base w-5 text-center opacity-70">{item.icon}</span>
               <span className="flex-1">{item.label}</span>
-              {isLocked && <span className="text-[9px] text-stone-text/50 uppercase tracking-wider">+</span>}
               {active && <span className="w-1 h-1 rounded-full bg-amber" />}
             </Link>
           );

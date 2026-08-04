@@ -7,6 +7,8 @@ import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { MetricChart } from "@/components/charts/metric-chart";
 import { formatDate, formatDateInput } from "@/lib/utils";
 import { useLanguage } from "@/contexts/language-context";
+import SparringPage from "@/app/dashboard/sparring/page";
+import WeeklyReviewPage from "@/app/dashboard/weekly-review/page";
 
 interface Metric {
   id: string;
@@ -39,6 +41,7 @@ export default function PhysicalMetricsPage() {
   const { locale } = useLanguage();
   const isEs = locale === "es";
   const [metrics, setMetrics] = useState<Metric[]>([]);
+  const [tab, setTab] = useState<"metrics" | "sparring" | "weekly">("metrics");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Metric | null>(null);
   const [form, setForm] = useState<Omit<Metric, "id">>(empty);
@@ -90,12 +93,39 @@ export default function PhysicalMetricsPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{isEs ? "Métricas físicas" : "Physical Metrics"}</h1>
-          <p className="text-sm text-stone-text mt-1">{isEs ? "Peso corporal, recuperación y salud" : "Body weight, recovery and health tracking"}</p>
+          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{isEs ? "Rendimiento" : "Performance"}</h1>
+          <p className="text-sm text-stone-text mt-1">{isEs ? "Métricas, sparring y revisión semanal" : "Metrics, sparring and weekly review"}</p>
         </div>
-        <Button onClick={openNew}>+ {isEs ? "Registrar métricas" : "Log Metrics"}</Button>
+        {tab === "metrics" && <Button onClick={openNew}>+ {isEs ? "Registrar métricas" : "Log Metrics"}</Button>}
       </div>
 
+      {/* Tabs */}
+      <div className="flex gap-1 mb-5 border-b border-stone-border pb-0">
+        {([
+          { key: "metrics", label: isEs ? "Métricas" : "Metrics" },
+          { key: "sparring", label: "Sparring" },
+          { key: "weekly", label: isEs ? "Revisión semanal" : "Weekly Review" },
+        ] as const).map((item) => (
+          <button
+            key={item.key}
+            onClick={() => setTab(item.key)}
+            className={`px-4 py-2 text-xs font-bold uppercase tracking-widest border-b-2 transition-colors -mb-px ${
+              tab === item.key
+                ? "border-burgundy text-burgundy-light"
+                : "border-transparent text-stone-text hover:text-beige-warm"
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "sparring" ? (
+        <SparringPage />
+      ) : tab === "weekly" ? (
+        <WeeklyReviewPage />
+      ) : (
+      <>
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <Card>
@@ -185,6 +215,8 @@ export default function PhysicalMetricsPage() {
           <Button onClick={save} disabled={saving}>{saving ? (isEs ? "Guardando…" : "Saving…") : (isEs ? "Guardar" : "Save")}</Button>
         </div>
       </Modal>
+      </>
+      )}
     </div>
   );
 }

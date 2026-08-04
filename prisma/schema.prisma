@@ -96,6 +96,10 @@ model TrainingSession {
   dailyFocus     String?
   tacticNote     String?
   tacticPublic   Boolean  @default(false)
+  isFight        Boolean  @default(false)
+  opponentName   String?
+  fightResult    String?
+  fightMethod    String?
   createdAt      DateTime @default(now())
 
   user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import GymsDirectoryPage from "@/app/dashboard/gyms/page";
 
 const NearbyMap = dynamic(() => import("@/components/map/nearby-map"), {
   ssr: false,
@@ -14,7 +15,7 @@ const NearbyMap = dynamic(() => import("@/components/map/nearby-map"), {
   ),
 });
 
-type TabKey = "feed" | "fighters" | "nearby" | "partners" | "nodes";
+type TabKey = "feed" | "fighters" | "nearby" | "partners" | "nodes" | "gyms";
 
 interface Friend {
   id: string;
@@ -396,16 +397,17 @@ export default function CommunityPage() {
   return (
     <div className="space-y-5">
       <header className="rounded-xl border border-stone-border bg-bg-card p-5 shadow-[0_12px_30px_rgba(0,0,0,0.24)]">
-        <h1 className="font-condensed text-2xl font-black uppercase tracking-[0.14em] text-white">Community</h1>
+        <h1 className="font-condensed text-2xl font-black uppercase tracking-[0.14em] text-white">Social</h1>
         <p className="mt-1 text-sm text-stone-light">Train smarter. Build your fight brain.</p>
         <p className="text-xs text-stone-text">Learning network for fighters, not vanity engagement.</p>
       </header>
 
-      <div className="grid gap-2 rounded-xl border border-stone-border bg-bg-card p-2 sm:grid-cols-4">
+      <div className="grid gap-2 rounded-xl border border-stone-border bg-bg-card p-2 sm:grid-cols-3 lg:grid-cols-6">
         {([
           { key: "feed", label: "Learning Feed" },
           { key: "fighters", label: "Find Fighters" },
           { key: "nearby", label: "Nearby" },
+          { key: "gyms", label: "Gyms" },
           { key: "partners", label: "Partners" },
           { key: "nodes", label: "Technique Graph" },
         ] as Array<{ key: TabKey; label: string }>).map((item) => (
@@ -646,6 +648,12 @@ export default function CommunityPage() {
               </div>
             </>
           )}
+        </section>
+      )}
+
+      {tab === "gyms" && (
+        <section>
+          <GymsDirectoryPage />
         </section>
       )}
 

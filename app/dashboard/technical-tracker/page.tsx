@@ -8,6 +8,7 @@ import { RatingDots } from "@/components/ui/badge";
 import { STRIKING_TECHNIQUES, GRAPPLING_TECHNIQUES } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
+import GameplanPage from "@/app/dashboard/gameplan/page";
 
 interface Technique {
   id: string;
@@ -39,7 +40,7 @@ export default function TechnicalTrackerPage() {
   const { locale } = useLanguage();
   const isEs = locale === "es";
   const [techniques, setTechniques] = useState<Technique[]>([]);
-  const [tab, setTab] = useState<"striking" | "grappling">("striking");
+  const [tab, setTab] = useState<"striking" | "grappling" | "gameplans">("striking");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Technique | null>(null);
   const [form, setForm] = useState<Omit<Technique, "id">>(emptyTech);
@@ -85,19 +86,19 @@ export default function TechnicalTrackerPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">Technical Tracker</h1>
-          <p className="text-sm text-stone-text mt-1">{isEs ? "Valora y analiza tus técnicas" : "Rate and analyze your techniques"}</p>
+          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">Technical</h1>
+          <p className="text-sm text-stone-text mt-1">{isEs ? "Técnicas y constructor de gameplans" : "Techniques and gameplan builder"}</p>
         </div>
-        {isIntermediate ? (
+        {tab !== "gameplans" && (isIntermediate ? (
           <Button onClick={openNew}>+ {isEs ? "Añadir técnica" : "Add Technique"}</Button>
         ) : (
           <div className="text-xs text-stone-text border border-stone-border px-3 py-1.5 rounded-sm">{isEs ? "Intermedio+ desbloquea el tracker completo" : "Intermediate+ unlocks full tracker"}</div>
-        )}
+        ))}
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 mb-5 border-b border-stone-border pb-0">
-        {(["striking", "grappling"] as const).map((t) => (
+        {(["striking", "grappling", "gameplans"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -107,12 +108,14 @@ export default function TechnicalTrackerPage() {
                 : "border-transparent text-stone-text hover:text-beige-warm"
             }`}
           >
-            {isEs ? (t === "striking" ? "golpeo" : "grappling") : t}
+            {isEs ? (t === "striking" ? "golpeo" : t === "grappling" ? "grappling" : "gameplans") : t}
           </button>
         ))}
       </div>
 
-      {!isIntermediate ? (
+      {tab === "gameplans" ? (
+        <GameplanPage />
+      ) : !isIntermediate ? (
         <BeginnersView tab={tab} presets={presets} isEs={isEs} />
       ) : (
         <Card>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input, Textarea, Select } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
-import { formatDate, formatDateInput, TRAINING_TYPES, DISCIPLINES } from "@/lib/utils";
+import { formatDate, formatDateInput, TRAINING_TYPES, DISCIPLINES, FIGHT_RESULTS, FIGHT_METHODS } from "@/lib/utils";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/language-context";
@@ -38,10 +38,10 @@ function getMotivation(streak: number, locale: string): string {
   return locale === "es" ? "Hoy empieza tu racha." : "Your streak starts today.";
 }
 
-interface Session { id: string; date: string; type: string; duration: number; intensity: number; energyBefore: number; energyAfter: number; soreness: number; mainFocus?: string | null; personalRating?: number | null; }
+interface Session { id: string; date: string; type: string; duration: number; intensity: number; energyBefore: number; energyAfter: number; soreness: number; mainFocus?: string | null; personalRating?: number | null; isFight?: boolean; opponentName?: string | null; fightResult?: string | null; fightMethod?: string | null; }
 interface Tip { sessionId: string; authorName: string; gymName?: string | null; date: string; type: string; tacticNote: string | null; respetos: number; hasRespeto: boolean; }
 
-const emptyForm = { date: "", type: "Boxing", duration: 60, intensity: 7, energyBefore: 7, energyAfter: 6, soreness: 5, bodyWeight: null as number | null, mood: "", mainFocus: "", physicalState: 3, dailyFocus: "", tacticNote: "", tacticPublic: false };
+const emptyForm = { date: "", type: "Boxing", duration: 60, intensity: 7, energyBefore: 7, energyAfter: 6, soreness: 5, bodyWeight: null as number | null, mood: "", mainFocus: "", physicalState: 3, dailyFocus: "", tacticNote: "", tacticPublic: false, isFight: false, opponentName: "", fightResult: "", fightMethod: "" };
 
 export default function DashboardPage() {
   const { user, refetch } = useAuth();
@@ -65,8 +65,11 @@ export default function DashboardPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [tips, setTips] = useState<Tip[]>([]);
   const [fabOpen, setFabOpen] = useState(false);
+  const [editingSession, setEditingSession] = useState<Session | null>(null);
+  const [logFilter, setLogFilter] = useState<"all" | "training" | "fights">("all");
   const [form, setForm] = useState({ ...emptyForm, date: formatDateInput(new Date()) });
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [focusEdit, setFocusEdit] = useState(false);
   const [focusVal, setFocusVal] = useState("");
   const focusRef = useRef<HTMLInputElement>(null);
@@ -121,12 +124,50 @@ export default function DashboardPage() {
 
   const saveSession = async () => {
     setSaving(true);
-    await fetch("/api/training", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, duration: Number(form.duration), intensity: Number(form.intensity), energyBefore: Number(form.energyBefore), energyAfter: Number(form.energyAfter), soreness: Number(form.soreness), physicalState: Number(form.physicalState), tacticPublic: form.tacticPublic }) });
+    const payload = { ...form, duration: Number(form.duration), intensity: Number(form.intensity), energyBefore: Number(form.energyBefore), energyAfter: Number(form.energyAfter), soreness: Number(form.soreness), physicalState: Number(form.physicalState), tacticPublic: form.tacticPublic, isFight: form.isFight };
+    const url = editingSession ? `/api/training/${editingSession.id}` : "/api/training";
+    const method = editingSession ? "PUT" : "POST";
+    await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     await load();
     await refetch();
     setFabOpen(false);
     setSaving(false);
+    setEditingSession(null);
     setForm({ ...emptyForm, date: formatDateInput(new Date()) });
+  };
+
+  const openNewLog = (isFight = false) => {
+    setEditingSession(null);
+    setForm({ ...emptyForm, date: formatDateInput(new Date()), isFight });
+    setFabOpen(true);
+  };
+
+  const openEditLog = (s: Session) => {
+    setEditingSession(s);
+    setForm({
+      ...emptyForm,
+      date: formatDateInput(s.date),
+      type: s.type,
+      duration: s.duration,
+      intensity: s.intensity,
+      energyBefore: s.energyBefore,
+      energyAfter: s.energyAfter,
+      soreness: s.soreness,
+      mainFocus: s.mainFocus ?? "",
+      isFight: !!s.isFight,
+      opponentName: s.opponentName ?? "",
+      fightResult: s.fightResult ?? "",
+      fightMethod: s.fightMethod ?? "",
+    });
+    setFabOpen(true);
+  };
+
+  const deleteSession = async (id: string) => {
+    setDeletingId(id);
+    await fetch(`/api/training/${id}`, { method: "DELETE" });
+    await load();
+    await refetch();
+    setDeletingId(null);
   };
 
   const toggleRespeto = async (sessionId: string) => {
@@ -135,6 +176,8 @@ export default function DashboardPage() {
   };
 
   const f = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setForm(p => ({ ...p, [field]: e.target.value }));
+
+  const filteredSessions = sessions.filter(s => logFilter === "all" ? true : logFilter === "fights" ? !!s.isFight : !s.isFight);
 
   const chartData = [...sessions].reverse().slice(-8).map(s => ({ label: formatDate(s.date).slice(0, 6), value: s.duration }));
 
@@ -289,31 +332,91 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Recent sessions list */}
-      {sessions.length > 1 && (
-        <div className="bg-bg-card border border-stone-border rounded-sm">
-          <div className="px-4 pt-4 pb-2 text-[10px] text-stone-text uppercase tracking-widest">{isEs ? "Historial reciente" : "Recent history"}</div>
-          {sessions.slice(1, 6).map(s => (
-            <div key={s.id} className="flex items-center gap-3 px-4 py-2.5 border-t border-stone-border/40">
-              <Badge label={s.type} />
-              <span className="text-xs text-stone-text">{formatDate(s.date)}</span>
-              <span className="text-xs text-beige-warm ml-auto">{s.duration}m · {s.intensity}/10</span>
-            </div>
-          ))}
+      {/* Full training & fight log (embedded, scrollable) */}
+      <div className="bg-bg-card border border-stone-border rounded-sm">
+        <div className="flex items-center justify-between px-4 pt-4 pb-2 gap-2 flex-wrap">
+          <span className="text-[10px] text-stone-text uppercase tracking-widest">{isEs ? "Diario de entreno" : "Training log"} ({filteredSessions.length})</span>
+          <div className="flex rounded-full border border-stone-border overflow-hidden">
+            {(["all", "training", "fights"] as const).map(k => (
+              <button
+                key={k}
+                onClick={() => setLogFilter(k)}
+                className={cn("px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors", logFilter === k ? "bg-burgundy text-white" : "text-stone-text hover:text-beige-warm")}
+              >
+                {k === "all" ? (isEs ? "Todo" : "All") : k === "training" ? (isEs ? "Entrenos" : "Training") : (isEs ? "Peleas" : "Fights")}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
+        {filteredSessions.length === 0 ? (
+          <div className="px-4 pb-4 text-xs text-stone-text/60 italic">{isEs ? "Sin sesiones registradas todavía." : "No sessions logged yet."}</div>
+        ) : (
+          <div className="max-h-[420px] overflow-y-auto">
+            {filteredSessions.map(s => (
+              <div key={s.id} className="flex items-center gap-2 px-4 py-2.5 border-t border-stone-border/40">
+                <button onClick={() => openEditLog(s)} className="flex items-center gap-2 flex-1 min-w-0 text-left">
+                  {s.isFight ? (
+                    <span className={cn(
+                      "text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-sm shrink-0",
+                      s.fightResult === "win" ? "bg-amber/20 text-amber" : s.fightResult === "loss" ? "bg-burgundy/20 text-burgundy-light" : "bg-navy/30 text-navy-light"
+                    )}>
+                      {isEs ? "Pelea" : "Fight"}{s.fightResult ? ` · ${s.fightResult}` : ""}
+                    </span>
+                  ) : (
+                    <Badge label={s.type} />
+                  )}
+                  <span className="text-xs text-stone-text shrink-0">{formatDate(s.date)}</span>
+                  {s.isFight && s.opponentName && <span className="text-xs text-beige-warm truncate">vs {s.opponentName}</span>}
+                  <span className="text-xs text-beige-warm ml-auto shrink-0">{s.duration}m · {s.intensity}/10</span>
+                </button>
+                <button
+                  onClick={() => deleteSession(s.id)}
+                  disabled={deletingId === s.id}
+                  title={isEs ? "Borrar" : "Delete"}
+                  className="shrink-0 text-stone-text/50 hover:text-burgundy-light text-xs px-1.5 py-1 transition-colors disabled:opacity-40"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* FAB */}
-      <button onClick={() => setFabOpen(true)} className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-40 w-14 h-14 bg-burgundy hover:bg-burgundy-light text-white rounded-full shadow-lg flex items-center justify-center text-2xl font-light transition-all active:scale-95">
+      <button onClick={() => openNewLog(false)} className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-40 w-14 h-14 bg-burgundy hover:bg-burgundy-light text-white rounded-full shadow-lg flex items-center justify-center text-2xl font-light transition-all active:scale-95">
         +
       </button>
 
       {/* Quick log modal */}
-      <Modal open={fabOpen} onClose={() => setFabOpen(false)} title={isEs ? "Registrar Entreno" : "Log Session"}>
+      <Modal open={fabOpen} onClose={() => setFabOpen(false)} title={editingSession ? (isEs ? "Editar sesión" : "Edit Session") : form.isFight ? (isEs ? "Registrar Pelea" : "Log Fight") : (isEs ? "Registrar Entreno" : "Log Session")}>
+        <div className="flex rounded-full border border-stone-border overflow-hidden mb-4 w-fit">
+          <button
+            type="button"
+            onClick={() => setForm(p => ({ ...p, isFight: false }))}
+            className={cn("px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors", !form.isFight ? "bg-burgundy text-white" : "text-stone-text hover:text-beige-warm")}
+          >
+            {isEs ? "Entreno" : "Training"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setForm(p => ({ ...p, isFight: true }))}
+            className={cn("px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors", form.isFight ? "bg-burgundy text-white" : "text-stone-text hover:text-beige-warm")}
+          >
+            {isEs ? "Pelea" : "Fight"}
+          </button>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input label={isEs ? "Fecha" : "Date"} type="date" value={form.date} onChange={f("date")} />
           <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Tipo" : "Type"}</label><Select value={form.type} onChange={f("type")}>{TRAINING_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</Select></div>
           <Input label={isEs ? "Duración (min)" : "Duration (min)"} type="number" min={1} value={form.duration} onChange={f("duration")} />
+          {form.isFight && (
+            <>
+              <Input label={isEs ? "Oponente" : "Opponent"} value={form.opponentName} onChange={f("opponentName")} placeholder={isEs ? "Nombre del rival" : "Opponent name"} />
+              <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Resultado" : "Result"}</label><Select value={form.fightResult} onChange={f("fightResult")}><option value="">{isEs ? "Selecciona..." : "Select..."}</option>{FIGHT_RESULTS.map(r => <option key={r} value={r}>{r}</option>)}</Select></div>
+              <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Método" : "Method"}</label><Select value={form.fightMethod} onChange={f("fightMethod")}><option value="">{isEs ? "Selecciona..." : "Select..."}</option>{FIGHT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}</Select></div>
+            </>
+          )}
           <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Sensación física (1-5): ${form.physicalState}` : `Physical state (1-5): ${form.physicalState}`}</label><input title="Physical state" type="range" min={1} max={5} value={form.physicalState} onChange={f("physicalState")} /></div>
           <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Intensidad (1-10): ${form.intensity}` : `Intensity (1-10): ${form.intensity}`}</label><input title="Intensity" type="range" min={1} max={10} value={form.intensity} onChange={f("intensity")} /></div>
           <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Energía antes (1-10): ${form.energyBefore}` : `Energy before (1-10): ${form.energyBefore}`}</label><input title="Energy before" type="range" min={1} max={10} value={form.energyBefore} onChange={f("energyBefore")} /></div>
@@ -330,7 +433,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex justify-end gap-3 mt-6">
           <Button variant="secondary" onClick={() => setFabOpen(false)}>{isEs ? "Cancelar" : "Cancel"}</Button>
-          <Button onClick={saveSession} disabled={saving}>{saving ? (isEs ? "Guardando…" : "Saving…") : (isEs ? "Guardar" : "Save")}</Button>
+          <Button onClick={saveSession} disabled={saving}>{saving ? (isEs ? "Guardando…" : "Saving…") : editingSession ? (isEs ? "Actualizar" : "Update") : (isEs ? "Guardar" : "Save")}</Button>
         </div>
       </Modal>
     </div>
