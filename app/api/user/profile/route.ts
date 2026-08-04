@@ -20,6 +20,8 @@ const updateSchema = z.object({
   isPublic: z.boolean().optional(),
   visibility: z.enum(["private", "friends", "public"]).optional(),
   disciplines: z.array(z.string().min(1).max(60)).max(12).optional(),
+  reminderEnabled: z.boolean().optional(),
+  reminderDays: z.string().max(20).optional(),
 });
 
 export async function GET() {
@@ -36,6 +38,8 @@ export async function GET() {
       gymName: true,
       discipline: true,
       todayFocus: true,
+      reminderEnabled: true,
+      reminderDays: true,
       profile: {
         select: {
           username: true,
@@ -101,8 +105,10 @@ export async function PUT(req: NextRequest) {
           name: rest.displayName,
           level: rest.level,
           discipline: rest.discipline,
+          reminderEnabled: rest.reminderEnabled,
+          reminderDays: rest.reminderDays,
         },
-        select: { id: true, name: true, gymName: true, todayFocus: true, level: true, discipline: true },
+        select: { id: true, name: true, gymName: true, todayFocus: true, level: true, discipline: true, reminderEnabled: true, reminderDays: true },
       });
 
       await tx.profile.upsert({

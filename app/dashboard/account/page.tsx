@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
 import { useTheme } from "@/contexts/theme-context";
+import { LOCALES, type Locale } from "@/lib/i18n";
+import { PushNotificationToggle } from "@/components/notifications/push-manager";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { Card, CardHeader, CardBody } from "@/components/ui/card";
@@ -17,6 +19,8 @@ interface ProfileResponse {
   discipline?: string;
   gymName?: string | null;
   disciplines?: string[];
+  reminderEnabled?: boolean;
+  reminderDays?: string;
   profile?: {
     displayName?: string | null;
     city?: string | null;
@@ -50,7 +54,7 @@ const emptyForm: AccountForm = {
 
 export default function AccountPage() {
   const { user, refetch, logout } = useAuth();
-  const { locale } = useLanguage();
+  const { locale, setLocale } = useLanguage();
   const { theme, setTheme } = useTheme();
   const router = useRouter();
   const isEs = locale === "es";
@@ -63,6 +67,9 @@ export default function AccountPage() {
   const [form, setForm] = useState<AccountForm>(emptyForm);
   const [disciplines, setDisciplines] = useState<string[]>([]);
   const [selectedDisc, setSelectedDisc] = useState("");
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminderDays, setReminderDays] = useState<number[]>([1, 2, 3, 4, 5, 6, 0]);
+  const [savingReminder, setSavingReminder] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -81,6 +88,13 @@ export default function AccountPage() {
             beltRank: data.profile?.beltRank ?? "",
           });
           setDisciplines(Array.isArray(data.disciplines) ? data.disciplines : []);
+          setReminderEnabled(Boolean(data.reminderEnabled));
+          setReminderDays(
+            (data.reminderDays || "1,2,3,4,5,6,0")
+              .split(",")
+              .map((d) => Number(d.trim()))
+              .filter((d) => !Number.isNaN(d))
+          );
         }
       } finally {
         setLoading(false);
@@ -149,6 +163,34 @@ export default function AccountPage() {
     router.push("/");
   };
 
+  const dayLabels = isEs
+    ? ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
+    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const toggleReminderDay = async (day: number) => {
+    const next = reminderDays.includes(day) ? reminderDays.filter((d) => d !== day) : [...reminderDays, day].sort();
+    setReminderDays(next);
+    setSavingReminder(true);
+    await fetch("/api/user/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reminderDays: next.join(",") }),
+    }).catch(() => null);
+    setSavingReminder(false);
+  };
+
+  const toggleReminderEnabled = async () => {
+    const next = !reminderEnabled;
+    setReminderEnabled(next);
+    setSavingReminder(true);
+    await fetch("/api/user/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reminderEnabled: next }),
+    }).catch(() => null);
+    setSavingReminder(false);
+  };
+
   if (loading) {
     return <div className="text-sm text-stone-text">{isEs ? "Cargando cuenta..." : "Loading account..."}</div>;
   }
@@ -187,6 +229,100 @@ export default function AccountPage() {
             >
               {isEs ? "Claro" : "Light"}
             </button>
+          </div>
+        </CardBody>
+      </Card>
+
+      {/* Language */}
+      <Card>
+        <CardHeader>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{isEs ? "Idioma" : "Language"}</h2>
+        </CardHeader>
+        <CardBody>
+          <div className="flex flex-wrap gap-2">
+            {LOCALES.map((l) => (
+              <button
+                key={l.code}
+                type="button"
+                onClick={() => setLocale(l.code as Locale)}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors",
+                  locale === l.code
+                    ? "border-burgundy bg-burgundy text-white"
+                    : "border-stone-border text-stone-text hover:text-beige-warm"
+                )}
+              >
+                <span>{l.flag}</span>
+                <span>{l.label}</span>
+              </button>
+            ))}
+          </div>
+        </CardBody>
+      </Card>
+
+      {/* Notifications */}
+      <Card>
+        <CardHeader>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{isEs ? "Notificaciones" : "Notifications"}</h2>
+        </CardHeader>
+        <CardBody className="space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <div className="text-sm font-semibold text-beige-warm">{isEs ? "Alertas push" : "Push alerts"}</div>
+              <div className="text-xs text-stone-text mt-0.5">
+                {isEs ? "Recibe notificaciones en este dispositivo" : "Receive notifications on this device"}
+              </div>
+            </div>
+            <PushNotificationToggle />
+          </div>
+
+          <div className="border-t border-stone-border/50 pt-4">
+            <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
+              <div>
+                <div className="text-sm font-semibold text-beige-warm">{isEs ? "Recordatorio diario" : "Daily reminder"}</div>
+                <div className="text-xs text-stone-text mt-0.5 max-w-sm">
+                  {isEs
+                    ? "Te avisamos para que registres tu sesión de entreno o pelea del día."
+                    : "We'll nudge you to log today's training session or fight."}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={toggleReminderEnabled}
+                disabled={savingReminder}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors",
+                  reminderEnabled ? "bg-burgundy text-white" : "border border-stone-border text-stone-text hover:text-beige-warm"
+                )}
+              >
+                {reminderEnabled ? (isEs ? "Activado" : "On") : (isEs ? "Desactivado" : "Off")}
+              </button>
+            </div>
+            {reminderEnabled && (
+              <div>
+                <div className="text-[10px] uppercase tracking-widest text-stone-text mb-2">
+                  {isEs ? "Días de la semana" : "Days of the week"}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {dayLabels.map((label, day) => (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => toggleReminderDay(day)}
+                      disabled={savingReminder}
+                      className={cn(
+                        "w-11 h-9 rounded-sm text-[11px] font-bold uppercase tracking-wider transition-colors",
+                        reminderDays.includes(day)
+                          ? "bg-burgundy/20 border border-burgundy/60 text-burgundy-light"
+                          : "border border-stone-border text-stone-text hover:text-beige-warm"
+                      )}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </CardBody>
       </Card>

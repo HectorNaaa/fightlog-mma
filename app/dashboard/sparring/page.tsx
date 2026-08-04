@@ -89,7 +89,7 @@ export default function SparringPage() {
         <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface mb-6">{isEs ? "Revisión de sparring" : "Sparring Review"}</h1>
         <div className="border border-navy/30 bg-navy/10 rounded-sm p-6 text-center max-w-lg mx-auto mt-10">
           <div className="text-4xl mb-3 opacity-30">⬡</div>
-          <div className="font-condensed text-xl font-bold uppercase tracking-widest text-navy-light mb-2">Intermediate Feature</div>
+          <div className="font-condensed text-xl font-bold uppercase tracking-widest text-navy-light mb-2">{isEs ? "Función intermedia" : "Intermediate Feature"}</div>
           <p className="text-sm text-stone-text">{isEs ? "El análisis de sparring está disponible para nivel intermedio." : "Sparring analysis is available for Intermediate Amateur fighters."}</p>
         </div>
       </div>
@@ -118,29 +118,29 @@ export default function SparringPage() {
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <div className="text-xs text-stone-text">{formatDate(s.date)}</div>
-                  <div className="font-semibold text-beige-surface">{s.partnerStyle || "Unknown style"}</div>
-                  <div className="text-xs text-stone-text mt-0.5">{s.rounds ?? "?"} rounds × {s.roundLength ?? "?"} min</div>
+                  <div className="font-semibold text-beige-surface">{s.partnerStyle || (isEs ? "Estilo desconocido" : "Unknown style")}</div>
+                  <div className="text-xs text-stone-text mt-0.5">{s.rounds ?? "?"} {isEs ? "asaltos" : "rounds"} × {s.roundLength ?? "?"} min</div>
                 </div>
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => openEdit(s)}>Edit</Button>
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(s)}>{isEs ? "Editar" : "Edit"}</Button>
                   <Button variant="danger" size="sm" onClick={() => del(s.id)}>×</Button>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-                {s.cardioRating != null && <Rating label="Cardio" value={s.cardioRating} />}
-                {s.composureRating != null && <Rating label="Composure" value={s.composureRating} />}
-                {s.defenseRating != null && <Rating label="Defense" value={s.defenseRating} />}
-                {s.overallRating != null && <Rating label="Overall" value={s.overallRating} />}
+                {s.cardioRating != null && <Rating label={isEs ? "Cardio" : "Cardio"} value={s.cardioRating} />}
+                {s.composureRating != null && <Rating label={isEs ? "Compostura" : "Composure"} value={s.composureRating} />}
+                {s.defenseRating != null && <Rating label={isEs ? "Defensa" : "Defense"} value={s.defenseRating} />}
+                {s.overallRating != null && <Rating label={isEs ? "General" : "Overall"} value={s.overallRating} />}
               </div>
               {s.bestTechniques && (
                 <div className="text-xs mb-1">
-                  <span className="text-stone-text">Best: </span>
+                  <span className="text-stone-text">{isEs ? "Mejor: " : "Best: "}</span>
                   <span className="text-amber">{s.bestTechniques}</span>
                 </div>
               )}
               {s.mistakes && (
                 <div className="text-xs mb-1">
-                  <span className="text-stone-text">Mistakes: </span>
+                  <span className="text-stone-text">{isEs ? "Errores: " : "Mistakes: "}</span>
                   <span className="text-red-400">{s.mistakes}</span>
                 </div>
               )}
@@ -156,25 +156,28 @@ export default function SparringPage() {
 
       <Modal open={open} onClose={() => setOpen(false)} title={editing ? (isEs ? "Editar sparring" : "Edit Sparring") : (isEs ? "Registrar sparring" : "Log Sparring Session")} className="max-w-2xl">
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Date" type="date" value={form.date} onChange={f("date")} />
-          <Input label="Partner Style" value={form.partnerStyle ?? ""} onChange={f("partnerStyle")} placeholder="e.g. Boxer, Wrestler" />
-          <Input label="Rounds" type="number" min={1} value={form.rounds ?? ""} onChange={f("rounds")} />
-          <Input label="Round Length (min)" type="number" min={1} value={form.roundLength ?? ""} onChange={f("roundLength")} />
-          {(["cardioRating", "composureRating", "defenseRating", "overallRating"] as const).map((field) => (
+          <Input label={isEs ? "Fecha" : "Date"} type="date" value={form.date} onChange={f("date")} />
+          <Input label={isEs ? "Estilo del compañero" : "Partner Style"} value={form.partnerStyle ?? ""} onChange={f("partnerStyle")} placeholder={isEs ? "ej: Boxeador, Luchador" : "e.g. Boxer, Wrestler"} />
+          <Input label={isEs ? "Asaltos" : "Rounds"} type="number" min={1} value={form.rounds ?? ""} onChange={f("rounds")} />
+          <Input label={isEs ? "Duración del asalto (min)" : "Round Length (min)"} type="number" min={1} value={form.roundLength ?? ""} onChange={f("roundLength")} />
+          {((["cardioRating", "composureRating", "defenseRating", "overallRating"] as const).map((field) => {
+            const esLabels: Record<string, string> = { cardioRating: "Cardio", composureRating: "Compostura", defenseRating: "Defensa", overallRating: "General" };
+            const label = isEs ? esLabels[field] : field.replace("Rating", "").replace(/([A-Z])/g, " $1");
+            return (
             <div key={field} className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{field.replace("Rating", "").replace(/([A-Z])/g, " $1")} (1–10): {form[field] ?? 0}</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{label} (1–10): {form[field] ?? 0}</label>
               <input title={field} type="range" min={1} max={10} value={form[field] ?? 5} onChange={f(field)} />
             </div>
-          ))}
+          );}))}
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">Damage Taken (1–10): {form.damageTaken ?? 0}</label>
-            <input title="Damage Taken" type="range" min={0} max={10} value={form.damageTaken ?? 0} onChange={f("damageTaken")} />
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Daño recibido" : "Damage Taken"} (1–10): {form.damageTaken ?? 0}</label>
+            <input title={isEs ? "Daño recibido" : "Damage Taken"} type="range" min={0} max={10} value={form.damageTaken ?? 0} onChange={f("damageTaken")} />
           </div>
-          <Textarea label="Dominant Moments" value={form.dominantMoments ?? ""} onChange={f("dominantMoments")} rows={2} />
-          <Textarea label="Mistakes" value={form.mistakes ?? ""} onChange={f("mistakes")} rows={2} />
-          <Textarea label="Best Techniques Landed" value={form.bestTechniques ?? ""} onChange={f("bestTechniques")} rows={2} />
-          <Textarea label="Techniques That Failed" value={form.techniquesFailed ?? ""} onChange={f("techniquesFailed")} rows={2} />
-          <Textarea label="Lessons for Next Session" value={form.lessons ?? ""} onChange={f("lessons")} rows={3} className="col-span-2" />
+          <Textarea label={isEs ? "Momentos dominantes" : "Dominant Moments"} value={form.dominantMoments ?? ""} onChange={f("dominantMoments")} rows={2} />
+          <Textarea label={isEs ? "Errores" : "Mistakes"} value={form.mistakes ?? ""} onChange={f("mistakes")} rows={2} />
+          <Textarea label={isEs ? "Mejores técnicas conectadas" : "Best Techniques Landed"} value={form.bestTechniques ?? ""} onChange={f("bestTechniques")} rows={2} />
+          <Textarea label={isEs ? "Técnicas que fallaron" : "Techniques That Failed"} value={form.techniquesFailed ?? ""} onChange={f("techniquesFailed")} rows={2} />
+          <Textarea label={isEs ? "Lecciones para la próxima sesión" : "Lessons for Next Session"} value={form.lessons ?? ""} onChange={f("lessons")} rows={3} className="col-span-2" />
         </div>
         <div className="flex justify-end gap-3 mt-6">
           <Button variant="secondary" onClick={() => setOpen(false)}>{isEs ? "Cancelar" : "Cancel"}</Button>

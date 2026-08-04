@@ -2,9 +2,6 @@
 
 import { useAuth } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
-import { LanguageSelector } from "@/components/ui/language-selector";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { PushNotificationToggle } from "@/components/notifications/push-manager";
 
 export function DashboardTopbar() {
   const { user } = useAuth();
@@ -18,11 +15,6 @@ export function DashboardTopbar() {
           <p className="truncate text-sm font-semibold text-beige-surface">
             {user?.name ? `${t.common.hello}, ${user.name}` : t.common.hello}
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <PushNotificationToggle compact />
-          <ThemeToggle compact />
-          <LanguageSelector />
         </div>
       </div>
     </header>
