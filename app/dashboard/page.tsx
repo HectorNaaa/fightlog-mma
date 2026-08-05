@@ -38,10 +38,15 @@ function getMotivation(streak: number, locale: string): string {
   return locale === "es" ? "Hoy empieza tu racha." : "Your streak starts today.";
 }
 
-interface Session { id: string; date: string; type: string; duration: number; intensity: number; energyBefore: number; energyAfter: number; soreness: number; mainFocus?: string | null; personalRating?: number | null; isFight?: boolean; opponentName?: string | null; fightResult?: string | null; fightMethod?: string | null; }
+interface ExerciseSet { weight: number | null; reps: number | null; }
+interface Exercise { name: string; sets: ExerciseSet[]; }
+interface Session { id: string; date: string; type: string; duration: number; intensity: number; energyBefore: number; energyAfter: number; soreness: number; mainFocus?: string | null; personalRating?: number | null; isFight?: boolean; opponentName?: string | null; fightResult?: string | null; fightMethod?: string | null; exercises?: Exercise[] | null; }
 interface Tip { sessionId: string; authorName: string; gymName?: string | null; date: string; type: string; tacticNote: string | null; respetos: number; hasRespeto: boolean; }
 
-const emptyForm = { date: "", type: "Boxing", duration: 60, intensity: 7, energyBefore: 7, energyAfter: 6, soreness: 5, bodyWeight: null as number | null, mood: "", mainFocus: "", physicalState: 3, dailyFocus: "", tacticNote: "", tacticPublic: false, isFight: false, opponentName: "", fightResult: "", fightMethod: "" };
+interface ExerciseSetForm { weight: string; reps: string; }
+interface ExerciseForm { name: string; sets: ExerciseSetForm[]; }
+
+const emptyForm = { date: "", type: "Boxing", duration: 60, intensity: 7, energyBefore: 7, energyAfter: 6, soreness: 5, bodyWeight: null as number | null, mood: "", mainFocus: "", physicalState: 3, dailyFocus: "", tacticNote: "", tacticPublic: false, isFight: false, opponentName: "", fightResult: "", fightMethod: "", exercises: [] as ExerciseForm[] };
 
 export default function DashboardPage() {
   const { user, refetch } = useAuth();
@@ -124,7 +129,18 @@ export default function DashboardPage() {
 
   const saveSession = async () => {
     setSaving(true);
-    const payload = { ...form, duration: Number(form.duration), intensity: Number(form.intensity), energyBefore: Number(form.energyBefore), energyAfter: Number(form.energyAfter), soreness: Number(form.soreness), physicalState: Number(form.physicalState), tacticPublic: form.tacticPublic, isFight: form.isFight };
+    const exercises = form.type === "Strength" && form.exercises.length > 0
+      ? form.exercises
+          .filter((ex) => ex.name.trim())
+          .map((ex) => ({
+            name: ex.name.trim(),
+            sets: ex.sets.map((s) => ({
+              weight: s.weight.trim() ? Number(s.weight) : null,
+              reps: s.reps.trim() ? Number(s.reps) : null,
+            })),
+          }))
+      : undefined;
+    const payload = { ...form, duration: Number(form.duration), intensity: Number(form.intensity), energyBefore: Number(form.energyBefore), energyAfter: Number(form.energyAfter), soreness: Number(form.soreness), physicalState: Number(form.physicalState), tacticPublic: form.tacticPublic, isFight: form.isFight, exercises };
     const url = editingSession ? `/api/training/${editingSession.id}` : "/api/training";
     const method = editingSession ? "PUT" : "POST";
     await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
@@ -158,9 +174,29 @@ export default function DashboardPage() {
       opponentName: s.opponentName ?? "",
       fightResult: s.fightResult ?? "",
       fightMethod: s.fightMethod ?? "",
+      exercises: Array.isArray(s.exercises)
+        ? s.exercises.map((ex) => ({
+            name: ex.name,
+            sets: ex.sets.map((set) => ({ weight: set.weight != null ? String(set.weight) : "", reps: set.reps != null ? String(set.reps) : "" })),
+          }))
+        : [],
     });
     setFabOpen(true);
   };
+
+  const addExercise = () => setForm((p) => ({ ...p, exercises: [...p.exercises, { name: "", sets: [{ weight: "", reps: "" }] }] }));
+  const removeExercise = (i: number) => setForm((p) => ({ ...p, exercises: p.exercises.filter((_, idx) => idx !== i) }));
+  const updateExerciseName = (i: number, name: string) => setForm((p) => ({ ...p, exercises: p.exercises.map((ex, idx) => (idx === i ? { ...ex, name } : ex)) }));
+  const addSet = (i: number) => setForm((p) => ({ ...p, exercises: p.exercises.map((ex, idx) => (idx === i ? { ...ex, sets: [...ex.sets, { weight: "", reps: "" }] } : ex)) }));
+  const removeSet = (i: number, j: number) => setForm((p) => ({ ...p, exercises: p.exercises.map((ex, idx) => (idx === i ? { ...ex, sets: ex.sets.filter((_, sIdx) => sIdx !== j) } : ex)) }));
+  const updateSet = (i: number, j: number, field: "weight" | "reps", value: string) =>
+    setForm((p) => ({
+      ...p,
+      exercises: p.exercises.map((ex, idx) =>
+        idx === i ? { ...ex, sets: ex.sets.map((s, sIdx) => (sIdx === j ? { ...s, [field]: value } : s)) } : ex
+      ),
+    }));
+
 
   const deleteSession = async (id: string) => {
     setDeletingId(id);
@@ -367,6 +403,9 @@ export default function DashboardPage() {
                   )}
                   <span className="text-xs text-stone-text shrink-0">{formatDate(s.date)}</span>
                   {s.isFight && s.opponentName && <span className="text-xs text-beige-warm truncate">vs {s.opponentName}</span>}
+                  {!s.isFight && s.type === "Strength" && Array.isArray(s.exercises) && s.exercises.length > 0 && (
+                    <span className="text-[10px] text-stone-text/70 truncate">{s.exercises.length} {isEs ? "ejercicios" : "exercises"}</span>
+                  )}
                   <span className="text-xs text-beige-warm ml-auto shrink-0">{s.duration}m · {s.intensity}/10</span>
                 </button>
                 <button
@@ -416,6 +455,57 @@ export default function DashboardPage() {
               <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Resultado" : "Result"}</label><Select value={form.fightResult} onChange={f("fightResult")}><option value="">{isEs ? "Selecciona..." : "Select..."}</option>{FIGHT_RESULTS.map(r => <option key={r} value={r}>{r}</option>)}</Select></div>
               <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Método" : "Method"}</label><Select value={form.fightMethod} onChange={f("fightMethod")}><option value="">{isEs ? "Selecciona..." : "Select..."}</option>{FIGHT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}</Select></div>
             </>
+          )}
+          {form.type === "Strength" && !form.isFight && (
+            <div className="sm:col-span-2 flex flex-col gap-3 border border-stone-border/50 rounded-sm p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Ejercicios (peso y repeticiones)" : "Exercises (weight & reps)"}</span>
+                <button type="button" onClick={addExercise} className="text-[11px] bg-burgundy/20 border border-burgundy/50 text-burgundy-light px-2.5 py-1 rounded-sm hover:bg-burgundy/30 transition-colors">
+                  + {isEs ? "Añadir ejercicio" : "Add Exercise"}
+                </button>
+              </div>
+              {form.exercises.length === 0 && (
+                <p className="text-xs text-stone-text/60 italic">{isEs ? "Añade los ejercicios de esta sesión de gimnasio/fuerza." : "Add the exercises for this gym/strength session."}</p>
+              )}
+              {form.exercises.map((ex, i) => (
+                <div key={i} className="bg-bg-elevated rounded-sm p-3 flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      value={ex.name}
+                      onChange={(e) => updateExerciseName(i, e.target.value)}
+                      placeholder={isEs ? "Nombre del ejercicio (ej: Sentadilla)" : "Exercise name (e.g. Squat)"}
+                      className="flex-1 bg-bg-card border border-stone-border rounded-sm px-2.5 py-1.5 text-sm text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
+                    />
+                    <button type="button" onClick={() => removeExercise(i)} title={isEs ? "Eliminar ejercicio" : "Remove exercise"} className="text-stone-text/50 hover:text-burgundy-light text-sm px-1.5">×</button>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    {ex.sets.map((set, j) => (
+                      <div key={j} className="flex items-center gap-2">
+                        <span className="text-[10px] text-stone-text w-10 shrink-0">{isEs ? "Serie" : "Set"} {j + 1}</span>
+                        <input
+                          type="number"
+                          value={set.weight}
+                          onChange={(e) => updateSet(i, j, "weight", e.target.value)}
+                          placeholder={isEs ? "Peso (kg)" : "Weight (kg)"}
+                          className="w-24 bg-bg-card border border-stone-border rounded-sm px-2 py-1 text-xs text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
+                        />
+                        <input
+                          type="number"
+                          value={set.reps}
+                          onChange={(e) => updateSet(i, j, "reps", e.target.value)}
+                          placeholder={isEs ? "Repes" : "Reps"}
+                          className="w-20 bg-bg-card border border-stone-border rounded-sm px-2 py-1 text-xs text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
+                        />
+                        <button type="button" onClick={() => removeSet(i, j)} title={isEs ? "Eliminar serie" : "Remove set"} className="text-stone-text/50 hover:text-burgundy-light text-xs px-1">×</button>
+                      </div>
+                    ))}
+                  </div>
+                  <button type="button" onClick={() => addSet(i)} className="text-[10px] text-amber hover:text-amber-light uppercase tracking-wider self-start">
+                    + {isEs ? "Añadir serie" : "Add Set"}
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
           <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Sensación física (1-5): ${form.physicalState}` : `Physical state (1-5): ${form.physicalState}`}</label><input title="Physical state" type="range" min={1} max={5} value={form.physicalState} onChange={f("physicalState")} /></div>
           <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Intensidad (1-10): ${form.intensity}` : `Intensity (1-10): ${form.intensity}`}</label><input title="Intensity" type="range" min={1} max={10} value={form.intensity} onChange={f("intensity")} /></div>

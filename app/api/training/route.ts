@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 
 const sessionSchema = z.object({
   date: z.string(),
@@ -25,6 +26,21 @@ const sessionSchema = z.object({
   opponentName: z.string().max(80).optional().nullable(),
   fightResult: z.string().max(20).optional().nullable(),
   fightMethod: z.string().max(80).optional().nullable(),
+  exercises: z
+    .array(
+      z.object({
+        name: z.string().max(100),
+        sets: z.array(
+          z.object({
+            weight: z.number().optional().nullable(),
+            reps: z.number().int().optional().nullable(),
+          })
+        ),
+      })
+    )
+    .max(30)
+    .optional()
+    .nullable(),
 });
 
 export async function GET() {
@@ -49,7 +65,12 @@ export async function POST(req: NextRequest) {
   }
 
   const session = await prisma.trainingSession.create({
-    data: { ...parsed.data, userId: user.userId, date: new Date(parsed.data.date) },
+    data: {
+      ...parsed.data,
+      userId: user.userId,
+      date: new Date(parsed.data.date),
+      exercises: parsed.data.exercises ? (parsed.data.exercises as Prisma.InputJsonValue) : Prisma.JsonNull,
+    },
   });
   return NextResponse.json(session, { status: 201 });
 }

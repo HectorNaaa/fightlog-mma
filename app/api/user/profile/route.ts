@@ -22,6 +22,7 @@ const updateSchema = z.object({
   disciplines: z.array(z.string().min(1).max(60)).max(12).optional(),
   reminderEnabled: z.boolean().optional(),
   reminderDays: z.string().max(20).optional(),
+  reminderIntervalHours: z.number().int().min(1).max(24).nullable().optional(),
 });
 
 export async function GET() {
@@ -40,6 +41,7 @@ export async function GET() {
       todayFocus: true,
       reminderEnabled: true,
       reminderDays: true,
+      reminderIntervalHours: true,
       profile: {
         select: {
           username: true,
@@ -107,8 +109,9 @@ export async function PUT(req: NextRequest) {
           discipline: rest.discipline,
           reminderEnabled: rest.reminderEnabled,
           reminderDays: rest.reminderDays,
+          reminderIntervalHours: rest.reminderIntervalHours,
         },
-        select: { id: true, name: true, gymName: true, todayFocus: true, level: true, discipline: true, reminderEnabled: true, reminderDays: true },
+        select: { id: true, name: true, gymName: true, todayFocus: true, level: true, discipline: true, reminderEnabled: true, reminderDays: true, reminderIntervalHours: true },
       });
 
       await tx.profile.upsert({

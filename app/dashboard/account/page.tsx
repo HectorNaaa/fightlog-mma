@@ -21,6 +21,7 @@ interface ProfileResponse {
   disciplines?: string[];
   reminderEnabled?: boolean;
   reminderDays?: string;
+  reminderIntervalHours?: number | null;
   profile?: {
     displayName?: string | null;
     city?: string | null;
@@ -69,6 +70,7 @@ export default function AccountPage() {
   const [selectedDisc, setSelectedDisc] = useState("");
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderDays, setReminderDays] = useState<number[]>([1, 2, 3, 4, 5, 6, 0]);
+  const [reminderIntervalHours, setReminderIntervalHours] = useState<number | null>(null);
   const [savingReminder, setSavingReminder] = useState(false);
 
   useEffect(() => {
@@ -95,6 +97,7 @@ export default function AccountPage() {
               .map((d) => Number(d.trim()))
               .filter((d) => !Number.isNaN(d))
           );
+          setReminderIntervalHours(data.reminderIntervalHours ?? null);
         }
       } finally {
         setLoading(false);
@@ -193,6 +196,29 @@ export default function AccountPage() {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ reminderEnabled: next }),
+    }).catch(() => null);
+    setSavingReminder(false);
+  };
+
+  const setReminderMode = async (mode: "days" | "interval") => {
+    const next = mode === "interval" ? (reminderIntervalHours ?? 4) : null;
+    setReminderIntervalHours(next);
+    setSavingReminder(true);
+    await fetch("/api/user/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reminderIntervalHours: next }),
+    }).catch(() => null);
+    setSavingReminder(false);
+  };
+
+  const changeReminderInterval = async (hours: number) => {
+    setReminderIntervalHours(hours);
+    setSavingReminder(true);
+    await fetch("/api/user/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reminderIntervalHours: hours }),
     }).catch(() => null);
     setSavingReminder(false);
   };
@@ -304,27 +330,80 @@ export default function AccountPage() {
             </div>
             {reminderEnabled && (
               <div>
-                <div className="text-[10px] uppercase tracking-widest text-stone-text mb-2">
-                  {t("Days of the week", "Días de la semana", "Dias da semana", "Jours de la semaine", "Giorni della settimana")}
+                <div className="flex rounded-full border border-stone-border overflow-hidden w-fit mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setReminderMode("days")}
+                    disabled={savingReminder}
+                    className={cn(
+                      "px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors",
+                      !reminderIntervalHours ? "bg-burgundy text-white" : "text-stone-text hover:text-beige-warm"
+                    )}
+                  >
+                    {t("Specific days", "Días concretos", "Dias espec\u00edficos", "Jours sp\u00e9cifiques", "Giorni specifici")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setReminderMode("interval")}
+                    disabled={savingReminder}
+                    className={cn(
+                      "px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors",
+                      reminderIntervalHours ? "bg-burgundy text-white" : "text-stone-text hover:text-beige-warm"
+                    )}
+                  >
+                    {t("Every X hours", "Cada X horas", "A cada X horas", "Toutes les X heures", "Ogni X ore")}
+                  </button>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {dayLabels.map((label, day) => (
-                    <button
-                      key={day}
-                      type="button"
-                      onClick={() => toggleReminderDay(day)}
-                      disabled={savingReminder}
-                      className={cn(
-                        "w-11 h-9 rounded-sm text-[11px] font-bold uppercase tracking-wider transition-colors",
-                        reminderDays.includes(day)
-                          ? "bg-burgundy/20 border border-burgundy/60 text-burgundy-light"
-                          : "border border-stone-border text-stone-text hover:text-beige-warm"
-                      )}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
+
+                {reminderIntervalHours ? (
+                  <div>
+                    <div className="text-[10px] uppercase tracking-widest text-stone-text mb-2">
+                      {t("Remind me every", "Avísame cada", "Lembre-me a cada", "Rappelez-moi toutes les", "Ricordamelo ogni")}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[2, 3, 4, 6, 8, 12, 24].map((hours) => (
+                        <button
+                          key={hours}
+                          type="button"
+                          onClick={() => changeReminderInterval(hours)}
+                          disabled={savingReminder}
+                          className={cn(
+                            "px-3 py-1.5 rounded-sm text-[11px] font-bold uppercase tracking-wider transition-colors",
+                            reminderIntervalHours === hours
+                              ? "bg-burgundy/20 border border-burgundy/60 text-burgundy-light"
+                              : "border border-stone-border text-stone-text hover:text-beige-warm"
+                          )}
+                        >
+                          {hours}h
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="text-[10px] uppercase tracking-widest text-stone-text mb-2">
+                      {t("Days of the week", "Días de la semana", "Dias da semana", "Jours de la semaine", "Giorni della settimana")}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {dayLabels.map((label, day) => (
+                        <button
+                          key={day}
+                          type="button"
+                          onClick={() => toggleReminderDay(day)}
+                          disabled={savingReminder}
+                          className={cn(
+                            "w-11 h-9 rounded-sm text-[11px] font-bold uppercase tracking-wider transition-colors",
+                            reminderDays.includes(day)
+                              ? "bg-burgundy/20 border border-burgundy/60 text-burgundy-light"
+                              : "border border-stone-border text-stone-text hover:text-beige-warm"
+                          )}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -24,10 +24,17 @@ export async function GET(req: NextRequest) {
 
   const candidates = await prisma.user.findMany({
     where: { reminderEnabled: true },
-    select: { id: true, reminderDays: true, lastReminderSentAt: true },
+    select: { id: true, reminderDays: true, reminderIntervalHours: true, lastReminderSentAt: true },
   });
 
   const dueUsers = candidates.filter((u) => {
+    if (u.reminderIntervalHours) {
+      // Interval mode: due if it's been at least N hours since the last send.
+      if (!u.lastReminderSentAt) return true;
+      const hoursSinceLast = (today.getTime() - u.lastReminderSentAt.getTime()) / (1000 * 60 * 60);
+      return hoursSinceLast >= u.reminderIntervalHours;
+    }
+    // Daily mode: due if today is a selected weekday and we haven't sent today yet.
     const days = (u.reminderDays || "").split(",").map((d) => d.trim()).filter(Boolean);
     const isDueToday = days.includes(String(todayDow));
     const alreadySentToday = u.lastReminderSentAt && u.lastReminderSentAt >= startOfToday;
