@@ -1,6 +1,9 @@
 {
   "name": "fightlogapp",
   "buildCommand": "prisma generate && prisma db push && next build",
+  "git": {
+    "deploymentEnabled": false
+  },
   "crons": [
     { "path": "/api/cron/reminders", "schedule": "0 * * * *" }
   ]

@@ -38,12 +38,12 @@ function getMotivation(streak: number, locale: string): string {
   return locale === "es" ? "Hoy empieza tu racha." : "Your streak starts today.";
 }
 
-interface ExerciseSet { weight: number | null; reps: number | null; }
+interface ExerciseSet { weight: number | null; reps: number | null; rpe: number | null; }
 interface Exercise { name: string; sets: ExerciseSet[]; }
 interface Session { id: string; date: string; type: string; duration: number; intensity: number; energyBefore: number; energyAfter: number; soreness: number; mainFocus?: string | null; personalRating?: number | null; isFight?: boolean; opponentName?: string | null; fightResult?: string | null; fightMethod?: string | null; exercises?: Exercise[] | null; }
 interface Tip { sessionId: string; authorName: string; gymName?: string | null; date: string; type: string; tacticNote: string | null; respetos: number; hasRespeto: boolean; }
 
-interface ExerciseSetForm { weight: string; reps: string; }
+interface ExerciseSetForm { weight: string; reps: string; rpe: string; }
 interface ExerciseForm { name: string; sets: ExerciseSetForm[]; }
 
 const emptyForm = { date: "", type: "Boxing", duration: 60, intensity: 7, energyBefore: 7, energyAfter: 6, soreness: 5, bodyWeight: null as number | null, mood: "", mainFocus: "", physicalState: 3, dailyFocus: "", tacticNote: "", tacticPublic: false, isFight: false, opponentName: "", fightResult: "", fightMethod: "", exercises: [] as ExerciseForm[] };
@@ -137,6 +137,7 @@ export default function DashboardPage() {
             sets: ex.sets.map((s) => ({
               weight: s.weight.trim() ? Number(s.weight) : null,
               reps: s.reps.trim() ? Number(s.reps) : null,
+              rpe: s.rpe.trim() ? Number(s.rpe) : null,
             })),
           }))
       : undefined;
@@ -177,19 +178,19 @@ export default function DashboardPage() {
       exercises: Array.isArray(s.exercises)
         ? s.exercises.map((ex) => ({
             name: ex.name,
-            sets: ex.sets.map((set) => ({ weight: set.weight != null ? String(set.weight) : "", reps: set.reps != null ? String(set.reps) : "" })),
+            sets: ex.sets.map((set) => ({ weight: set.weight != null ? String(set.weight) : "", reps: set.reps != null ? String(set.reps) : "", rpe: set.rpe != null ? String(set.rpe) : "" })),
           }))
         : [],
     });
     setFabOpen(true);
   };
 
-  const addExercise = () => setForm((p) => ({ ...p, exercises: [...p.exercises, { name: "", sets: [{ weight: "", reps: "" }] }] }));
+  const addExercise = () => setForm((p) => ({ ...p, exercises: [...p.exercises, { name: "", sets: [{ weight: "", reps: "", rpe: "" }] }] }));
   const removeExercise = (i: number) => setForm((p) => ({ ...p, exercises: p.exercises.filter((_, idx) => idx !== i) }));
   const updateExerciseName = (i: number, name: string) => setForm((p) => ({ ...p, exercises: p.exercises.map((ex, idx) => (idx === i ? { ...ex, name } : ex)) }));
-  const addSet = (i: number) => setForm((p) => ({ ...p, exercises: p.exercises.map((ex, idx) => (idx === i ? { ...ex, sets: [...ex.sets, { weight: "", reps: "" }] } : ex)) }));
+  const addSet = (i: number) => setForm((p) => ({ ...p, exercises: p.exercises.map((ex, idx) => (idx === i ? { ...ex, sets: [...ex.sets, { weight: "", reps: "", rpe: "" }] } : ex)) }));
   const removeSet = (i: number, j: number) => setForm((p) => ({ ...p, exercises: p.exercises.map((ex, idx) => (idx === i ? { ...ex, sets: ex.sets.filter((_, sIdx) => sIdx !== j) } : ex)) }));
-  const updateSet = (i: number, j: number, field: "weight" | "reps", value: string) =>
+  const updateSet = (i: number, j: number, field: "weight" | "reps" | "rpe", value: string) =>
     setForm((p) => ({
       ...p,
       exercises: p.exercises.map((ex, idx) =>
@@ -495,6 +496,16 @@ export default function DashboardPage() {
                           onChange={(e) => updateSet(i, j, "reps", e.target.value)}
                           placeholder={isEs ? "Repes" : "Reps"}
                           className="w-20 bg-bg-card border border-stone-border rounded-sm px-2 py-1 text-xs text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
+                        />
+                        <input
+                          type="number"
+                          min={1}
+                          max={10}
+                          value={set.rpe}
+                          onChange={(e) => updateSet(i, j, "rpe", e.target.value)}
+                          placeholder={isEs ? "RPE" : "RPE"}
+                          title={isEs ? "RPE (1-10)" : "RPE (1-10)"}
+                          className="w-16 bg-bg-card border border-stone-border rounded-sm px-2 py-1 text-xs text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
                         />
                         <button type="button" onClick={() => removeSet(i, j)} title={isEs ? "Eliminar serie" : "Remove set"} className="text-stone-text/50 hover:text-burgundy-light text-xs px-1">×</button>
                       </div>

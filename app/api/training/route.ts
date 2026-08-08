@@ -34,6 +34,7 @@ const sessionSchema = z.object({
           z.object({
             weight: z.number().optional().nullable(),
             reps: z.number().int().optional().nullable(),
+            rpe: z.number().min(1).max(10).optional().nullable(),
           })
         ),
       })
