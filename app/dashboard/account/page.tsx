@@ -72,6 +72,19 @@ export default function AccountPage() {
   const [reminderDays, setReminderDays] = useState<number[]>([1, 2, 3, 4, 5, 6, 0]);
   const [reminderIntervalHours, setReminderIntervalHours] = useState<number | null>(null);
   const [savingReminder, setSavingReminder] = useState(false);
+  const [testPushStatus, setTestPushStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  const sendTestPush = async () => {
+    setTestPushStatus("sending");
+    try {
+      const res = await fetch("/api/push/test", { method: "POST" });
+      setTestPushStatus(res.ok ? "sent" : "error");
+    } catch {
+      setTestPushStatus("error");
+    } finally {
+      setTimeout(() => setTestPushStatus("idle"), 4000);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -284,7 +297,6 @@ export default function AccountPage() {
                     : "border-stone-border text-stone-text hover:text-beige-warm"
                 )}
               >
-                <span>{l.flag}</span>
                 <span>{l.label}</span>
               </button>
             ))}
@@ -307,6 +319,31 @@ export default function AccountPage() {
             </div>
             <PushNotificationToggle />
           </div>
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="text-xs text-stone-text max-w-sm">
+              {t("Not sure it's working? Send yourself a test push right now.", "¿No estás seguro de que funciona? Envíate una notificación de prueba ahora.", "Não tem certeza se funciona? Envie uma notificação de teste agora.", "Pas sûr que ça marche ? Envoyez-vous une notification de test maintenant.", "Non sei sicuro che funzioni? Invia subito una notifica di prova.")}
+            </div>
+            <button
+              type="button"
+              onClick={sendTestPush}
+              disabled={testPushStatus === "sending"}
+              className="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-stone-border text-stone-text hover:text-beige-warm transition-colors disabled:opacity-50"
+            >
+              {testPushStatus === "sending"
+                ? t("Sending...", "Enviando...", "Enviando...", "Envoi...", "Invio...")
+                : t("Send test notification", "Enviar notificación de prueba", "Enviar notificação de teste", "Envoyer une notification test", "Invia notifica di prova")}
+            </button>
+          </div>
+          {testPushStatus === "sent" && (
+            <div className="text-xs text-burgundy-light">
+              {t("Test sent — check your device.", "Prueba enviada — revisa tu dispositivo.", "Teste enviado — verifique seu dispositivo.", "Test envoyé — vérifiez votre appareil.", "Prova inviata — controlla il tuo dispositivo.")}
+            </div>
+          )}
+          {testPushStatus === "error" && (
+            <div className="text-xs text-burgundy">
+              {t("Couldn't send. Enable push alerts above first.", "No se pudo enviar. Activa las alertas push primero.", "Não foi possível enviar. Ative os alertas push primeiro.", "Envoi impossible. Activez d'abord les alertes push.", "Impossibile inviare. Attiva prima gli avvisi push.")}
+            </div>
+          )}
 
           <div className="border-t border-stone-border/50 pt-4">
             <div className="flex items-center justify-between flex-wrap gap-3 mb-3">

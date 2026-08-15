@@ -58,6 +58,8 @@ export async function GET() {
         level: true,
         gymName: true,
         todayFocus: true,
+        locale: true,
+        theme: true,
         trainingSessions: { select: { date: true }, orderBy: { date: "desc" } },
       },
     });
@@ -74,6 +76,8 @@ export async function GET() {
         level: dbUser.level,
         gymName: dbUser.gymName,
         todayFocus: dbUser.todayFocus,
+        locale: dbUser.locale,
+        theme: dbUser.theme,
         streak,
       },
     });

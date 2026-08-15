@@ -54,9 +54,7 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
         aria-haspopup="menu"
         title={buttonLabel}
       >
-        <span>{current.flag}</span>
-        <span className={cn("font-semibold uppercase tracking-wider", compact ? "text-[10px]" : "text-xs")}>{compact ? current.code : current.label}</span>
-        {!compact && <span className="rounded-full border border-line/10 bg-line/5 px-1.5 py-0.5 text-[10px] uppercase tracking-widest text-beige-surface/80">{current.code}</span>}
+        <span className={cn("font-semibold uppercase tracking-wider", compact ? "text-[10px]" : "text-xs")}>{current.code}</span>
         <span className="text-[10px] opacity-50">▾</span>
       </button>
 
@@ -76,9 +74,8 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
                   : "text-stone-text hover:bg-line/5 active:bg-line/10"
               )}
             >
-              <span>{l.flag}</span>
               <span>{l.label}</span>
-              {locale === l.code && <span className="ml-auto rounded-full bg-burgundy/25 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-beige-surface">✓</span>}
+              {locale === l.code && <span className="ml-auto rounded-full bg-burgundy/25 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-beige-surface">•</span>}
             </button>
           ))}
         </div>

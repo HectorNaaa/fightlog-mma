@@ -5,6 +5,7 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
 import { LanguageProvider } from "@/contexts/language-context";
 import { ThemeProvider, type Theme } from "@/contexts/theme-context";
+import { SettingsSync } from "@/contexts/settings-sync";
 import type { Locale } from "@/lib/i18n";
 
 const inter = Inter({
@@ -80,11 +81,14 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${barlowCondensed.variable} bg-bg-primary text-beige-warm antialiased min-h-screen`}
       >
-        <ThemeProvider initialTheme={initialTheme}>
-          <AuthProvider>
-            <LanguageProvider initialLocale={initialLocale}>{children}</LanguageProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider initialTheme={initialTheme}>
+            <LanguageProvider initialLocale={initialLocale}>
+              <SettingsSync />
+              {children}
+            </LanguageProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

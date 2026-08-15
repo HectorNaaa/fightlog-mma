@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { useLanguage } from "@/contexts/language-context";
 import { LanguageSelector } from "@/components/ui/language-selector";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/contexts/auth-context";
 
 function AnimatedOutlineText({ text }: { text: string }) {
@@ -69,33 +68,32 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-bg-primary flex flex-col relative">
       <BackgroundAnimation />
-      <nav className="relative z-20 flex items-center justify-between px-6 py-4 max-w-6xl mx-auto w-full">
-        <div className="font-condensed font-black text-2xl tracking-[0.2em] text-beige-surface">
+      <nav className="relative z-20 flex items-center justify-between px-4 sm:px-6 py-4 max-w-6xl mx-auto w-full">
+        <div className="font-condensed font-black text-xl sm:text-2xl tracking-[0.15em] sm:tracking-[0.2em] text-beige-surface">
           FIGHT<span className="text-burgundy">LOG</span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           {user?.name && (
             <span className="hidden text-xs uppercase tracking-wider text-stone-text md:inline">
               {t.common.hello}, {user.name.split(" ")[0]}
             </span>
           )}
-          <ThemeToggle compact />
-          <LanguageSelector />
+          <LanguageSelector compact />
           <Link href="/auth/login" className="text-sm text-stone-text hover:text-beige-warm transition-colors uppercase tracking-wider hidden sm:inline">{t.nav.signIn}</Link>
-          <Link href="/auth/signup" className="bg-burgundy text-white text-sm font-bold uppercase tracking-widest px-4 py-2 rounded hover:bg-burgundy-light transition-colors">{t.nav.getStarted}</Link>
+          <Link href="/auth/signup" className="bg-burgundy text-white text-xs sm:text-sm font-bold uppercase tracking-widest px-3 sm:px-4 py-2 rounded hover:bg-burgundy-light transition-colors whitespace-nowrap">{t.nav.getStarted}</Link>
         </div>
       </nav>
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center pt-8 pb-20">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 text-center pt-6 sm:pt-8 pb-14 sm:pb-20">
         <div className="max-w-3xl w-full">
-          <h1 className="font-condensed font-black text-5xl md:text-7xl lg:text-8xl text-beige-surface leading-none uppercase tracking-tight mb-6">
+          <h1 className="font-condensed font-black text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-beige-surface leading-none uppercase tracking-tight mb-4 sm:mb-6">
             {t.landing.heroLine1}<br />
             <AnimatedOutlineText text={t.landing.heroLine2} /><br />
             {t.landing.heroLine3}
           </h1>
-          <p className="text-base md:text-lg text-stone-text max-w-xl mx-auto mb-10 leading-relaxed">{t.landing.heroSub}</p>
-          <div className="flex flex-wrap gap-3 justify-center mb-16">
-            <Link href="/auth/signup" className="bg-burgundy text-white font-bold uppercase tracking-widest px-7 py-3.5 rounded hover:bg-burgundy-light transition-colors text-sm">{t.landing.ctaPrimary}</Link>
-            <Link href="/auth/login" className="border border-stone-border text-beige-warm font-semibold uppercase tracking-wider px-7 py-3.5 rounded hover:border-stone-muted transition-colors text-sm">{t.landing.ctaSecondary}</Link>
+          <p className="text-sm sm:text-base md:text-lg text-stone-text max-w-xl mx-auto mb-6 sm:mb-10 leading-relaxed">{t.landing.heroSub}</p>
+          <div className="flex flex-wrap gap-3 justify-center mb-8 sm:mb-16">
+            <Link href="/auth/signup" className="bg-burgundy text-white font-bold uppercase tracking-widest px-6 sm:px-7 py-3 sm:py-3.5 rounded hover:bg-burgundy-light transition-colors text-sm">{t.landing.ctaPrimary}</Link>
+            <Link href="/auth/login" className="border border-stone-border text-beige-warm font-semibold uppercase tracking-wider px-6 sm:px-7 py-3 sm:py-3.5 rounded hover:border-stone-muted transition-colors text-sm">{t.landing.ctaSecondary}</Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-stone-border/30 rounded-sm overflow-hidden border border-stone-border/30">
             {[
@@ -104,9 +102,9 @@ export default function LandingPage() {
               { icon: "◇", label: t.landing.feature3 },
               { icon: "↓", label: t.landing.feature4 },
             ].map((f) => (
-              <div key={f.label} className="flex items-center gap-3 bg-bg-card px-5 py-4 hover:bg-bg-elevated transition-colors">
-                <span className="text-xl text-burgundy/50">{f.icon}</span>
-                <span className="text-xs text-stone-text uppercase tracking-wider font-semibold">{f.label}</span>
+              <div key={f.label} className="flex items-center gap-2 sm:gap-3 bg-bg-card px-3 sm:px-5 py-3 sm:py-4 hover:bg-bg-elevated transition-colors">
+                <span className="text-lg sm:text-xl text-burgundy/50">{f.icon}</span>
+                <span className="text-[11px] sm:text-xs text-stone-text uppercase tracking-wider font-semibold">{f.label}</span>
               </div>
             ))}
           </div>

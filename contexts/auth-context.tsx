@@ -6,6 +6,7 @@ interface User {
   email: string;
   name: string;
   locale?: "en" | "es" | "pt" | "fr" | "it";
+  theme?: "dark" | "light";
   level: string;
   gymName?: string | null;
   todayFocus?: string | null;

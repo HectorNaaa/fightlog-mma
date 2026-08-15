@@ -1,11 +1,11 @@
 export type Locale = "en" | "es" | "pt" | "fr" | "it";
 
-export const LOCALES: { code: Locale; label: string; flag: string }[] = [
-  { code: "en", label: "English", flag: "🇬🇧" },
-  { code: "es", label: "Español", flag: "🇪🇸" },
-  { code: "it", label: "Italiano", flag: "🇮🇹" },
-  { code: "fr", label: "Français", flag: "🇫🇷" },
-  { code: "pt", label: "Português", flag: "🇧🇷" },
+export const LOCALES: { code: Locale; label: string }[] = [
+  { code: "en", label: "English" },
+  { code: "es", label: "Español" },
+  { code: "it", label: "Italiano" },
+  { code: "fr", label: "Français" },
+  { code: "pt", label: "Português" },
 ];
 
 export const translations = {
@@ -138,7 +138,7 @@ export const translations = {
       weeklyPerformanceReview: "Weekly Performance Review is available for Intermediate Amateur fighters.",
       volumeByDay: "Volume by Day",
       weekSummary: "Week Summary",
-      mostTrained: "Most trained",
+      mostTrained: "Most trained", 
       bestSession: "Best session",
       sessionsWeek: "Sessions/week",
       totalTime: "Total time",
