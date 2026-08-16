@@ -20,12 +20,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           className={cn(
             "bg-bg-elevated border border-stone-border rounded px-3 py-2 text-sm text-beige-warm placeholder:text-stone-text focus:outline-none focus:border-amber transition-colors",
-            error && "border-red-700",
+            error && "border-burgundy-light",
             className
           )}
           {...props}
         />
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <p className="text-xs text-burgundy-light">{error}</p>}
       </div>
     );
   }
@@ -51,12 +51,12 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           className={cn(
             "bg-bg-elevated border border-stone-border rounded px-3 py-2 text-sm text-beige-warm placeholder:text-stone-text focus:outline-none focus:border-amber transition-colors resize-none",
-            error && "border-red-700",
+            error && "border-burgundy-light",
             className
           )}
           {...props}
         />
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <p className="text-xs text-burgundy-light">{error}</p>}
       </div>
     );
   }
@@ -82,14 +82,14 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           className={cn(
             "bg-bg-elevated border border-stone-border rounded px-3 py-2 text-sm text-beige-warm focus:outline-none focus:border-amber transition-colors",
-            error && "border-red-700",
+            error && "border-burgundy-light",
             className
           )}
           {...props}
         >
           {children}
         </select>
-        {error && <p className="text-xs text-red-400">{error}</p>}
+        {error && <p className="text-xs text-burgundy-light">{error}</p>}
       </div>
     );
   }

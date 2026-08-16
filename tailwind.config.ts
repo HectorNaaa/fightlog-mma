@@ -42,10 +42,10 @@ const config: Config = {
           warm: "rgb(var(--color-text-body) / <alpha-value>)",
         },
         amber: {
-          DEFAULT: "#c9a875",
-          light: "#d9bf94",
-          dark: "#a8865a",
-          muted: "#8c6f48",
+          DEFAULT: "#c4a882",
+          light: "#d4bc9e",
+          dark: "#a8906a",
+          muted: "#8c7550",
         },
         stone: {
           border: "rgb(var(--color-stone-border) / <alpha-value>)",

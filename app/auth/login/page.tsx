@@ -104,7 +104,7 @@ export default function LoginPage() {
                 className="rounded-lg border border-stone-border bg-[#222224] px-3 py-2.5 text-sm text-white placeholder:text-stone-text focus:border-burgundy-light focus:outline-none focus:ring-2 focus:ring-burgundy/30"
                 placeholder="you@example.com"
               />
-              {fieldErrors.email && <p className="text-xs text-red-300">{fieldErrors.email}</p>}
+              {fieldErrors.email && <p className="text-xs text-burgundy-light">{fieldErrors.email}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -127,10 +127,10 @@ export default function LoginPage() {
                   {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
-              {fieldErrors.password && <p className="text-xs text-red-300">{fieldErrors.password}</p>}
+              {fieldErrors.password && <p className="text-xs text-burgundy-light">{fieldErrors.password}</p>}
             </div>
 
-            {error && <p className="rounded-lg border border-red-900/40 bg-red-950/20 px-3 py-2 text-xs text-red-300">{error}</p>}
+            {error && <p className="rounded-lg border border-burgundy/40 bg-burgundy/10 px-3 py-2 text-xs text-burgundy-light">{error}</p>}
 
             <button
               type="submit"

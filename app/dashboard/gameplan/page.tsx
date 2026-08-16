@@ -50,6 +50,7 @@ export default function GameplanPage() {
   const [editing, setEditing] = useState<Gameplan | null>(null);
   const [form, setForm] = useState<Omit<Gameplan, "id">>(emptyPlan);
   const [saving, setSaving] = useState(false);
+  const [dirty, setDirty] = useState(false);
 
   const isIntermediate = user?.level === "intermediate";
 
@@ -58,8 +59,8 @@ export default function GameplanPage() {
 
   useEffect(() => { if (isIntermediate) load(); }, [isIntermediate]);
 
-  const openNew = () => { setEditing(null); setForm(emptyPlan); setOpen(true); };
-  const openEdit = (g: Gameplan) => { setEditing(g); setForm({ ...g }); setOpen(true); };
+  const openNew = () => { setEditing(null); setForm(emptyPlan); setOpen(true); setDirty(false); };
+  const openEdit = (g: Gameplan) => { setEditing(g); setForm({ ...g }); setOpen(true); setDirty(false); };
 
   const save = async () => {
     setSaving(true);
@@ -69,6 +70,22 @@ export default function GameplanPage() {
     await load();
     setOpen(false);
     setSaving(false);
+    setDirty(false);
+  };
+
+  const requestClose = () => {
+    if (dirty) {
+      const ok = window.confirm(t(
+        "You have unsaved changes. Are you sure you want to leave?",
+        "Tienes cambios sin guardar. ¿Seguro que quieres salir?",
+        "Você tem alterações não salvas. Tem certeza de que deseja sair?",
+        "Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter ?",
+        "Hai modifiche non salvate. Sei sicuro di voler uscire?"
+      ));
+      if (!ok) return;
+    }
+    setOpen(false);
+    setDirty(false);
   };
 
   const del = async (id: string) => {
@@ -76,8 +93,10 @@ export default function GameplanPage() {
     await load();
   };
 
-  const f = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+  const f = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setDirty(true);
     setForm((p) => ({ ...p, [field]: e.target.value }));
+  };
 
   if (!isIntermediate) {
     return (
@@ -137,7 +156,7 @@ export default function GameplanPage() {
                 {g.action && <Row label={t("Action", "Acción", "Ação", "Action", "Azione")} value={g.action} color="text-amber" />}
                 {g.followUpA && <Row label="Follow-up A" value={g.followUpA} />}
                 {g.followUpB && <Row label="Follow-up B" value={g.followUpB} />}
-                {g.counterRisk && <Row label={t("Counter Risk", "Riesgo de contra", "Risco de contra-ataque", "Risque de contre", "Rischio di contrattacco")} value={g.counterRisk} color="text-red-400" />}
+                {g.counterRisk && <Row label={t("Counter Risk", "Riesgo de contra", "Risco de contra-ataque", "Risque de contre", "Rischio di contrattacco")} value={g.counterRisk} color="text-burgundy-light" />}
                 {g.bestAgainst && <Row label={t("Best Against", "Mejor contra", "Melhor contra", "Meilleur contre", "Migliore contro")} value={g.bestAgainst} />}
                 {g.notes && <div className="mt-2 text-stone-text italic border-t border-stone-border/50 pt-2">{g.notes}</div>}
               </div>
@@ -146,7 +165,7 @@ export default function GameplanPage() {
         ))}
       </div>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={editing ? t("Edit Setup", "Editar setup", "Editar setup", "Modifier le setup", "Modifica setup") : t("New Setup", "Nuevo setup", "Novo setup", "Nouveau setup", "Nuovo setup")} className="max-w-xl">
+      <Modal open={open} onClose={requestClose} title={editing ? t("Edit Setup", "Editar setup", "Editar setup", "Modifier le setup", "Modifica setup") : t("New Setup", "Nuevo setup", "Novo setup", "Nouveau setup", "Nuovo setup")} className="max-w-xl">
         <div className="flex flex-col gap-4">
           <Input label={t("Setup Name", "Nombre del setup", "Nome do setup", "Nom du setup", "Nome del setup")} value={form.name} onChange={f("name")} placeholder={t("e.g. Jab to low kick", "ej: Jab a low kick", "ex: Jab para low kick", "ex : Jab vers low kick", "es: Jab verso low kick")} />
           <Input label={t("Starting Position", "Posición inicial", "Posição inicial", "Position de départ", "Posizione iniziale")} value={form.startPosition ?? ""} onChange={f("startPosition")} placeholder={t("e.g. Orthodox, at range", "ej: Ortodoxo, a distancia", "ex: Ortodoxo, à distância", "ex : Orthodoxe, à distance", "es: Ortodosso, a distanza")} />
@@ -159,7 +178,7 @@ export default function GameplanPage() {
           <Textarea label={t("Notes", "Notas", "Notas", "Notes", "Note")} value={form.notes ?? ""} onChange={f("notes")} rows={3} />
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="secondary" onClick={() => setOpen(false)}>{t("Cancel", "Cancelar", "Cancelar", "Annuler", "Annulla")}</Button>
+          <Button variant="secondary" onClick={requestClose}>{t("Cancel", "Cancelar", "Cancelar", "Annuler", "Annulla")}</Button>
           <Button onClick={save} disabled={saving || !form.name}>{saving ? t("Saving…", "Guardando…", "Salvando…", "Enregistrement…", "Salvataggio…") : t("Save", "Guardar", "Salvar", "Enregistrer", "Salva")}</Button>
         </div>
       </Modal>

@@ -23,9 +23,9 @@ export const translations = {
     // Hero
     landing: {
       badge: "Fighter Training OS",
-      heroLine1: "Track Your",
-      heroLine2: "Fighting Evolution",
-      heroLine3: "Like A Pro",
+      heroLine1: "Training",
+      heroLine2: "For Serious",
+      heroLine3: "Fighters",
       heroSub:
         "Training logs, technique tracking, gameplan builder and exportable reports — built for fighters who treat training as science.",
       ctaPrimary: "Start Training Free",
@@ -163,9 +163,9 @@ export const translations = {
     },
     landing: {
       badge: "Sistema de Entrenamiento",
-      heroLine1: "Registra Tu",
-      heroLine2: "Evolución",
-      heroLine3: "Como Un Pro",
+      heroLine1: "Entrenamiento",
+      heroLine2: "Para Luchadores",
+      heroLine3: "Serios",
       heroSub:
         "Diario de entrenamientos, seguimiento técnico, constructor de gameplans e informes exportables — diseñado para luchadores que tratan el entrenamiento como ciencia.",
       ctaPrimary: "Empieza Gratis",
@@ -299,9 +299,9 @@ export const translations = {
     },
     landing: {
       badge: "Sistema de Treino",
-      heroLine1: "Registre Sua",
-      heroLine2: "Evolução",
-      heroLine3: "Como Um Pro",
+      heroLine1: "Treino",
+      heroLine2: "Para Lutadores",
+      heroLine3: "Sérios",
       heroSub:
         "Diário de treinos, rastreamento técnico, construtor de gameplans e relatórios exportáveis — criado para lutadores que tratam o treino como ciência.",
       ctaPrimary: "Comece Grátis",
@@ -435,9 +435,9 @@ export const translations = {
     },
     landing: {
       badge: "Système d'Entraînement",
-      heroLine1: "Suivez Votre",
-      heroLine2: "Évolution",
-      heroLine3: "Comme Un Pro",
+      heroLine1: "Entraînement",
+      heroLine2: "Pour Combattants",
+      heroLine3: "Sérieux",
       heroSub:
         "Journal d'entraînement, suivi technique, constructeur de gameplans et rapports exportables — conçu pour les combattants qui traitent l'entraînement comme une science.",
       ctaPrimary: "Commencer Gratuitement",
@@ -571,9 +571,9 @@ export const translations = {
     },
     landing: {
       badge: "Sistema di Allenamento",
-      heroLine1: "Traccia La Tua",
-      heroLine2: "Fighting Evolution",
-      heroLine3: "Come Un Pro",
+      heroLine1: "Allenamento",
+      heroLine2: "Per Combattenti",
+      heroLine3: "Seri",
       heroSub:
         "Diario di allenamento, tracciamento tecnico, costruttore di gameplans e report esportabili — progettato per i fighter che trattano l'allenamento come una scienza.",
       ctaPrimary: "Inizia Gratis",

@@ -54,6 +54,7 @@ export default function SparringPage() {
   const [editing, setEditing] = useState<SparringSession | null>(null);
   const [form, setForm] = useState<Omit<SparringSession, "id">>(empty);
   const [saving, setSaving] = useState(false);
+  const [dirty, setDirty] = useState(false);
 
   const isIntermediate = user?.level === "intermediate";
 
@@ -71,6 +72,22 @@ export default function SparringPage() {
     await load();
     setOpen(false);
     setSaving(false);
+    setDirty(false);
+  };
+
+  const requestClose = () => {
+    if (dirty) {
+      const ok = window.confirm(t(
+        "You have unsaved changes. Are you sure you want to leave?",
+        "Tienes cambios sin guardar. ¿Seguro que quieres salir?",
+        "Você tem alterações não salvas. Tem certeza de que deseja sair?",
+        "Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter ?",
+        "Hai modifiche non salvate. Sei sicuro di voler uscire?"
+      ));
+      if (!ok) return;
+    }
+    setOpen(false);
+    setDirty(false);
   };
 
   const del = async (id: string) => {
@@ -78,11 +95,13 @@ export default function SparringPage() {
     await load();
   };
 
-  const f = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+  const f = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setDirty(true);
     setForm((p) => ({ ...p, [field]: e.target.value }));
+  };
 
-  const openEdit = (s: SparringSession) => { setEditing(s); setForm({ ...s, date: formatDateInput(s.date) }); setOpen(true); };
-  const openNew = () => { setEditing(null); setForm(empty); setOpen(true); };
+  const openEdit = (s: SparringSession) => { setEditing(s); setForm({ ...s, date: formatDateInput(s.date) }); setOpen(true); setDirty(false); };
+  const openNew = () => { setEditing(null); setForm(empty); setOpen(true); setDirty(false); };
 
   if (!isIntermediate) {
     return (
@@ -142,7 +161,7 @@ export default function SparringPage() {
               {s.mistakes && (
                 <div className="text-xs mb-1">
                   <span className="text-stone-text">{t("Mistakes: ", "Errores: ", "Erros: ", "Erreurs : ", "Errori: ")}</span>
-                  <span className="text-red-400">{s.mistakes}</span>
+                  <span className="text-burgundy-light">{s.mistakes}</span>
                 </div>
               )}
               {s.lessons && (
@@ -155,7 +174,7 @@ export default function SparringPage() {
         ))}
       </div>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={editing ? t("Edit Sparring", "Editar sparring", "Editar sparring", "Modifier sparring", "Modifica sparring") : t("Log Sparring Session", "Registrar sparring", "Registrar sparring", "Enregistrer une séance de sparring", "Registra sessione di sparring")} className="max-w-2xl">
+      <Modal open={open} onClose={requestClose} title={editing ? t("Edit Sparring", "Editar sparring", "Editar sparring", "Modifier sparring", "Modifica sparring") : t("Log Sparring Session", "Registrar sparring", "Registrar sparring", "Enregistrer une séance de sparring", "Registra sessione di sparring")} className="max-w-2xl">
         <div className="grid grid-cols-2 gap-4">
           <Input label={t("Date", "Fecha", "Data", "Date", "Data")} type="date" value={form.date} onChange={f("date")} />
           <Input label={t("Partner Style", "Estilo del compañero", "Estilo do parceiro", "Style du partenaire", "Stile del partner")} value={form.partnerStyle ?? ""} onChange={f("partnerStyle")} placeholder={t("e.g. Boxer, Wrestler", "ej: Boxeador, Luchador", "ex: Boxeador, Lutador", "ex : Boxeur, Lutteur", "es: Pugile, Lottatore")} />
@@ -187,7 +206,7 @@ export default function SparringPage() {
           <Textarea label={t("Lessons for Next Session", "Lecciones para la próxima sesión", "Lições para a próxima sessão", "Leçons pour la prochaine séance", "Lezioni per la prossima sessione")} value={form.lessons ?? ""} onChange={f("lessons")} rows={3} className="col-span-2" />
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="secondary" onClick={() => setOpen(false)}>{t("Cancel", "Cancelar", "Cancelar", "Annuler", "Annulla")}</Button>
+          <Button variant="secondary" onClick={requestClose}>{t("Cancel", "Cancelar", "Cancelar", "Annuler", "Annulla")}</Button>
           <Button onClick={save} disabled={saving}>{saving ? t("Saving…", "Guardando…", "Salvando…", "Enregistrement…", "Salvataggio…") : t("Save", "Guardar", "Salvar", "Enregistrer", "Salva")}</Button>
         </div>
       </Modal>

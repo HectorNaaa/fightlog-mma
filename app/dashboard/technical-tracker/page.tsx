@@ -46,6 +46,7 @@ export default function TechnicalTrackerPage() {
   const [editing, setEditing] = useState<Technique | null>(null);
   const [form, setForm] = useState<Omit<Technique, "id">>(emptyTech);
   const [saving, setSaving] = useState(false);
+  const [dirty, setDirty] = useState(false);
 
   const isIntermediate = user?.level === "intermediate";
 
@@ -60,8 +61,9 @@ export default function TechnicalTrackerPage() {
     setEditing(null);
     setForm({ ...emptyTech, category: tab });
     setOpen(true);
+    setDirty(false);
   };
-  const openEdit = (t: Technique) => { setEditing(t); setForm({ ...t }); setOpen(true); };
+  const openEdit = (t: Technique) => { setEditing(t); setForm({ ...t }); setOpen(true); setDirty(false); };
 
   const save = async () => {
     setSaving(true);
@@ -71,6 +73,22 @@ export default function TechnicalTrackerPage() {
     await load();
     setOpen(false);
     setSaving(false);
+    setDirty(false);
+  };
+
+  const requestClose = () => {
+    if (dirty) {
+      const ok = window.confirm(t(
+        "You have unsaved changes. Are you sure you want to leave?",
+        "Tienes cambios sin guardar. ¿Seguro que quieres salir?",
+        "Você tem alterações não salvas. Tem certeza de que deseja sair?",
+        "Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter ?",
+        "Hai modifiche non salvate. Sei sicuro di voler uscire?"
+      ));
+      if (!ok) return;
+    }
+    setOpen(false);
+    setDirty(false);
   };
 
   const del = async (id: string) => {
@@ -78,8 +96,10 @@ export default function TechnicalTrackerPage() {
     await load();
   };
 
-  const f = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+  const f = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setDirty(true);
     setForm((p) => ({ ...p, [field]: e.target.value }));
+  };
 
   const presets = tab === "striking" ? STRIKING_TECHNIQUES : GRAPPLING_TECHNIQUES;
 
@@ -162,7 +182,7 @@ export default function TechnicalTrackerPage() {
         </Card>
       )}
 
-      <Modal open={open} onClose={() => setOpen(false)} title={editing ? t("Edit Technique", "Editar técnica", "Editar técnica", "Modifier la technique", "Modifica tecnica") : t("Add Technique", "Añadir técnica", "Adicionar técnica", "Ajouter une technique", "Aggiungi tecnica")} className="max-w-2xl">
+      <Modal open={open} onClose={requestClose} title={editing ? t("Edit Technique", "Editar técnica", "Editar técnica", "Modifier la technique", "Modifica tecnica") : t("Add Technique", "Añadir técnica", "Adicionar técnica", "Ajouter une technique", "Aggiungi tecnica")} className="max-w-2xl">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2 flex flex-col gap-1">
             <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{t("Technique Name", "Nombre de técnica", "Nome da técnica", "Nom de la technique", "Nome della tecnica")}</label>
@@ -189,7 +209,7 @@ export default function TechnicalTrackerPage() {
           <Textarea label={t("Notes", "Notas", "Notas", "Notes", "Note")} value={form.notes ?? ""} onChange={f("notes")} rows={3} className="sm:col-span-2" />
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="secondary" onClick={() => setOpen(false)}>{t("Cancel", "Cancelar", "Cancelar", "Annuler", "Annulla")}</Button>
+          <Button variant="secondary" onClick={requestClose}>{t("Cancel", "Cancelar", "Cancelar", "Annuler", "Annulla")}</Button>
           <Button onClick={save} disabled={saving || !form.name}>{saving ? t("Saving…", "Guardando…", "Salvando…", "Enregistrement…", "Salvataggio…") : t("Save", "Guardar", "Salvar", "Enregistrer", "Salva")}</Button>
         </div>
       </Modal>

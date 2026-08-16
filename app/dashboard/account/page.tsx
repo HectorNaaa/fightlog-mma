@@ -535,7 +535,7 @@ export default function AccountPage() {
             {saving ? t("Saving...", "Guardando...", "Salvando...", "Enregistrement...", "Salvataggio...") : t("Save changes", "Guardar cambios", "Salvar alterações", "Enregistrer les modifications", "Salva modifiche")}
           </Button>
           {saved && <span className="text-xs text-amber font-semibold uppercase tracking-wider">{t("Saved ✓", "Guardado ✓", "Salvo ✓", "Enregistré ✓", "Salvato ✓")}</span>}
-          {error && <span className="text-xs text-red-400">{error}</span>}
+          {error && <span className="text-xs text-burgundy-light">{error}</span>}
         </div>
         <button onClick={handleLogout} className="text-xs text-stone-text hover:text-beige-warm uppercase tracking-wider transition-colors">
           {t("Log out", "Cerrar sesión", "Sair", "Déconnexion", "Disconnetti")}

@@ -48,6 +48,8 @@ interface ExerciseForm { name: string; sets: ExerciseSetForm[]; }
 
 const emptyForm = { date: "", type: "Boxing", duration: 60, intensity: 7, energyBefore: 7, energyAfter: 6, soreness: 5, bodyWeight: null as number | null, mood: "", mainFocus: "", physicalState: 3, dailyFocus: "", tacticNote: "", tacticPublic: false, isFight: false, opponentName: "", fightResult: "", fightMethod: "", exercises: [] as ExerciseForm[] };
 
+const TRAINING_DRAFT_KEY = "fightlog:training-draft";
+
 export default function DashboardPage() {
   const { user, refetch } = useAuth();
   const { locale, t } = useLanguage();
@@ -83,6 +85,13 @@ export default function DashboardPage() {
   const [selectedDisc, setSelectedDisc] = useState("");
   const [loadingDisc, setLoadingDisc] = useState(false);
 
+  // Unsaved-changes protection for the training/fight log form: keeps a
+  // localStorage draft so an accidental exit (closed tab, phone power off,
+  // etc.) doesn't lose a long training entry.
+  const [dirty, setDirty] = useState(false);
+  const [draftPrompt, setDraftPrompt] = useState<null | { form: typeof form; editingSessionId: string | null }>(null);
+  const justOpenedRef = useRef(false);
+
   const load = async () => {
     const [s, t] = await Promise.all([
       fetch("/api/training").then(r => r.json()).catch(() => []),
@@ -98,6 +107,46 @@ export default function DashboardPage() {
   useEffect(() => { load(); }, []);
   useEffect(() => { setFocusVal(user?.todayFocus ?? ""); }, [user]);
   useEffect(() => { if (focusEdit) focusRef.current?.focus(); }, [focusEdit]);
+
+  // Look for a leftover draft from a previous accidental exit.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(TRAINING_DRAFT_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.form) setDraftPrompt(parsed);
+      }
+    } catch { /* ignore malformed/unavailable storage */ }
+  }, []);
+
+  // Continuously persist the in-progress form as a draft while it's dirty,
+  // so we can recover it if the app/tab closes unexpectedly.
+  useEffect(() => {
+    if (!fabOpen || !dirty) return;
+    try {
+      localStorage.setItem(TRAINING_DRAFT_KEY, JSON.stringify({ form, editingSessionId: editingSession?.id ?? null }));
+    } catch { /* ignore quota/unavailable storage */ }
+  }, [form, fabOpen, dirty, editingSession]);
+
+  // Detect real edits (vs. the initial state set when opening the modal).
+  useEffect(() => {
+    if (!fabOpen) return;
+    if (justOpenedRef.current) { justOpenedRef.current = false; return; }
+    setDirty(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form]);
+
+  // Warn on browser/tab close while there are unsaved changes.
+  useEffect(() => {
+    if (!fabOpen || !dirty) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [fabOpen, dirty]);
+
+  const discardTrainingDraft = () => {
+    try { localStorage.removeItem(TRAINING_DRAFT_KEY); } catch { /* ignore */ }
+  };
 
   const streak = user?.streak ?? 0;
   const oneWeekAgo = new Date(); oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -150,16 +199,54 @@ export default function DashboardPage() {
     setFabOpen(false);
     setSaving(false);
     setEditingSession(null);
+    setDirty(false);
+    setDraftPrompt(null);
+    discardTrainingDraft();
+    setForm({ ...emptyForm, date: formatDateInput(new Date()) });
+  };
+
+  // Closing the log modal (Cancel, ×, Escape, backdrop click) — confirm if
+  // there are unsaved changes. The draft stays in localStorage either way so
+  // it can be recovered later; it's only cleared on save or explicit discard.
+  const requestCloseLog = () => {
+    if (dirty) {
+      const msg = isEs
+        ? "Tienes cambios sin guardar en este entreno. Se guardó un borrador y podrás continuarlo más tarde. ¿Seguro que quieres salir?"
+        : "You have unsaved changes in this session. A draft was saved and you can continue it later. Are you sure you want to leave?";
+      if (!window.confirm(msg)) return;
+    }
+    setFabOpen(false);
+    setDirty(false);
+    setEditingSession(null);
     setForm({ ...emptyForm, date: formatDateInput(new Date()) });
   };
 
   const openNewLog = (isFight = false) => {
+    justOpenedRef.current = true;
+    setDirty(false);
     setEditingSession(null);
     setForm({ ...emptyForm, date: formatDateInput(new Date()), isFight });
     setFabOpen(true);
   };
 
+  const continueDraft = () => {
+    if (!draftPrompt) return;
+    justOpenedRef.current = true;
+    setEditingSession(null);
+    setForm(draftPrompt.form);
+    setFabOpen(true);
+    setDirty(true);
+    setDraftPrompt(null);
+  };
+
+  const discardDraftPrompt = () => {
+    discardTrainingDraft();
+    setDraftPrompt(null);
+  };
+
   const openEditLog = (s: Session) => {
+    justOpenedRef.current = true;
+    setDirty(false);
     setEditingSession(s);
     setForm({
       ...emptyForm,
@@ -230,6 +317,23 @@ export default function DashboardPage() {
         </div>
         <Link href="/api/export" className="text-[10px] text-stone-text/60 hover:text-stone-text uppercase tracking-widest border border-stone-border/50 px-2 py-1 rounded-sm transition-colors">{t.dashboard.export}</Link>
       </div>
+
+      {/* Recovered draft banner (accidental exit protection) */}
+      {draftPrompt && !draftPrompt.editingSessionId && !fabOpen && (
+        <div className="rounded-sm p-3 border border-burgundy/40 bg-burgundy/10 flex items-center justify-between gap-3 flex-wrap">
+          <p className="text-xs text-beige-warm">
+            {isEs ? "Encontramos un entreno sin guardar de la última vez. ¿Quieres continuarlo?" : "We found an unsaved training session from last time. Continue it?"}
+          </p>
+          <div className="flex gap-2 shrink-0">
+            <button onClick={continueDraft} className="bg-burgundy text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm hover:bg-burgundy-light transition-colors">
+              {isEs ? "Continuar" : "Continue"}
+            </button>
+            <button onClick={discardDraftPrompt} className="border border-stone-border text-stone-text text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm hover:text-beige-warm transition-colors">
+              {isEs ? "Descartar" : "Discard"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Streak Card */}
       <div className={cn("rounded-sm p-4 border", streak >= 7 ? "bg-amber/10 border-amber/30" : streak >= 3 ? "bg-burgundy/10 border-burgundy/20" : "bg-bg-card border-stone-border")}>
@@ -429,7 +533,7 @@ export default function DashboardPage() {
       </button>
 
       {/* Quick log modal */}
-      <Modal open={fabOpen} onClose={() => setFabOpen(false)} title={editingSession ? (isEs ? "Editar sesión" : "Edit Session") : form.isFight ? (isEs ? "Registrar Pelea" : "Log Fight") : (isEs ? "Registrar Entreno" : "Log Session")}>
+      <Modal open={fabOpen} onClose={requestCloseLog} title={editingSession ? (isEs ? "Editar sesión" : "Edit Session") : form.isFight ? (isEs ? "Registrar Pelea" : "Log Fight") : (isEs ? "Registrar Entreno" : "Log Session")}>
         <div className="flex rounded-full border border-stone-border overflow-hidden mb-4 w-fit">
           <button
             type="button"
@@ -533,7 +637,7 @@ export default function DashboardPage() {
           )}
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="secondary" onClick={() => setFabOpen(false)}>{isEs ? "Cancelar" : "Cancel"}</Button>
+          <Button variant="secondary" onClick={requestCloseLog}>{isEs ? "Cancelar" : "Cancel"}</Button>
           <Button onClick={saveSession} disabled={saving}>{saving ? (isEs ? "Guardando…" : "Saving…") : editingSession ? (isEs ? "Actualizar" : "Update") : (isEs ? "Guardar" : "Save")}</Button>
         </div>
       </Modal>

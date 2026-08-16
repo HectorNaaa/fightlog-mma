@@ -120,7 +120,7 @@ export default function SignupPage() {
                 className="rounded-lg border border-stone-border bg-[#222224] px-3 py-2.5 text-sm text-white placeholder:text-stone-text focus:border-burgundy-light focus:outline-none focus:ring-2 focus:ring-burgundy/30"
                 placeholder={t.auth.namePlaceholder}
               />
-              {fieldErrors.name && <p className="text-xs text-red-300">{fieldErrors.name}</p>}
+              {fieldErrors.name && <p className="text-xs text-burgundy-light">{fieldErrors.name}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -134,7 +134,7 @@ export default function SignupPage() {
                 className="rounded-lg border border-stone-border bg-[#222224] px-3 py-2.5 text-sm text-white placeholder:text-stone-text focus:border-burgundy-light focus:outline-none focus:ring-2 focus:ring-burgundy/30"
                 placeholder="you@example.com"
               />
-              {fieldErrors.email && <p className="text-xs text-red-300">{fieldErrors.email}</p>}
+              {fieldErrors.email && <p className="text-xs text-burgundy-light">{fieldErrors.email}</p>}
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -159,7 +159,7 @@ export default function SignupPage() {
                     {showPassword ? "Hide" : "Show"}
                   </button>
                 </div>
-                {fieldErrors.password && <p className="text-xs text-red-300">{fieldErrors.password}</p>}
+                {fieldErrors.password && <p className="text-xs text-burgundy-light">{fieldErrors.password}</p>}
               </div>
 
               <div className="flex flex-col gap-1.5">
@@ -183,7 +183,7 @@ export default function SignupPage() {
                     {showConfirmPassword ? "Hide" : "Show"}
                   </button>
                 </div>
-                {fieldErrors.confirmPassword && <p className="text-xs text-red-300">{fieldErrors.confirmPassword}</p>}
+                {fieldErrors.confirmPassword && <p className="text-xs text-burgundy-light">{fieldErrors.confirmPassword}</p>}
               </div>
             </div>
 
@@ -215,7 +215,7 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {error && <p className="rounded-lg border border-red-900/40 bg-red-950/20 px-3 py-2 text-xs text-red-300">{error}</p>}
+            {error && <p className="rounded-lg border border-burgundy/40 bg-burgundy/10 px-3 py-2 text-xs text-burgundy-light">{error}</p>}
 
             <button
               type="submit"

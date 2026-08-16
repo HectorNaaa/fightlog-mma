@@ -7,18 +7,31 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   className?: string;
+  /** When true, closing (Escape, backdrop click, × button) asks for confirmation first. */
+  confirmClose?: boolean;
+  /** Message shown in the confirmation dialog when confirmClose is true. */
+  confirmMessage?: string;
 }
 
-export function Modal({ open, onClose, title, children, className }: ModalProps) {
+export function Modal({ open, onClose, title, children, className, confirmClose, confirmMessage }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+
+  const requestClose = () => {
+    if (confirmClose && typeof window !== "undefined") {
+      const ok = window.confirm(confirmMessage ?? "You have unsaved changes. Are you sure you want to leave?");
+      if (!ok) return;
+    }
+    onClose();
+  };
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") requestClose();
     };
     if (open) document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
-  }, [open, onClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, onClose, confirmClose, confirmMessage]);
 
   if (!open) return null;
 
@@ -27,7 +40,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
       ref={overlayRef}
       className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
       onClick={(e) => {
-        if (e.target === overlayRef.current) onClose();
+        if (e.target === overlayRef.current) requestClose();
       }}
     >
       <div
@@ -41,7 +54,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
             {title}
           </h2>
           <button
-            onClick={onClose}
+            onClick={requestClose}
             className="text-stone-text hover:text-beige-warm text-xl leading-none"
           >
             ×

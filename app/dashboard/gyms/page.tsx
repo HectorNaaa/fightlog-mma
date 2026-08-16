@@ -132,7 +132,7 @@ export default function GymsDirectoryPage() {
         </button>
       </div>
 
-      {error && <div className="rounded-lg border border-red-900/40 bg-red-950/30 px-3 py-2 text-sm text-red-300">{error}</div>}
+      {error && <div className="rounded-lg border border-burgundy/40 bg-burgundy/15 px-3 py-2 text-sm text-burgundy-light">{error}</div>}
       {loading && <div className="text-sm text-stone-text">{t("Loading gyms...", "Cargando gimnasios...", "Carregando academias...", "Chargement des salles...", "Caricamento palestre...")}</div>}
 
       {!loading && (
