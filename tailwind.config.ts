@@ -22,30 +22,37 @@ const config: Config = {
           card: "rgb(var(--color-bg-card) / <alpha-value>)",
           elevated: "rgb(var(--color-bg-elevated) / <alpha-value>)",
         },
+        // Palette restricted to exactly 6 colors app-wide: 2 blacks (navy
+        // DEFAULT/dark), 2 whites/beiges (beige DEFAULT/light, also used by
+        // surface/warm text tokens), 2 reds (burgundy DEFAULT/light). Extra
+        // shade keys (dark/muted variants) are kept only so existing
+        // className strings across the app keep working, but they now
+        // resolve to one of these same 6 canonical colors instead of
+        // introducing new hues (no gold/yellow, no third off-palette shade).
         burgundy: {
           DEFAULT: "#8b2635",
           light: "#a63345",
-          dark: "#6d1e29",
-          muted: "#5a1a22",
+          dark: "#8b2635",
+          muted: "#8b2635",
         },
         navy: {
           DEFAULT: "#2a2622",
-          light: "#453f38",
+          light: "#2a2622",
           dark: "#171512",
-          muted: "#0f0d0b",
+          muted: "#171512",
         },
         beige: {
-          DEFAULT: "#c4a882",
-          light: "#d4bc9e",
-          dark: "#a8906a",
+          DEFAULT: "#e8e2d6",
+          light: "#f0ebe0",
+          dark: "#e8e2d6",
           surface: "rgb(var(--color-text-strong) / <alpha-value>)",
           warm: "rgb(var(--color-text-body) / <alpha-value>)",
         },
         amber: {
-          DEFAULT: "#c4a882",
-          light: "#d4bc9e",
-          dark: "#a8906a",
-          muted: "#8c7550",
+          DEFAULT: "#e8e2d6",
+          light: "#f0ebe0",
+          dark: "#e8e2d6",
+          muted: "#e8e2d6",
         },
         stone: {
           border: "rgb(var(--color-stone-border) / <alpha-value>)",

@@ -131,7 +131,7 @@ export default function PhysicalMetricsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <Card>
           <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Body Weight", "Peso corporal", "Peso corporal", "Poids corporel", "Peso corporeo")}</div></CardHeader>
-          <CardBody>{weightChart.length > 0 ? <MetricChart data={weightChart} color="#c4a882" height={150} /> : <Empty text={t("No weight data yet", "Sin datos de peso aún", "Ainda sem dados de peso", "Pas encore de données de poids", "Ancora nessun dato sul peso")} />}</CardBody>
+          <CardBody>{weightChart.length > 0 ? <MetricChart data={weightChart} color="#e8e2d6" height={150} /> : <Empty text={t("No weight data yet", "Sin datos de peso aún", "Ainda sem dados de peso", "Pas encore de données de poids", "Ancora nessun dato sul peso")} />}</CardBody>
         </Card>
         <Card>
           <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Recovery Score", "Recuperación", "Recuperação", "Récupération", "Recupero")}</div></CardHeader>
@@ -143,7 +143,7 @@ export default function PhysicalMetricsPage() {
         </Card>
         <Card>
           <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Sleep Hours", "Horas de sueño", "Horas de sono", "Heures de sommeil", "Ore di sonno")}</div></CardHeader>
-          <CardBody>{sleepChart.length > 0 ? <MetricChart data={sleepChart} color="#c9a875" type="line" height={150} /> : <Empty text={t("No sleep data yet", "Sin datos de sueño", "Ainda sem dados de sono", "Pas encore de données de sommeil", "Ancora nessun dato sul sonno")} />}</CardBody>
+          <CardBody>{sleepChart.length > 0 ? <MetricChart data={sleepChart} color="#e8e2d6" type="line" height={150} /> : <Empty text={t("No sleep data yet", "Sin datos de sueño", "Ainda sem dados de sono", "Pas encore de données de sommeil", "Ancora nessun dato sul sonno")} />}</CardBody>
         </Card>
       </div>
 

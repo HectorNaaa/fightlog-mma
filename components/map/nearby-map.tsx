@@ -41,7 +41,7 @@ export default function NearbyMap({ center, fighters, gyms }: NearbyMapProps) {
         <CircleMarker
           center={[center.latitude, center.longitude]}
           radius={9}
-          pathOptions={{ color: "#c9a875", fillColor: "#c9a875", fillOpacity: 0.9 }}
+          pathOptions={{ color: "#e8e2d6", fillColor: "#e8e2d6", fillOpacity: 0.9 }}
         >
           <Popup>You</Popup>
         </CircleMarker>
@@ -67,7 +67,7 @@ export default function NearbyMap({ center, fighters, gyms }: NearbyMapProps) {
             radius={7}
             pathOptions={{ color: "#2a2622", fillColor: "#2a2622", fillOpacity: 0.85 }}
           >
-            <Popup>🏋 {gym.name}</Popup>
+            <Popup>{gym.name}</Popup>
           </CircleMarker>
         ))}
       </MapContainer>

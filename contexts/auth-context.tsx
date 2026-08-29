@@ -5,7 +5,7 @@ interface User {
   userId: string;
   email: string;
   name: string;
-  locale?: "en" | "es" | "pt" | "fr" | "it";
+  locale?: "en" | "es" | "pt" | "fr" | "it" | "uk";
   theme?: "dark" | "light";
   level: string;
   gymName?: string | null;

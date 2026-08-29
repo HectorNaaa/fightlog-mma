@@ -47,6 +47,8 @@ export default function WeeklyReviewPage() {
         return "fr-FR";
       case "it":
         return "it-IT";
+      case "uk":
+        return "uk-UA";
       default:
         return "en-US";
     }

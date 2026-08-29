@@ -19,7 +19,9 @@ export function formatDateInput(date: Date | string): string {
 
 export const TRAINING_TYPES = [
   "General Training",
+  "MMA",
   "Boxing",
+  "K1",
   "Muay Thai",
   "Wrestling",
   "BJJ",
@@ -35,12 +37,18 @@ export const DISCIPLINES = [
   "MMA",
   "Boxing",
   "Kickboxing",
+  "K1",
   "Muay Thai",
   "Wrestling",
   "BJJ",
   "Grappling",
   "Judo",
 ] as const;
+
+// Training/discipline types whose sessions record specific gym exercises
+// (name + per-set weight/reps/RPE) that can later be reviewed and edited,
+// as opposed to purely martial-arts sessions.
+export const EXERCISE_LOG_TYPES = ["Strength", "Conditioning"] as const;
 
 export const LEVELS: { value: string; label: string; disabled?: boolean }[] = [
   { value: "beginner", label: "Amateur Beginner" },

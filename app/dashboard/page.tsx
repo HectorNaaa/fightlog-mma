@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input, Textarea, Select } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
-import { formatDate, formatDateInput, TRAINING_TYPES, DISCIPLINES, FIGHT_RESULTS, FIGHT_METHODS } from "@/lib/utils";
+import { formatDate, formatDateInput, TRAINING_TYPES, DISCIPLINES, FIGHT_RESULTS, FIGHT_METHODS, EXERCISE_LOG_TYPES } from "@/lib/utils";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/language-context";
@@ -65,6 +65,8 @@ export default function DashboardPage() {
         return "fr-FR";
       case "it":
         return "it-IT";
+      case "uk":
+        return "uk-UA";
       default:
         return "en-US";
     }
@@ -178,7 +180,7 @@ export default function DashboardPage() {
 
   const saveSession = async () => {
     setSaving(true);
-    const exercises = form.type === "Strength" && form.exercises.length > 0
+    const exercises = (EXERCISE_LOG_TYPES as readonly string[]).includes(form.type) && form.exercises.length > 0
       ? form.exercises
           .filter((ex) => ex.name.trim())
           .map((ex) => ({
@@ -508,7 +510,7 @@ export default function DashboardPage() {
                   )}
                   <span className="text-xs text-stone-text shrink-0">{formatDate(s.date)}</span>
                   {s.isFight && s.opponentName && <span className="text-xs text-beige-warm truncate">vs {s.opponentName}</span>}
-                  {!s.isFight && s.type === "Strength" && Array.isArray(s.exercises) && s.exercises.length > 0 && (
+                  {!s.isFight && (EXERCISE_LOG_TYPES as readonly string[]).includes(s.type) && Array.isArray(s.exercises) && s.exercises.length > 0 && (
                     <span className="text-[10px] text-stone-text/70 truncate">{s.exercises.length} {isEs ? "ejercicios" : "exercises"}</span>
                   )}
                   <span className="text-xs text-beige-warm ml-auto shrink-0">{s.duration}m · {s.intensity}/10</span>
@@ -561,7 +563,7 @@ export default function DashboardPage() {
               <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Método" : "Method"}</label><Select value={form.fightMethod} onChange={f("fightMethod")}><option value="">{isEs ? "Selecciona..." : "Select..."}</option>{FIGHT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}</Select></div>
             </>
           )}
-          {form.type === "Strength" && !form.isFight && (
+          {(EXERCISE_LOG_TYPES as readonly string[]).includes(form.type) && !form.isFight && (
             <div className="sm:col-span-2 flex flex-col gap-3 border border-stone-border/50 rounded-sm p-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Ejercicios (peso y repeticiones)" : "Exercises (weight & reps)"}</span>

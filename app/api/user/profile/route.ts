@@ -23,7 +23,7 @@ const updateSchema = z.object({
   reminderEnabled: z.boolean().optional(),
   reminderDays: z.string().max(20).optional(),
   reminderIntervalHours: z.number().int().min(1).max(24).nullable().optional(),
-  locale: z.enum(["en", "es", "pt", "fr", "it"]).optional(),
+  locale: z.enum(["en", "es", "pt", "fr", "it", "uk"]).optional(),
   theme: z.enum(["dark", "light"]).optional(),
 });
 
