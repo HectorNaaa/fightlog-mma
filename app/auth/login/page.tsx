@@ -85,9 +85,10 @@ export default function LoginPage() {
       <div className="mx-auto flex w-full max-w-4xl items-center justify-center">
         <div className="w-full max-w-md rounded-2xl border border-stone-border/80 bg-[#1a1a1b] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.35)] sm:p-8">
           <div className="mb-7 text-center">
-            <div className="font-condensed text-3xl font-black tracking-[0.2em] text-white">
+            <Link href="/" className="inline-flex items-center gap-2 font-condensed text-3xl font-black tracking-[0.2em] text-white">
+              <img src="/logo/fightlog-mark.png" alt="FightLog" className="h-9 w-9" />
               FIGHT<span className="text-burgundy-light">LOG</span>
-            </div>
+            </Link>
             <p className="mt-2 text-sm text-stone-light">Train smarter. Build your fight brain.</p>
             <p className="mt-1 text-xs uppercase tracking-[0.18em] text-stone-text">{t.auth.loginSub}</p>
           </div>

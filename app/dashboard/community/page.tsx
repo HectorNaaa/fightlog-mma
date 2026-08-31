@@ -6,6 +6,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/language-context";
 import GymsDirectoryPage from "@/app/dashboard/gyms/page";
+import { Modal } from "@/components/ui/modal";
 
 const NearbyMap = dynamic(() => import("@/components/map/nearby-map"), {
   ssr: false,
@@ -151,6 +152,20 @@ interface NearbyResponse {
   gyms: NearbyGym[];
 }
 
+interface ChatMessage {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  createdAt: string;
+}
+
+interface Conversation {
+  friend: { id: string; name: string; profile?: { username?: string; displayName?: string } | null } | null;
+  lastMessage: ChatMessage | null;
+  unreadCount: number;
+}
+
 export default function CommunityPage() {
   const { locale } = useLanguage();
   const isEs = locale === "es";
@@ -181,6 +196,13 @@ export default function CommunityPage() {
   const [nearbyLoading, setNearbyLoading] = useState(false);
   const [postalCodeInput, setPostalCodeInput] = useState("");
   const [savingPostalCode, setSavingPostalCode] = useState(false);
+
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeChatFriendId, setActiveChatFriendId] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [sendingChat, setSendingChat] = useState(false);
 
   const loadNearby = async () => {
     setNearbyLoading(true);
@@ -264,6 +286,80 @@ export default function CommunityPage() {
   useEffect(() => {
     loadAll();
   }, []);
+
+  const loadConversations = async () => {
+    try {
+      const res = await fetch("/api/messages", { cache: "no-store" });
+      const data = await res.json().catch(() => []);
+      setConversations(Array.isArray(data) ? data : []);
+    } catch {
+      // best-effort — chat badge just stays stale until next poll
+    }
+  };
+
+  useEffect(() => {
+    loadConversations();
+    const interval = setInterval(loadConversations, 20000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const openChat = async (friendId: string) => {
+    setActiveChatFriendId(friendId);
+    setChatLoading(true);
+    try {
+      const res = await fetch(`/api/messages/${friendId}`, { cache: "no-store" });
+      const data = await res.json().catch(() => []);
+      setChatMessages(Array.isArray(data) ? data : []);
+      loadConversations();
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const closeChat = () => {
+    setActiveChatFriendId(null);
+    setChatMessages([]);
+    setChatInput("");
+  };
+
+  useEffect(() => {
+    if (!activeChatFriendId) return;
+    const interval = setInterval(async () => {
+      const res = await fetch(`/api/messages/${activeChatFriendId}`, { cache: "no-store" });
+      const data = await res.json().catch(() => null);
+      if (Array.isArray(data)) setChatMessages(data);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [activeChatFriendId]);
+
+  const sendChatMessage = async () => {
+    const content = chatInput.trim();
+    if (!content || !activeChatFriendId || sendingChat) return;
+    setSendingChat(true);
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ receiverId: activeChatFriendId, content }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Could not send message");
+        return;
+      }
+      const message = await res.json();
+      setChatMessages((prev) => [...prev, message]);
+      setChatInput("");
+      loadConversations();
+    } finally {
+      setSendingChat(false);
+    }
+  };
+
+  const totalUnreadMessages = useMemo(
+    () => conversations.reduce((sum, c) => sum + c.unreadCount, 0),
+    [conversations]
+  );
 
   const filteredFighters = useMemo(() => {
     if (!search.trim()) return fighters;
@@ -418,13 +514,18 @@ export default function CommunityPage() {
             key={item.key}
             onClick={() => setTab(item.key)}
             className={cn(
-              "rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-colors",
+              "relative rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-colors",
               tab === item.key
                 ? "bg-burgundy text-white"
                 : "text-stone-light hover:bg-bg-elevated hover:text-white"
             )}
           >
             {item.label}
+            {item.key === "partners" && totalUnreadMessages > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-burgundy px-1 text-[10px] font-bold text-white">
+                {totalUnreadMessages > 9 ? "9+" : totalUnreadMessages}
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -714,17 +815,30 @@ export default function CommunityPage() {
                         )}
                       </p>
                     </div>
-                    <button
-                      onClick={() => toggleTrainingPartner(friend.friendshipId, friend.isTrainingPartner)}
-                      className={cn(
-                        "rounded px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider",
-                        friend.isTrainingPartner
-                          ? "border border-burgundy/50 bg-burgundy/20 text-burgundy-light"
-                          : "border border-stone-border text-stone-light"
-                      )}
-                    >
-                      {friend.isTrainingPartner ? (isEs ? "Compañero de entreno" : "Training Partner") : (isEs ? "Marcar compañero" : "Mark Partner")}
-                    </button>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <button
+                        onClick={() => openChat(friend.id)}
+                        className="relative rounded px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider border border-burgundy/50 bg-burgundy/20 text-burgundy-light hover:bg-burgundy/30"
+                      >
+                        {isEs ? "Mensaje" : "Message"}
+                        {(conversations.find((c) => c.friend?.id === friend.id)?.unreadCount ?? 0) > 0 && (
+                          <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-burgundy px-1 text-[9px] font-bold text-white">
+                            {conversations.find((c) => c.friend?.id === friend.id)?.unreadCount}
+                          </span>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => toggleTrainingPartner(friend.friendshipId, friend.isTrainingPartner)}
+                        className={cn(
+                          "rounded px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider",
+                          friend.isTrainingPartner
+                            ? "border border-burgundy/50 bg-burgundy/20 text-burgundy-light"
+                            : "border border-stone-border text-stone-light"
+                        )}
+                      >
+                        {friend.isTrainingPartner ? (isEs ? "Compañero de entreno" : "Training Partner") : (isEs ? "Marcar compañero" : "Mark Partner")}
+                      </button>
+                    </div>
                   </div>
                   <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-stone-light">
                     <span className="rounded bg-bg-card px-2 py-1">{isEs ? "En común" : "Mutual"}: {friend.mutualFriends}</span>
@@ -826,6 +940,65 @@ export default function CommunityPage() {
           </div>
         </section>
       )}
+
+      <Modal
+        open={!!activeChatFriendId}
+        onClose={closeChat}
+        title={
+          friends.find((f) => f.id === activeChatFriendId)?.name ||
+          conversations.find((c) => c.friend?.id === activeChatFriendId)?.friend?.name ||
+          (isEs ? "Mensaje" : "Message")
+        }
+        className="max-w-md"
+      >
+        <div className="flex h-[420px] flex-col">
+          <div className="flex-1 space-y-2 overflow-y-auto p-4">
+            {chatLoading && <p className="text-sm text-stone-text">{isEs ? "Cargando..." : "Loading..."}</p>}
+            {!chatLoading && chatMessages.length === 0 && (
+              <p className="text-sm text-stone-text">{isEs ? "Aún no hay mensajes. ¡Saluda!" : "No messages yet. Say hi!"}</p>
+            )}
+            {chatMessages.map((message) => {
+              const mine = message.senderId !== activeChatFriendId;
+              return (
+                <div key={message.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
+                  <div
+                    className={cn(
+                      "max-w-[75%] rounded-lg px-3 py-2 text-sm",
+                      mine ? "bg-burgundy text-white" : "bg-bg-elevated text-white border border-stone-border"
+                    )}
+                  >
+                    <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                    <p className={cn("mt-1 text-[10px]", mine ? "text-white/70" : "text-stone-text")}>
+                      {new Date(message.createdAt).toLocaleTimeString(isEs ? "es-ES" : "en-US", { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-center gap-2 border-t border-stone-border p-3">
+            <input
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  sendChatMessage();
+                }
+              }}
+              placeholder={isEs ? "Escribe un mensaje..." : "Write a message..."}
+              className="flex-1 rounded-lg border border-stone-border bg-bg-elevated px-3 py-2 text-sm text-white placeholder:text-stone-text focus:border-burgundy-light focus:outline-none"
+            />
+            <button
+              onClick={sendChatMessage}
+              disabled={sendingChat || !chatInput.trim()}
+              className="rounded-lg bg-burgundy px-4 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-burgundy-light disabled:opacity-60"
+            >
+              {isEs ? "Enviar" : "Send"}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

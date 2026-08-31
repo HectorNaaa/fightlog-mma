@@ -24,11 +24,10 @@ export const translations = {
     // Hero
     landing: {
       badge: "Fighter Training OS",
-      heroLine1: "Training",
+      heroLine1: "",
       heroLine2: "For Serious",
       heroLine3: "Fighters",
-      heroSub:
-        "Training logs, technique tracking, gameplan builder and exportable reports — built for fighters who treat training as science.",
+      heroSub: "Training logs, technique tracking, gameplan builder and more.",
       ctaPrimary: "Start Training Free",
       ctaSecondary: "Sign In",
       featuresTitle: "Built for fighters",
@@ -164,11 +163,10 @@ export const translations = {
     },
     landing: {
       badge: "Sistema de Entrenamiento",
-      heroLine1: "Entrenamiento",
+      heroLine1: "",
       heroLine2: "Para Luchadores",
       heroLine3: "Serios",
-      heroSub:
-        "Diario de entrenamientos, seguimiento técnico, constructor de gameplans e informes exportables — diseñado para luchadores que tratan el entrenamiento como ciencia.",
+      heroSub: "Diario de entrenamientos, seguimiento técnico, constructor de gameplans y más.",
       ctaPrimary: "Empieza Gratis",
       ctaSecondary: "Iniciar Sesión",
       featuresTitle: "Diseñado para luchadores",
@@ -300,11 +298,10 @@ export const translations = {
     },
     landing: {
       badge: "Sistema de Treino",
-      heroLine1: "Treino",
+      heroLine1: "",
       heroLine2: "Para Lutadores",
       heroLine3: "Sérios",
-      heroSub:
-        "Diário de treinos, rastreamento técnico, construtor de gameplans e relatórios exportáveis — criado para lutadores que tratam o treino como ciência.",
+      heroSub: "Diário de treinos, rastreamento técnico, construtor de gameplans e mais.",
       ctaPrimary: "Comece Grátis",
       ctaSecondary: "Entrar",
       featuresTitle: "Feito para lutadores",
@@ -436,11 +433,10 @@ export const translations = {
     },
     landing: {
       badge: "Système d'Entraînement",
-      heroLine1: "Entraînement",
+      heroLine1: "",
       heroLine2: "Pour Combattants",
       heroLine3: "Sérieux",
-      heroSub:
-        "Journal d'entraînement, suivi technique, constructeur de gameplans et rapports exportables — conçu pour les combattants qui traitent l'entraînement comme une science.",
+      heroSub: "Journal d'entraînement, suivi technique, constructeur de gameplans et plus encore.",
       ctaPrimary: "Commencer Gratuitement",
       ctaSecondary: "Connexion",
       featuresTitle: "Conçu pour les combattants",
@@ -572,11 +568,10 @@ export const translations = {
     },
     landing: {
       badge: "Sistema di Allenamento",
-      heroLine1: "Allenamento",
+      heroLine1: "",
       heroLine2: "Per Combattenti",
       heroLine3: "Seri",
-      heroSub:
-        "Diario di allenamento, tracciamento tecnico, costruttore di gameplans e report esportabili — progettato per i fighter che trattano l'allenamento come una scienza.",
+      heroSub: "Diario di allenamento, tracciamento tecnico, costruttore di gameplans e altro ancora.",
       ctaPrimary: "Inizia Gratis",
       ctaSecondary: "Accedi",
       featuresTitle: "Costruito per i fighter",
@@ -708,11 +703,10 @@ export const translations = {
     },
     landing: {
       badge: "Система тренувань бійця",
-      heroLine1: "Тренування",
+      heroLine1: "",
       heroLine2: "Для серйозних",
       heroLine3: "Бійців",
-      heroSub:
-        "Щоденник тренувань, відстеження техніки, конструктор ігрового плану та звіти для експорту — створено для бійців, які ставляться до тренувань як до науки.",
+      heroSub: "Щоденник тренувань, відстеження техніки, конструктор ігрового плану та більше.",
       ctaPrimary: "Почати безкоштовно",
       ctaSecondary: "Увійти",
       featuresTitle: "Створено для бійців",

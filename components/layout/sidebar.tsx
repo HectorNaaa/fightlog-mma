@@ -31,8 +31,9 @@ export function Sidebar() {
   return (
     <aside className="hidden lg:flex fixed top-0 left-0 h-full z-40 w-56 bg-bg-secondary border-r border-stone-border flex-col">
       <div className="px-5 py-5 border-b border-stone-border">
-        <Link href="/" className="block group">
-          <div className="font-condensed font-black text-xl tracking-[0.2em] text-beige-surface group-hover:text-beige-warm transition-colors">
+        <Link href="/dashboard" className="block group">
+          <div className="flex items-center gap-2 font-condensed font-black text-xl tracking-[0.2em] text-beige-surface group-hover:text-beige-warm transition-colors">
+            <img src="/logo/fightlog-mark.png" alt="FightLog" className="h-7 w-7" />
             FIGHT<span className="text-burgundy">LOG</span>
           </div>
         </Link>

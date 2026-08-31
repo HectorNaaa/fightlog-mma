@@ -27,6 +27,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Vercel Cron requests never carry the user's session cookie — the route
+  // itself verifies the `Authorization: Bearer CRON_SECRET` header, so it
+  // must not be blocked here or scheduled jobs (e.g. daily reminders) 401
+  // before ever reaching the handler.
+  if (pathname.startsWith("/api/cron/")) {
+    return NextResponse.next();
+  }
+
   // Protect dashboard pages and all other API routes
   const isProtected =
     pathname.startsWith("/dashboard") || pathname.startsWith("/api/");

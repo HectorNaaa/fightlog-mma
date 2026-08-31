@@ -69,7 +69,8 @@ export default function LandingPage() {
     <div className="min-h-screen bg-bg-primary flex flex-col relative">
       <BackgroundAnimation />
       <nav className="relative z-20 flex items-center justify-between px-4 sm:px-6 py-4 max-w-6xl mx-auto w-full">
-        <div className="font-condensed font-black text-xl sm:text-2xl tracking-[0.15em] sm:tracking-[0.2em] text-beige-surface">
+        <div className="flex items-center gap-2 font-condensed font-black text-xl sm:text-2xl tracking-[0.15em] sm:tracking-[0.2em] text-beige-surface">
+          <img src="/logo/fightlog-mark.png" alt="FightLog" className="h-7 w-7 sm:h-8 sm:w-8" />
           FIGHT<span className="text-burgundy">LOG</span>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
@@ -86,7 +87,12 @@ export default function LandingPage() {
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 text-center pt-6 sm:pt-8 pb-14 sm:pb-20">
         <div className="max-w-3xl w-full">
           <h1 className="font-condensed font-black text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-beige-surface leading-none uppercase tracking-tight mb-4 sm:mb-6">
-            {t.landing.heroLine1}<br />
+            {t.landing.heroLine1 && (
+              <>
+                {t.landing.heroLine1}
+                <br />
+              </>
+            )}
             <AnimatedOutlineText text={t.landing.heroLine2} /><br />
             {t.landing.heroLine3}
           </h1>

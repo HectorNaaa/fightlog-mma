@@ -17,7 +17,8 @@ export default function GlobalError({
     <html lang="en" className="dark">
       <body className="flex min-h-screen items-center justify-center bg-bg-primary px-4 text-beige-warm">
         <div className="w-full max-w-md rounded-xl border border-stone-border bg-bg-card p-6 text-center">
-          <div className="font-condensed text-2xl font-black tracking-[0.2em] text-white">
+          <div className="inline-flex items-center gap-2 font-condensed text-2xl font-black tracking-[0.2em] text-white">
+            <img src="/logo/fightlog-mark.png" alt="FightLog" className="h-7 w-7" />
             FIGHT<span className="text-burgundy-light">LOG</span>
           </div>
           <h2 className="mt-3 text-lg font-bold text-white">Something went wrong</h2>
