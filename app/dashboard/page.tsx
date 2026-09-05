@@ -10,32 +10,78 @@ import { formatDate, formatDateInput, TRAINING_TYPES, DISCIPLINES, FIGHT_RESULTS
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/language-context";
+import { tr } from "@/lib/i18n";
 
-const MOTIVATIONS: Record<number, string> = {
-  0: "Hoy empieza tu racha. Un entreno cambia el día.",
-  1: "1 día. La consistencia se construye así, uno a uno.",
-  2: "2 días seguidos. El cuerpo recuerda.",
-  3: "3 días. Estás creando un hábito real.",
-  5: "5 días. Eso es disciplina, no motivación.",
-  7: "Una semana entera. Pocos llegan aquí.",
-  14: "Dos semanas. El trabajo habla por ti.",
-  30: "Un mes. Ya eres otro luchador.",
+const MOTIVATIONS: Record<number, { en: string; es: string; pt: string; fr: string; it: string; uk: string }> = {
+  0: {
+    en: "Your streak starts today. One session can change the day.",
+    es: "Hoy empieza tu racha. Un entreno cambia el día.",
+    pt: "Sua sequência começa hoje. Um treino pode mudar o dia.",
+    fr: "Votre série commence aujourd'hui. Une séance peut changer la journée.",
+    it: "La tua serie inizia oggi. Un allenamento può cambiare la giornata.",
+    uk: "Ваша серія починається сьогодні. Одне тренування може змінити день.",
+  },
+  1: {
+    en: "1 day. Consistency is built one day at a time.",
+    es: "1 día. La consistencia se construye así, uno a uno.",
+    pt: "1 dia. A consistência se constrói assim, um dia de cada vez.",
+    fr: "1 jour. La constance se construit ainsi, jour après jour.",
+    it: "1 giorno. La costanza si costruisce così, un giorno alla volta.",
+    uk: "1 день. Стабільність будується саме так, день за днем.",
+  },
+  2: {
+    en: "2 days in a row. Your body remembers.",
+    es: "2 días seguidos. El cuerpo recuerda.",
+    pt: "2 dias seguidos. O corpo lembra.",
+    fr: "2 jours d'affilée. Le corps s'en souvient.",
+    it: "2 giorni di fila. Il corpo ricorda.",
+    uk: "2 дні поспіль. Тіло пам'ятає.",
+  },
+  3: {
+    en: "3 days. You are building a real habit.",
+    es: "3 días. Estás creando un hábito real.",
+    pt: "3 dias. Você está criando um hábito de verdade.",
+    fr: "3 jours. Vous créez une véritable habitude.",
+    it: "3 giorni. Stai costruendo un'abitudine reale.",
+    uk: "3 дні. Ви формуєте справжню звичку.",
+  },
+  5: {
+    en: "5 days. That's discipline, not motivation.",
+    es: "5 días. Eso es disciplina, no motivación.",
+    pt: "5 dias. Isso é disciplina, não motivação.",
+    fr: "5 jours. C'est de la discipline, pas de la motivation.",
+    it: "5 giorni. Questa è disciplina, non motivazione.",
+    uk: "5 днів. Це дисципліна, а не мотивація.",
+  },
+  7: {
+    en: "A full week. Few make it this far.",
+    es: "Una semana entera. Pocos llegan aquí.",
+    pt: "Uma semana inteira. Poucos chegam até aqui.",
+    fr: "Une semaine entière. Peu de gens vont aussi loin.",
+    it: "Un'intera settimana. Pochi arrivano fin qui.",
+    uk: "Цілий тиждень. Мало хто доходить сюди.",
+  },
+  14: {
+    en: "Two weeks. Your work speaks for itself.",
+    es: "Dos semanas. El trabajo habla por ti.",
+    pt: "Duas semanas. O trabalho fala por si.",
+    fr: "Deux semaines. Votre travail parle de lui-même.",
+    it: "Due settimane. Il lavoro parla da solo.",
+    uk: "Два тижні. Ваша робота говорить сама за себе.",
+  },
+  30: {
+    en: "One month. You are not the same athlete anymore.",
+    es: "Un mes. Ya eres otro luchador.",
+    pt: "Um mês. Você já é outro atleta.",
+    fr: "Un mois. Vous n'êtes plus le même athlète.",
+    it: "Un mese. Non sei più lo stesso atleta.",
+    uk: "Один місяць. Ви вже інший спортсмен.",
+  },
 };
-const MOTIVATIONS_EN: Record<number, string> = {
-  0: "Your streak starts today. One session can change the day.",
-  1: "1 day. Consistency is built one day at a time.",
-  2: "2 days in a row. Your body remembers.",
-  3: "3 days. You are building a real habit.",
-  5: "5 days. That's discipline, not motivation.",
-  7: "A full week. Few make it this far.",
-  14: "Two weeks. Your work speaks for itself.",
-  30: "One month. You are not the same athlete anymore.",
-};
-function getMotivation(streak: number, locale: string): string {
-  const table = locale === "es" ? MOTIVATIONS : MOTIVATIONS_EN;
-  const keys = Object.keys(table).map(Number).sort((a, b) => b - a);
-  for (const k of keys) { if (streak >= k) return table[k]; }
-  return locale === "es" ? "Hoy empieza tu racha." : "Your streak starts today.";
+function getMotivation(streak: number, locale: import("@/lib/i18n").Locale): string {
+  const keys = Object.keys(MOTIVATIONS).map(Number).sort((a, b) => b - a);
+  for (const k of keys) { if (streak >= k) return tr(locale, MOTIVATIONS[k]); }
+  return tr(locale, MOTIVATIONS[0]);
 }
 
 interface ExerciseSet { weight: number | null; reps: number | null; rpe: number | null; }
@@ -53,7 +99,7 @@ const TRAINING_DRAFT_KEY = "fightlog:training-draft";
 export default function DashboardPage() {
   const { user, refetch } = useAuth();
   const { locale, t } = useLanguage();
-  const isEs = locale === "es";
+  const L = (dict: { en: string; es?: string; pt?: string; fr?: string; it?: string; uk?: string }) => tr(locale, dict);
 
   function localeToIntl(l: string) {
     switch (l) {
@@ -212,9 +258,14 @@ export default function DashboardPage() {
   // it can be recovered later; it's only cleared on save or explicit discard.
   const requestCloseLog = () => {
     if (dirty) {
-      const msg = isEs
-        ? "Tienes cambios sin guardar en este entreno. Se guardó un borrador y podrás continuarlo más tarde. ¿Seguro que quieres salir?"
-        : "You have unsaved changes in this session. A draft was saved and you can continue it later. Are you sure you want to leave?";
+      const msg = L({
+        en: "You have unsaved changes in this session. A draft was saved and you can continue it later. Are you sure you want to leave?",
+        es: "Tienes cambios sin guardar en este entreno. Se guardó un borrador y podrás continuarlo más tarde. ¿Seguro que quieres salir?",
+        pt: "Você tem alterações não salvas nesta sessão. Um rascunho foi salvo e você poderá continuá-lo depois. Tem certeza de que deseja sair?",
+        fr: "Vous avez des modifications non enregistrées dans cette séance. Un brouillon a été enregistré et vous pourrez le reprendre plus tard. Êtes-vous sûr de vouloir quitter ?",
+        it: "Hai modifiche non salvate in questa sessione. È stata salvata una bozza che potrai continuare più tardi. Sei sicuro di voler uscire?",
+        uk: "У вас є незбережені зміни в цьому тренуванні. Чернетку збережено, і ви зможете продовжити пізніше. Впевнені, що хочете вийти?",
+      });
       if (!window.confirm(msg)) return;
     }
     setFabOpen(false);
@@ -324,14 +375,14 @@ export default function DashboardPage() {
       {draftPrompt && !draftPrompt.editingSessionId && !fabOpen && (
         <div className="rounded-sm p-3 border border-burgundy/40 bg-burgundy/10 flex items-center justify-between gap-3 flex-wrap">
           <p className="text-xs text-beige-warm">
-            {isEs ? "Encontramos un entreno sin guardar de la última vez. ¿Quieres continuarlo?" : "We found an unsaved training session from last time. Continue it?"}
+            {L({ en: "We found an unsaved training session from last time. Continue it?", es: "Encontramos un entreno sin guardar de la última vez. ¿Quieres continuarlo?", pt: "Encontramos um treino não salvo da última vez. Deseja continuar?", fr: "Nous avons trouvé une séance non enregistrée de la dernière fois. Voulez-vous continuer ?", it: "Abbiamo trovato un allenamento non salvato dall'ultima volta. Vuoi continuarlo?", uk: "Ми знайшли незбережене тренування з минулого разу. Продовжити?" })}
           </p>
           <div className="flex gap-2 shrink-0">
             <button onClick={continueDraft} className="bg-burgundy text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm hover:bg-burgundy-light transition-colors">
-              {isEs ? "Continuar" : "Continue"}
+              {L({ en: "Continue", es: "Continuar", pt: "Continuar", fr: "Continuer", it: "Continua", uk: "Продовжити" })}
             </button>
             <button onClick={discardDraftPrompt} className="border border-stone-border text-stone-text text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm hover:text-beige-warm transition-colors">
-              {isEs ? "Descartar" : "Discard"}
+              {L({ en: "Discard", es: "Descartar", pt: "Descartar", fr: "Abandonner", it: "Scarta", uk: "Скасувати" })}
             </button>
           </div>
         </div>
@@ -397,11 +448,11 @@ export default function DashboardPage() {
 
       {/* Disciplines */}
       <div className="bg-bg-card border border-stone-border rounded-sm p-4">
-        <div className="text-[10px] text-stone-text uppercase tracking-widest mb-3">{isEs ? "Mis deportes y disciplinas" : "My Sports & Disciplines"}</div>
+        <div className="text-[10px] text-stone-text uppercase tracking-widest mb-3">{L({ en: "My Sports & Disciplines", es: "Mis deportes y disciplinas", pt: "Meus esportes e disciplinas", fr: "Mes sports et disciplines", it: "I miei sport e discipline", uk: "Мої види спорту та дисципліни" })}</div>
         <div className="flex flex-wrap gap-2 mb-3">
-          {disciplines.length === 0 && <span className="text-xs text-stone-text/50 italic">{isEs ? "Sin disciplinas adicionales" : "No additional disciplines added"}</span>}
+          {disciplines.length === 0 && <span className="text-xs text-stone-text/50 italic">{L({ en: "No additional disciplines added", es: "Sin disciplinas adicionales", pt: "Nenhuma disciplina adicional adicionada", fr: "Aucune discipline supplémentaire ajoutée", it: "Nessuna disciplina aggiuntiva aggiunta", uk: "Додаткових дисциплін не додано" })}</span>}
           {disciplines.map(d => (
-            <button key={d} onClick={() => removeDisc(d)} title={isEs ? `Eliminar ${d}` : `Remove ${d}`} className="text-[11px] bg-bg-elevated border border-stone-border px-2.5 py-1 rounded-sm text-beige-warm flex items-center gap-1.5 hover:border-burgundy/60 hover:text-white transition-colors">
+            <button key={d} onClick={() => removeDisc(d)} title={L({ en: `Remove ${d}`, es: `Eliminar ${d}`, pt: `Remover ${d}`, fr: `Retirer ${d}`, it: `Rimuovi ${d}`, uk: `Видалити ${d}` })} className="text-[11px] bg-bg-elevated border border-stone-border px-2.5 py-1 rounded-sm text-beige-warm flex items-center gap-1.5 hover:border-burgundy/60 hover:text-white transition-colors">
               {d} <span className="text-stone-text/60 text-xs">×</span>
             </button>
           ))}
@@ -410,10 +461,10 @@ export default function DashboardPage() {
           <select
             value={selectedDisc}
             onChange={e => setSelectedDisc(e.target.value)}
-            title={isEs ? "Seleccionar disciplina" : "Select discipline"}
+            title={L({ en: "Select discipline", es: "Seleccionar disciplina", pt: "Selecionar disciplina", fr: "Sélectionner la discipline", it: "Seleziona disciplina", uk: "Обрати дисципліну" })}
             className="flex-1 bg-bg-elevated border border-stone-border rounded-sm px-3 py-1.5 text-sm text-beige-warm placeholder:text-stone-text focus:outline-none focus:border-amber"
           >
-            <option value="">{isEs ? "Añadir disciplina..." : "Add discipline..."}</option>
+            <option value="">{L({ en: "Add discipline...", es: "Añadir disciplina...", pt: "Adicionar disciplina...", fr: "Ajouter une discipline...", it: "Aggiungi disciplina...", uk: "Додати дисципліну..." })}</option>
             {DISCIPLINES.filter(d => !disciplines.includes(d)).map(d => (
               <option key={d} value={d}>{d}</option>
             ))}
@@ -423,7 +474,7 @@ export default function DashboardPage() {
             disabled={!selectedDisc || loadingDisc}
             className="bg-burgundy text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-sm hover:bg-burgundy-light disabled:opacity-50 transition-colors"
           >
-            {isEs ? "Añadir" : "Add"}
+            {L({ en: "Add", es: "Añadir", pt: "Adicionar", fr: "Ajouter", it: "Aggiungi", uk: "Додати" })}
           </button>
         </div>
       </div>
@@ -453,7 +504,7 @@ export default function DashboardPage() {
                 <p className="text-xs text-stone-text/90 leading-relaxed">{tip.tacticNote}</p>
                 <button onClick={() => toggleRespeto(tip.sessionId)} className={cn("mt-2 text-[10px] flex items-center gap-1 uppercase tracking-wider transition-colors", tip.hasRespeto ? "text-burgundy" : "text-stone-text/50 hover:text-stone-text")}>
                   <span>{tip.hasRespeto ? "♥" : "♡"}</span>
-                  <span>{tip.respetos} {locale === "es" ? `respeto${tip.respetos !== 1 ? "s" : ""}` : `respect${tip.respetos !== 1 ? "s" : ""}`}</span>
+                  <span>{tip.respetos} {L({ en: `respect${tip.respetos !== 1 ? "s" : ""}`, es: `respeto${tip.respetos !== 1 ? "s" : ""}`, pt: `respeito${tip.respetos !== 1 ? "s" : ""}`, fr: `respect${tip.respetos !== 1 ? "s" : ""}`, it: `rispetto${tip.respetos !== 1 ? "i" : ""}`, uk: `поваг` })}</span>
                 </button>
               </div>
             ))}
@@ -478,7 +529,7 @@ export default function DashboardPage() {
       {/* Full training & fight log (embedded, scrollable) */}
       <div className="bg-bg-card border border-stone-border rounded-sm">
         <div className="flex items-center justify-between px-4 pt-4 pb-2 gap-2 flex-wrap">
-          <span className="text-[10px] text-stone-text uppercase tracking-widest">{isEs ? "Diario de entreno" : "Training log"} ({filteredSessions.length})</span>
+          <span className="text-[10px] text-stone-text uppercase tracking-widest">{L({ en: "Training log", es: "Diario de entreno", pt: "Diário de treino", fr: "Journal d'entraînement", it: "Diario di allenamento", uk: "Щоденник тренувань" })} ({filteredSessions.length})</span>
           <div className="flex rounded-full border border-stone-border overflow-hidden">
             {(["all", "training", "fights"] as const).map(k => (
               <button
@@ -486,13 +537,13 @@ export default function DashboardPage() {
                 onClick={() => setLogFilter(k)}
                 className={cn("px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors", logFilter === k ? "bg-burgundy text-white" : "text-stone-text hover:text-beige-warm")}
               >
-                {k === "all" ? (isEs ? "Todo" : "All") : k === "training" ? (isEs ? "Entrenos" : "Training") : (isEs ? "Peleas" : "Fights")}
+                {k === "all" ? L({ en: "All", es: "Todo", pt: "Todos", fr: "Tout", it: "Tutto", uk: "Усі" }) : k === "training" ? L({ en: "Training", es: "Entrenos", pt: "Treinos", fr: "Entraînements", it: "Allenamenti", uk: "Тренування" }) : L({ en: "Fights", es: "Peleas", pt: "Lutas", fr: "Combats", it: "Combattimenti", uk: "Бої" })}
               </button>
             ))}
           </div>
         </div>
         {filteredSessions.length === 0 ? (
-          <div className="px-4 pb-4 text-xs text-stone-text/60 italic">{isEs ? "Sin sesiones registradas todavía." : "No sessions logged yet."}</div>
+          <div className="px-4 pb-4 text-xs text-stone-text/60 italic">{L({ en: "No sessions logged yet.", es: "Sin sesiones registradas todavía.", pt: "Nenhuma sessão registrada ainda.", fr: "Aucune séance enregistrée pour le moment.", it: "Ancora nessuna sessione registrata.", uk: "Ще немає записаних тренувань." })}</div>
         ) : (
           <div className="max-h-[420px] overflow-y-auto">
             {filteredSessions.map(s => (
@@ -503,7 +554,7 @@ export default function DashboardPage() {
                       "text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-sm shrink-0",
                       s.fightResult === "win" ? "bg-amber/20 text-amber" : s.fightResult === "loss" ? "bg-burgundy/20 text-burgundy-light" : "bg-navy/30 text-navy-light"
                     )}>
-                      {isEs ? "Pelea" : "Fight"}{s.fightResult ? ` · ${s.fightResult}` : ""}
+                      {L({ en: "Fight", es: "Pelea", pt: "Luta", fr: "Combat", it: "Combattimento", uk: "Бій" })}{s.fightResult ? ` · ${s.fightResult}` : ""}
                     </span>
                   ) : (
                     <Badge label={s.type} />
@@ -511,14 +562,14 @@ export default function DashboardPage() {
                   <span className="text-xs text-stone-text shrink-0">{formatDate(s.date)}</span>
                   {s.isFight && s.opponentName && <span className="text-xs text-beige-warm truncate">vs {s.opponentName}</span>}
                   {!s.isFight && (EXERCISE_LOG_TYPES as readonly string[]).includes(s.type) && Array.isArray(s.exercises) && s.exercises.length > 0 && (
-                    <span className="text-[10px] text-stone-text/70 truncate">{s.exercises.length} {isEs ? "ejercicios" : "exercises"}</span>
+                    <span className="text-[10px] text-stone-text/70 truncate">{s.exercises.length} {L({ en: "exercises", es: "ejercicios", pt: "exercícios", fr: "exercices", it: "esercizi", uk: "вправ" })}</span>
                   )}
                   <span className="text-xs text-beige-warm ml-auto shrink-0">{s.duration}m · {s.intensity}/10</span>
                 </button>
                 <button
                   onClick={() => deleteSession(s.id)}
                   disabled={deletingId === s.id}
-                  title={isEs ? "Borrar" : "Delete"}
+                  title={L({ en: "Delete", es: "Borrar", pt: "Excluir", fr: "Supprimer", it: "Elimina", uk: "Видалити" })}
                   className="shrink-0 text-stone-text/50 hover:text-burgundy-light text-xs px-1.5 py-1 transition-colors disabled:opacity-40"
                 >
                   ×
@@ -535,44 +586,44 @@ export default function DashboardPage() {
       </button>
 
       {/* Quick log modal */}
-      <Modal open={fabOpen} onClose={requestCloseLog} title={editingSession ? (isEs ? "Editar sesión" : "Edit Session") : form.isFight ? (isEs ? "Registrar Pelea" : "Log Fight") : (isEs ? "Registrar Entreno" : "Log Session")}>
+      <Modal open={fabOpen} onClose={requestCloseLog} title={editingSession ? L({ en: "Edit Session", es: "Editar sesión", pt: "Editar sessão", fr: "Modifier la séance", it: "Modifica sessione", uk: "Редагувати сесію" }) : form.isFight ? L({ en: "Log Fight", es: "Registrar Pelea", pt: "Registrar Luta", fr: "Enregistrer un combat", it: "Registra combattimento", uk: "Записати бій" }) : L({ en: "Log Session", es: "Registrar Entreno", pt: "Registrar Treino", fr: "Enregistrer la séance", it: "Registra sessione", uk: "Записати тренування" })}>
         <div className="flex rounded-full border border-stone-border overflow-hidden mb-4 w-fit">
           <button
             type="button"
             onClick={() => setForm(p => ({ ...p, isFight: false }))}
             className={cn("px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors", !form.isFight ? "bg-burgundy text-white" : "text-stone-text hover:text-beige-warm")}
           >
-            {isEs ? "Entreno" : "Training"}
+            {L({ en: "Training", es: "Entreno", pt: "Treino", fr: "Entraînement", it: "Allenamento", uk: "Тренування" })}
           </button>
           <button
             type="button"
             onClick={() => setForm(p => ({ ...p, isFight: true }))}
             className={cn("px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors", form.isFight ? "bg-burgundy text-white" : "text-stone-text hover:text-beige-warm")}
           >
-            {isEs ? "Pelea" : "Fight"}
+            {L({ en: "Fight", es: "Pelea", pt: "Luta", fr: "Combat", it: "Combattimento", uk: "Бій" })}
           </button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label={isEs ? "Fecha" : "Date"} type="date" value={form.date} onChange={f("date")} />
-          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Tipo" : "Type"}</label><Select value={form.type} onChange={f("type")}>{TRAINING_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</Select></div>
-          <Input label={isEs ? "Duración (min)" : "Duration (min)"} type="number" min={1} value={form.duration} onChange={f("duration")} />
+          <Input label={L({ en: "Date", es: "Fecha", pt: "Data", fr: "Date", it: "Data", uk: "Дата" })} type="date" value={form.date} onChange={f("date")} />
+          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{L({ en: "Type", es: "Tipo", pt: "Tipo", fr: "Type", it: "Tipo", uk: "Тип" })}</label><Select value={form.type} onChange={f("type")}>{TRAINING_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</Select></div>
+          <Input label={L({ en: "Duration (min)", es: "Duración (min)", pt: "Duração (min)", fr: "Durée (min)", it: "Durata (min)", uk: "Тривалість (хв)" })} type="number" min={1} value={form.duration} onChange={f("duration")} />
           {form.isFight && (
             <>
-              <Input label={isEs ? "Oponente" : "Opponent"} value={form.opponentName} onChange={f("opponentName")} placeholder={isEs ? "Nombre del rival" : "Opponent name"} />
-              <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Resultado" : "Result"}</label><Select value={form.fightResult} onChange={f("fightResult")}><option value="">{isEs ? "Selecciona..." : "Select..."}</option>{FIGHT_RESULTS.map(r => <option key={r} value={r}>{r}</option>)}</Select></div>
-              <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Método" : "Method"}</label><Select value={form.fightMethod} onChange={f("fightMethod")}><option value="">{isEs ? "Selecciona..." : "Select..."}</option>{FIGHT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}</Select></div>
+              <Input label={L({ en: "Opponent", es: "Oponente", pt: "Oponente", fr: "Adversaire", it: "Avversario", uk: "Суперник" })} value={form.opponentName} onChange={f("opponentName")} placeholder={L({ en: "Opponent name", es: "Nombre del rival", pt: "Nome do adversário", fr: "Nom de l'adversaire", it: "Nome dell'avversario", uk: "Ім'я суперника" })} />
+              <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{L({ en: "Result", es: "Resultado", pt: "Resultado", fr: "Résultat", it: "Risultato", uk: "Результат" })}</label><Select value={form.fightResult} onChange={f("fightResult")}><option value="">{L({ en: "Select...", es: "Selecciona...", pt: "Selecione...", fr: "Sélectionner...", it: "Seleziona...", uk: "Обрати..." })}</option>{FIGHT_RESULTS.map(r => <option key={r} value={r}>{r}</option>)}</Select></div>
+              <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{L({ en: "Method", es: "Método", pt: "Método", fr: "Méthode", it: "Metodo", uk: "Метод" })}</label><Select value={form.fightMethod} onChange={f("fightMethod")}><option value="">{L({ en: "Select...", es: "Selecciona...", pt: "Selecione...", fr: "Sélectionner...", it: "Seleziona...", uk: "Обрати..." })}</option>{FIGHT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}</Select></div>
             </>
           )}
           {(EXERCISE_LOG_TYPES as readonly string[]).includes(form.type) && !form.isFight && (
             <div className="sm:col-span-2 flex flex-col gap-3 border border-stone-border/50 rounded-sm p-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? "Ejercicios (peso y repeticiones)" : "Exercises (weight & reps)"}</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-stone-text">{L({ en: "Exercises (weight & reps)", es: "Ejercicios (peso y repeticiones)", pt: "Exercícios (peso e repetições)", fr: "Exercices (poids et répétitions)", it: "Esercizi (peso e ripetizioni)", uk: "Вправи (вага та повторення)" })}</span>
                 <button type="button" onClick={addExercise} className="text-[11px] bg-burgundy/20 border border-burgundy/50 text-burgundy-light px-2.5 py-1 rounded-sm hover:bg-burgundy/30 transition-colors">
-                  + {isEs ? "Añadir ejercicio" : "Add Exercise"}
+                  + {L({ en: "Add Exercise", es: "Añadir ejercicio", pt: "Adicionar exercício", fr: "Ajouter un exercice", it: "Aggiungi esercizio", uk: "Додати вправу" })}
                 </button>
               </div>
               {form.exercises.length === 0 && (
-                <p className="text-xs text-stone-text/60 italic">{isEs ? "Añade los ejercicios de esta sesión de gimnasio/fuerza." : "Add the exercises for this gym/strength session."}</p>
+                <p className="text-xs text-stone-text/60 italic">{L({ en: "Add the exercises for this gym/strength session.", es: "Añade los ejercicios de esta sesión de gimnasio/fuerza.", pt: "Adicione os exercícios desta sessão de academia/força.", fr: "Ajoutez les exercices de cette séance de musculation/salle.", it: "Aggiungi gli esercizi di questa sessione in palestra/forza.", uk: "Додайте вправи для цього силового тренування." })}</p>
               )}
               {form.exercises.map((ex, i) => (
                 <div key={i} className="bg-bg-elevated rounded-sm p-3 flex flex-col gap-2">
@@ -580,27 +631,27 @@ export default function DashboardPage() {
                     <input
                       value={ex.name}
                       onChange={(e) => updateExerciseName(i, e.target.value)}
-                      placeholder={isEs ? "Nombre del ejercicio (ej: Sentadilla)" : "Exercise name (e.g. Squat)"}
+                      placeholder={L({ en: "Exercise name (e.g. Squat)", es: "Nombre del ejercicio (ej: Sentadilla)", pt: "Nome do exercício (ex: Agachamento)", fr: "Nom de l'exercice (ex : Squat)", it: "Nome dell'esercizio (es: Squat)", uk: "Назва вправи (напр. Присідання)" })}
                       className="flex-1 bg-bg-card border border-stone-border rounded-sm px-2.5 py-1.5 text-sm text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
                     />
-                    <button type="button" onClick={() => removeExercise(i)} title={isEs ? "Eliminar ejercicio" : "Remove exercise"} className="text-stone-text/50 hover:text-burgundy-light text-sm px-1.5">×</button>
+                    <button type="button" onClick={() => removeExercise(i)} title={L({ en: "Remove exercise", es: "Eliminar ejercicio", pt: "Remover exercício", fr: "Supprimer l'exercice", it: "Rimuovi esercizio", uk: "Видалити вправу" })} className="text-stone-text/50 hover:text-burgundy-light text-sm px-1.5">×</button>
                   </div>
                   <div className="flex flex-col gap-1.5">
                     {ex.sets.map((set, j) => (
                       <div key={j} className="flex items-center gap-2">
-                        <span className="text-[10px] text-stone-text w-10 shrink-0">{isEs ? "Serie" : "Set"} {j + 1}</span>
+                        <span className="text-[10px] text-stone-text w-10 shrink-0">{L({ en: "Set", es: "Serie", pt: "Série", fr: "Série", it: "Serie", uk: "Підхід" })} {j + 1}</span>
                         <input
                           type="number"
                           value={set.weight}
                           onChange={(e) => updateSet(i, j, "weight", e.target.value)}
-                          placeholder={isEs ? "Peso (kg)" : "Weight (kg)"}
+                          placeholder={L({ en: "Weight (kg)", es: "Peso (kg)", pt: "Peso (kg)", fr: "Poids (kg)", it: "Peso (kg)", uk: "Вага (кг)" })}
                           className="w-24 bg-bg-card border border-stone-border rounded-sm px-2 py-1 text-xs text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
                         />
                         <input
                           type="number"
                           value={set.reps}
                           onChange={(e) => updateSet(i, j, "reps", e.target.value)}
-                          placeholder={isEs ? "Repes" : "Reps"}
+                          placeholder={L({ en: "Reps", es: "Repes", pt: "Reps", fr: "Reps", it: "Rip.", uk: "Повт." })}
                           className="w-20 bg-bg-card border border-stone-border rounded-sm px-2 py-1 text-xs text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
                         />
                         <input
@@ -609,38 +660,38 @@ export default function DashboardPage() {
                           max={10}
                           value={set.rpe}
                           onChange={(e) => updateSet(i, j, "rpe", e.target.value)}
-                          placeholder={isEs ? "RPE" : "RPE"}
-                          title={isEs ? "RPE (1-10)" : "RPE (1-10)"}
+                          placeholder="RPE"
+                          title={L({ en: "RPE (1-10)", es: "RPE (1-10)", pt: "RPE (1-10)", fr: "RPE (1-10)", it: "RPE (1-10)", uk: "RPE (1-10)" })}
                           className="w-16 bg-bg-card border border-stone-border rounded-sm px-2 py-1 text-xs text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
                         />
-                        <button type="button" onClick={() => removeSet(i, j)} title={isEs ? "Eliminar serie" : "Remove set"} className="text-stone-text/50 hover:text-burgundy-light text-xs px-1">×</button>
+                        <button type="button" onClick={() => removeSet(i, j)} title={L({ en: "Remove set", es: "Eliminar serie", pt: "Remover série", fr: "Supprimer la série", it: "Rimuovi serie", uk: "Видалити підхід" })} className="text-stone-text/50 hover:text-burgundy-light text-xs px-1">×</button>
                       </div>
                     ))}
                   </div>
                   <button type="button" onClick={() => addSet(i)} className="text-[10px] text-amber hover:text-amber-light uppercase tracking-wider self-start">
-                    + {isEs ? "Añadir serie" : "Add Set"}
+                    + {L({ en: "Add Set", es: "Añadir serie", pt: "Adicionar série", fr: "Ajouter une série", it: "Aggiungi serie", uk: "Додати підхід" })}
                   </button>
                 </div>
               ))}
             </div>
           )}
-          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Sensación física (1-5): ${form.physicalState}` : `Physical state (1-5): ${form.physicalState}`}</label><input title="Physical state" type="range" min={1} max={5} value={form.physicalState} onChange={f("physicalState")} /></div>
-          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Intensidad (1-10): ${form.intensity}` : `Intensity (1-10): ${form.intensity}`}</label><input title="Intensity" type="range" min={1} max={10} value={form.intensity} onChange={f("intensity")} /></div>
-          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Energía antes (1-10): ${form.energyBefore}` : `Energy before (1-10): ${form.energyBefore}`}</label><input title="Energy before" type="range" min={1} max={10} value={form.energyBefore} onChange={f("energyBefore")} /></div>
-          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Energía después (1-10): ${form.energyAfter}` : `Energy after (1-10): ${form.energyAfter}`}</label><input title="Energy after" type="range" min={1} max={10} value={form.energyAfter} onChange={f("energyAfter")} /></div>
-          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{isEs ? `Agujetas (1-10): ${form.soreness}` : `Soreness (1-10): ${form.soreness}`}</label><input title="Soreness" type="range" min={1} max={10} value={form.soreness} onChange={f("soreness")} /></div>
-          <Input label={isEs ? "Foco del entreno" : "Session focus"} value={form.dailyFocus ?? ""} onChange={f("dailyFocus")} placeholder={isEs ? "ej: Mantener guardia alta" : "e.g. Keep high guard"} className="sm:col-span-2" />
-          <Textarea label={isEs ? "Nota táctica (opcional)" : "Tactical note (optional)"} value={form.tacticNote ?? ""} onChange={f("tacticNote")} rows={2} placeholder={isEs ? "Algo que descubriste hoy..." : "Something you discovered today..."} className="sm:col-span-2" />
+          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{L({ en: `Physical state (1-5): ${form.physicalState}`, es: `Sensación física (1-5): ${form.physicalState}`, pt: `Estado físico (1-5): ${form.physicalState}`, fr: `État physique (1-5) : ${form.physicalState}`, it: `Stato fisico (1-5): ${form.physicalState}`, uk: `Фізичний стан (1-5): ${form.physicalState}` })}</label><input title="Physical state" type="range" min={1} max={5} value={form.physicalState} onChange={f("physicalState")} /></div>
+          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{L({ en: `Intensity (1-10): ${form.intensity}`, es: `Intensidad (1-10): ${form.intensity}`, pt: `Intensidade (1-10): ${form.intensity}`, fr: `Intensité (1-10) : ${form.intensity}`, it: `Intensità (1-10): ${form.intensity}`, uk: `Інтенсивність (1-10): ${form.intensity}` })}</label><input title="Intensity" type="range" min={1} max={10} value={form.intensity} onChange={f("intensity")} /></div>
+          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{L({ en: `Energy before (1-10): ${form.energyBefore}`, es: `Energía antes (1-10): ${form.energyBefore}`, pt: `Energia antes (1-10): ${form.energyBefore}`, fr: `Énergie avant (1-10) : ${form.energyBefore}`, it: `Energia prima (1-10): ${form.energyBefore}`, uk: `Енергія до (1-10): ${form.energyBefore}` })}</label><input title="Energy before" type="range" min={1} max={10} value={form.energyBefore} onChange={f("energyBefore")} /></div>
+          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{L({ en: `Energy after (1-10): ${form.energyAfter}`, es: `Energía después (1-10): ${form.energyAfter}`, pt: `Energia depois (1-10): ${form.energyAfter}`, fr: `Énergie après (1-10) : ${form.energyAfter}`, it: `Energia dopo (1-10): ${form.energyAfter}`, uk: `Енергія після (1-10): ${form.energyAfter}` })}</label><input title="Energy after" type="range" min={1} max={10} value={form.energyAfter} onChange={f("energyAfter")} /></div>
+          <div className="flex flex-col gap-1"><label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{L({ en: `Soreness (1-10): ${form.soreness}`, es: `Agujetas (1-10): ${form.soreness}`, pt: `Dor muscular (1-10): ${form.soreness}`, fr: `Courbatures (1-10) : ${form.soreness}`, it: `Indolenzimento (1-10): ${form.soreness}`, uk: `М'язовий біль (1-10): ${form.soreness}` })}</label><input title="Soreness" type="range" min={1} max={10} value={form.soreness} onChange={f("soreness")} /></div>
+          <Input label={L({ en: "Session focus", es: "Foco del entreno", pt: "Foco da sessão", fr: "Objectif de la séance", it: "Focus della sessione", uk: "Фокус тренування" })} value={form.dailyFocus ?? ""} onChange={f("dailyFocus")} placeholder={L({ en: "e.g. Keep high guard", es: "ej: Mantener guardia alta", pt: "ex: Manter a guarda alta", fr: "ex : Garder la garde haute", it: "es: Mantenere la guardia alta", uk: "напр. Тримати високу гарду" })} className="sm:col-span-2" />
+          <Textarea label={L({ en: "Tactical note (optional)", es: "Nota táctica (opcional)", pt: "Nota tática (opcional)", fr: "Note tactique (facultatif)", it: "Nota tattica (opzionale)", uk: "Тактична нотатка (необов'язково)" })} value={form.tacticNote ?? ""} onChange={f("tacticNote")} rows={2} placeholder={L({ en: "Something you discovered today...", es: "Algo que descubriste hoy...", pt: "Algo que você descobriu hoje...", fr: "Quelque chose que vous avez découvert aujourd'hui...", it: "Qualcosa che hai scoperto oggi...", uk: "Щось, що ви відкрили сьогодні..." })} className="sm:col-span-2" />
           {form.tacticNote && (
             <label className="sm:col-span-2 flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.tacticPublic} onChange={e => setForm(p => ({ ...p, tacticPublic: e.target.checked }))} className="w-4 h-4 accent-burgundy" />
-              <span className="text-xs text-stone-text">{isEs ? "Compartir con mis aliados" : "Share with my teammates"}</span>
+              <span className="text-xs text-stone-text">{L({ en: "Share with my teammates", es: "Compartir con mis aliados", pt: "Compartilhar com meus colegas de treino", fr: "Partager avec mes coéquipiers", it: "Condividi con i miei compagni", uk: "Поділитися з моїми партнерами" })}</span>
             </label>
           )}
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="secondary" onClick={requestCloseLog}>{isEs ? "Cancelar" : "Cancel"}</Button>
-          <Button onClick={saveSession} disabled={saving}>{saving ? (isEs ? "Guardando…" : "Saving…") : editingSession ? (isEs ? "Actualizar" : "Update") : (isEs ? "Guardar" : "Save")}</Button>
+          <Button variant="secondary" onClick={requestCloseLog}>{L({ en: "Cancel", es: "Cancelar", pt: "Cancelar", fr: "Annuler", it: "Annulla", uk: "Скасувати" })}</Button>
+          <Button onClick={saveSession} disabled={saving}>{saving ? L({ en: "Saving…", es: "Guardando…", pt: "Salvando…", fr: "Enregistrement…", it: "Salvataggio…", uk: "Збереження…" }) : editingSession ? L({ en: "Update", es: "Actualizar", pt: "Atualizar", fr: "Mettre à jour", it: "Aggiorna", uk: "Оновити" }) : L({ en: "Save", es: "Guardar", pt: "Salvar", fr: "Enregistrer", it: "Salva", uk: "Зберегти" })}</Button>
         </div>
       </Modal>
     </div>

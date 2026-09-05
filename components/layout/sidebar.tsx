@@ -12,15 +12,14 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
-  const { t, locale } = useLanguage();
-  const isEs = locale === "es";
+  const { t } = useLanguage();
 
   const navItems = [
     { href: "/dashboard", label: t.sidebar.nav.dashboard, icon: "⬡", exact: true },
     { href: "/dashboard/community", label: t.sidebar.nav.community, icon: "◉" },
     { href: "/dashboard/technical-tracker", label: t.sidebar.nav.technical, icon: "◎" },
     { href: "/dashboard/physical-metrics", label: t.sidebar.nav.metrics, icon: "△" },
-    { href: "/dashboard/account", label: isEs ? "Mi Cuenta" : "My Account", icon: "⚙" },
+    { href: "/dashboard/account", label: t.sidebar.myAccount, icon: "⚙" },
   ];
 
   const handleLogout = async () => {

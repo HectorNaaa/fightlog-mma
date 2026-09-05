@@ -66,6 +66,7 @@ export const translations = {
       },
       logout: "Log Out",
       preview: "Dashboard Preview",
+      myAccount: "My Account",
     },
     // Dashboard mock data labels
     mock: {
@@ -203,6 +204,7 @@ export const translations = {
       },
       logout: "Cerrar Sesión",
       preview: "Vista Previa",
+      myAccount: "Mi Cuenta",
     },
     mock: {
       thisWeek: "Esta Semana",
@@ -338,6 +340,7 @@ export const translations = {
       },
       logout: "Sair",
       preview: "Pré-visualização",
+      myAccount: "Minha Conta",
     },
     mock: {
       thisWeek: "Esta Semana",
@@ -473,6 +476,7 @@ export const translations = {
       },
       logout: "Déconnexion",
       preview: "Aperçu",
+      myAccount: "Mon Compte",
     },
     mock: {
       thisWeek: "Cette Semaine",
@@ -608,6 +612,7 @@ export const translations = {
       },
       logout: "Esci",
       preview: "Anteprima",
+      myAccount: "Il Mio Account",
     },
     mock: {
       thisWeek: "Questa Settimana",
@@ -743,6 +748,7 @@ export const translations = {
       },
       logout: "Вийти",
       preview: "Попередній перегляд",
+      myAccount: "Мій обліковий запис",
     },
     mock: {
       thisWeek: "Цього тижня",

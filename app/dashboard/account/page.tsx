@@ -187,6 +187,8 @@ export default function AccountPage() {
     ? ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
     : locale === "it"
     ? ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"]
+    : locale === "uk"
+    ? ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"]
     : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const toggleReminderDay = async (day: number) => {
