@@ -48,7 +48,7 @@ const empty: Omit<SparringSession, "id"> = {
 export default function SparringPage() {
   const { user } = useAuth();
   const { locale } = useLanguage();
-  const t = (en: string, es: string, pt: string, fr: string, it: string) => tr(locale, { en, es, pt, fr, it });
+  const t = (en: string, es: string, pt: string, fr: string, it: string, uk: string) => tr(locale, { en, es, pt, fr, it, uk });
   const [sessions, setSessions] = useState<SparringSession[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<SparringSession | null>(null);
@@ -82,7 +82,8 @@ export default function SparringPage() {
         "Tienes cambios sin guardar. ¿Seguro que quieres salir?",
         "Você tem alterações não salvas. Tem certeza de que deseja sair?",
         "Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter ?",
-        "Hai modifiche non salvate. Sei sicuro di voler uscire?"
+        "Hai modifiche non salvate. Sei sicuro di voler uscire?",
+        "У вас є незбережені зміни. Впевнені, що хочете вийти?"
       ));
       if (!ok) return;
     }
@@ -106,11 +107,11 @@ export default function SparringPage() {
   if (!isIntermediate) {
     return (
       <div>
-        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface mb-6">{t("Sparring Review", "Revisión de sparring", "Revisão de sparring", "Revue de sparring", "Revisione sparring")}</h1>
+        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface mb-6">{t("Sparring Review", "Revisión de sparring", "Revisão de sparring", "Revue de sparring", "Revisione sparring", "Огляд спарингу")}</h1>
         <div className="border border-navy/30 bg-navy/10 rounded-sm p-6 text-center max-w-lg mx-auto mt-10">
           <div className="text-4xl mb-3 opacity-30">⬡</div>
-          <div className="font-condensed text-xl font-bold uppercase tracking-widest text-navy-light mb-2">{t("Intermediate Feature", "Función intermedia", "Recurso intermediário", "Fonctionnalité intermédiaire", "Funzione intermedia")}</div>
-          <p className="text-sm text-stone-text">{t("Sparring analysis is available for Intermediate Amateur fighters.", "El análisis de sparring está disponible para nivel intermedio.", "A análise de sparring está disponível para o nível intermediário.", "L'analyse de sparring est disponible pour le niveau intermédiaire.", "L'analisi dello sparring è disponibile per il livello intermedio.")}</p>
+          <div className="font-condensed text-xl font-bold uppercase tracking-widest text-navy-light mb-2">{t("Intermediate Feature", "Función intermedia", "Recurso intermediário", "Fonctionnalité intermédiaire", "Funzione intermedia", "Проміжна функція")}</div>
+          <p className="text-sm text-stone-text">{t("Sparring analysis is available for Intermediate Amateur fighters.", "El análisis de sparring está disponible para nivel intermedio.", "A análise de sparring está disponível para o nível intermediário.", "L'analyse de sparring est disponible pour le niveau intermédiaire.", "L'analisi dello sparring è disponibile per il livello intermedio.", "Аналіз спарингу доступний для бійців-аматорів середнього рівня.")}</p>
         </div>
       </div>
     );
@@ -120,16 +121,16 @@ export default function SparringPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{t("Sparring Review", "Revisión de sparring", "Revisão de sparring", "Revue de sparring", "Revisione sparring")}</h1>
-          <p className="text-sm text-stone-text mt-1">{sessions.length} {t("sessions logged", "sesiones registradas", "sessões registradas", "séances enregistrées", "sessioni registrate")}</p>
+          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{t("Sparring Review", "Revisión de sparring", "Revisão de sparring", "Revue de sparring", "Revisione sparring", "Огляд спарингу")}</h1>
+          <p className="text-sm text-stone-text mt-1">{sessions.length} {t("sessions logged", "sesiones registradas", "sessões registradas", "séances enregistrées", "sessioni registrate", "тренувань записано")}</p>
         </div>
-        <Button onClick={openNew}>+ {t("Log Sparring", "Registrar sparring", "Registrar sparring", "Enregistrer sparring", "Registra sparring")}</Button>
+        <Button onClick={openNew}>+ {t("Log Sparring", "Registrar sparring", "Registrar sparring", "Enregistrer sparring", "Registra sparring", "Записати спаринг")}</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {sessions.length === 0 && (
           <div className="col-span-full p-10 text-center text-stone-text text-sm border border-stone-border/50 rounded-sm">
-            {t("No sparring sessions yet.", "Aún no hay sesiones de sparring.", "Ainda não há sessões de sparring.", "Aucune séance de sparring pour le moment.", "Ancora nessuna sessione di sparring.")}
+            {t("No sparring sessions yet.", "Aún no hay sesiones de sparring.", "Ainda não há sessões de sparring.", "Aucune séance de sparring pour le moment.", "Ancora nessuna sessione di sparring.", "Ще немає сесій спарингу.")}
           </div>
         )}
         {sessions.map((s) => (
@@ -138,29 +139,29 @@ export default function SparringPage() {
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <div className="text-xs text-stone-text">{formatDate(s.date)}</div>
-                  <div className="font-semibold text-beige-surface">{s.partnerStyle || t("Unknown style", "Estilo desconocido", "Estilo desconhecido", "Style inconnu", "Stile sconosciuto")}</div>
-                  <div className="text-xs text-stone-text mt-0.5">{s.rounds ?? "?"} {t("rounds", "asaltos", "rounds", "rounds", "round")} × {s.roundLength ?? "?"} min</div>
+                  <div className="font-semibold text-beige-surface">{s.partnerStyle || t("Unknown style", "Estilo desconocido", "Estilo desconhecido", "Style inconnu", "Stile sconosciuto", "Невідомий стиль")}</div>
+                  <div className="text-xs text-stone-text mt-0.5">{s.rounds ?? "?"} {t("rounds", "asaltos", "rounds", "rounds", "round", "раундів")} × {s.roundLength ?? "?"} min</div>
                 </div>
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => openEdit(s)}>{t("Edit", "Editar", "Editar", "Modifier", "Modifica")}</Button>
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(s)}>{t("Edit", "Editar", "Editar", "Modifier", "Modifica", "Редагувати")}</Button>
                   <Button variant="danger" size="sm" onClick={() => del(s.id)}>×</Button>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-                {s.cardioRating != null && <Rating label={t("Cardio", "Cardio", "Cardio", "Cardio", "Cardio")} value={s.cardioRating} />}
-                {s.composureRating != null && <Rating label={t("Composure", "Compostura", "Compostura", "Sang-froid", "Compostezza")} value={s.composureRating} />}
-                {s.defenseRating != null && <Rating label={t("Defense", "Defensa", "Defesa", "Défense", "Difesa")} value={s.defenseRating} />}
-                {s.overallRating != null && <Rating label={t("Overall", "General", "Geral", "Général", "Generale")} value={s.overallRating} />}
+                {s.cardioRating != null && <Rating label={t("Cardio", "Cardio", "Cardio", "Cardio", "Cardio", "Кардіо")} value={s.cardioRating} />}
+                {s.composureRating != null && <Rating label={t("Composure", "Compostura", "Compostura", "Sang-froid", "Compostezza", "Самовладання")} value={s.composureRating} />}
+                {s.defenseRating != null && <Rating label={t("Defense", "Defensa", "Defesa", "Défense", "Difesa", "Захист")} value={s.defenseRating} />}
+                {s.overallRating != null && <Rating label={t("Overall", "General", "Geral", "Général", "Generale", "Загальне")} value={s.overallRating} />}
               </div>
               {s.bestTechniques && (
                 <div className="text-xs mb-1">
-                  <span className="text-stone-text">{t("Best: ", "Mejor: ", "Melhor: ", "Meilleur : ", "Migliore: ")}</span>
+                  <span className="text-stone-text">{t("Best: ", "Mejor: ", "Melhor: ", "Meilleur : ", "Migliore: ", "Краще: ")}</span>
                   <span className="text-amber">{s.bestTechniques}</span>
                 </div>
               )}
               {s.mistakes && (
                 <div className="text-xs mb-1">
-                  <span className="text-stone-text">{t("Mistakes: ", "Errores: ", "Erros: ", "Erreurs : ", "Errori: ")}</span>
+                  <span className="text-stone-text">{t("Mistakes: ", "Errores: ", "Erros: ", "Erreurs : ", "Errori: ", "Помилки: ")}</span>
                   <span className="text-burgundy-light">{s.mistakes}</span>
                 </div>
               )}
@@ -174,21 +175,21 @@ export default function SparringPage() {
         ))}
       </div>
 
-      <Modal open={open} onClose={requestClose} title={editing ? t("Edit Sparring", "Editar sparring", "Editar sparring", "Modifier sparring", "Modifica sparring") : t("Log Sparring Session", "Registrar sparring", "Registrar sparring", "Enregistrer une séance de sparring", "Registra sessione di sparring")} className="max-w-2xl">
+      <Modal open={open} onClose={requestClose} title={editing ? t("Edit Sparring", "Editar sparring", "Editar sparring", "Modifier sparring", "Modifica sparring", "Редагувати спаринг") : t("Log Sparring Session", "Registrar sparring", "Registrar sparring", "Enregistrer une séance de sparring", "Registra sessione di sparring", "Записати сесію спарингу")} className="max-w-2xl">
         <div className="grid grid-cols-2 gap-4">
-          <Input label={t("Date", "Fecha", "Data", "Date", "Data")} type="date" value={form.date} onChange={f("date")} />
-          <Input label={t("Partner Style", "Estilo del compañero", "Estilo do parceiro", "Style du partenaire", "Stile del partner")} value={form.partnerStyle ?? ""} onChange={f("partnerStyle")} placeholder={t("e.g. Boxer, Wrestler", "ej: Boxeador, Luchador", "ex: Boxeador, Lutador", "ex : Boxeur, Lutteur", "es: Pugile, Lottatore")} />
-          <Input label={t("Rounds", "Asaltos", "Rounds", "Rounds", "Round")} type="number" min={1} value={form.rounds ?? ""} onChange={f("rounds")} />
-          <Input label={t("Round Length (min)", "Duración del asalto (min)", "Duração do round (min)", "Durée du round (min)", "Durata round (min)")} type="number" min={1} value={form.roundLength ?? ""} onChange={f("roundLength")} />
+          <Input label={t("Date", "Fecha", "Data", "Date", "Data", "Дата")} type="date" value={form.date} onChange={f("date")} />
+          <Input label={t("Partner Style", "Estilo del compañero", "Estilo do parceiro", "Style du partenaire", "Stile del partner", "Стиль партнера")} value={form.partnerStyle ?? ""} onChange={f("partnerStyle")} placeholder={t("e.g. Boxer, Wrestler", "ej: Boxeador, Luchador", "ex: Boxeador, Lutador", "ex : Boxeur, Lutteur", "es: Pugile, Lottatore", "напр. Боксер, Борець")} />
+          <Input label={t("Rounds", "Asaltos", "Rounds", "Rounds", "Round", "Раунди")} type="number" min={1} value={form.rounds ?? ""} onChange={f("rounds")} />
+          <Input label={t("Round Length (min)", "Duración del asalto (min)", "Duração do round (min)", "Durée du round (min)", "Durata round (min)", "Тривалість раунду (хв)")} type="number" min={1} value={form.roundLength ?? ""} onChange={f("roundLength")} />
           {(["cardioRating", "composureRating", "defenseRating", "overallRating"] as const).map((field) => {
-            const labels: Record<string, [string, string, string, string, string]> = {
-              cardioRating: ["Cardio", "Cardio", "Cardio", "Cardio", "Cardio"],
-              composureRating: ["Composure", "Compostura", "Compostura", "Sang-froid", "Compostezza"],
-              defenseRating: ["Defense", "Defensa", "Defesa", "Défense", "Difesa"],
-              overallRating: ["Overall", "General", "Geral", "Général", "Generale"],
+            const labels: Record<string, [string, string, string, string, string, string]> = {
+              cardioRating: ["Cardio", "Cardio", "Cardio", "Cardio", "Cardio", "Кардіо"],
+              composureRating: ["Composure", "Compostura", "Compostura", "Sang-froid", "Compostezza", "Самовладання"],
+              defenseRating: ["Defense", "Defensa", "Defesa", "Défense", "Difesa", "Захист"],
+              overallRating: ["Overall", "General", "Geral", "Général", "Generale", "Загальне"],
             };
-            const [en, es, pt, fr, it] = labels[field];
-            const label = t(en, es, pt, fr, it);
+            const [en, es, pt, fr, it, uk] = labels[field];
+            const label = t(en, es, pt, fr, it, uk);
             return (
             <div key={field} className="flex flex-col gap-1">
               <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{label} (1–10): {form[field] ?? 0}</label>
@@ -196,18 +197,18 @@ export default function SparringPage() {
             </div>
           );})}
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{t("Damage Taken", "Daño recibido", "Dano recebido", "Dégâts subis", "Danno subito")} (1–10): {form.damageTaken ?? 0}</label>
-            <input title={t("Damage Taken", "Daño recibido", "Dano recebido", "Dégâts subis", "Danno subito")} type="range" min={0} max={10} value={form.damageTaken ?? 0} onChange={f("damageTaken")} />
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{t("Damage Taken", "Daño recibido", "Dano recebido", "Dégâts subis", "Danno subito", "Отримана шкода")} (1–10): {form.damageTaken ?? 0}</label>
+            <input title={t("Damage Taken", "Daño recibido", "Dano recebido", "Dégâts subis", "Danno subito", "Отримана шкода")} type="range" min={0} max={10} value={form.damageTaken ?? 0} onChange={f("damageTaken")} />
           </div>
-          <Textarea label={t("Dominant Moments", "Momentos dominantes", "Momentos dominantes", "Moments dominants", "Momenti dominanti")} value={form.dominantMoments ?? ""} onChange={f("dominantMoments")} rows={2} />
-          <Textarea label={t("Mistakes", "Errores", "Erros", "Erreurs", "Errori")} value={form.mistakes ?? ""} onChange={f("mistakes")} rows={2} />
-          <Textarea label={t("Best Techniques Landed", "Mejores técnicas conectadas", "Melhores técnicas aplicadas", "Meilleures techniques réussies", "Migliori tecniche riuscite")} value={form.bestTechniques ?? ""} onChange={f("bestTechniques")} rows={2} />
-          <Textarea label={t("Techniques That Failed", "Técnicas que fallaron", "Técnicas que falharam", "Techniques ratées", "Tecniche fallite")} value={form.techniquesFailed ?? ""} onChange={f("techniquesFailed")} rows={2} />
-          <Textarea label={t("Lessons for Next Session", "Lecciones para la próxima sesión", "Lições para a próxima sessão", "Leçons pour la prochaine séance", "Lezioni per la prossima sessione")} value={form.lessons ?? ""} onChange={f("lessons")} rows={3} className="col-span-2" />
+          <Textarea label={t("Dominant Moments", "Momentos dominantes", "Momentos dominantes", "Moments dominants", "Momenti dominanti", "Домінуючі моменти")} value={form.dominantMoments ?? ""} onChange={f("dominantMoments")} rows={2} />
+          <Textarea label={t("Mistakes", "Errores", "Erros", "Erreurs", "Errori", "Помилки")} value={form.mistakes ?? ""} onChange={f("mistakes")} rows={2} />
+          <Textarea label={t("Best Techniques Landed", "Mejores técnicas conectadas", "Melhores técnicas aplicadas", "Meilleures techniques réussies", "Migliori tecniche riuscite", "Найкращі вдалі техніки")} value={form.bestTechniques ?? ""} onChange={f("bestTechniques")} rows={2} />
+          <Textarea label={t("Techniques That Failed", "Técnicas que fallaron", "Técnicas que falharam", "Techniques ratées", "Tecniche fallite", "Техніки, які не вдалися")} value={form.techniquesFailed ?? ""} onChange={f("techniquesFailed")} rows={2} />
+          <Textarea label={t("Lessons for Next Session", "Lecciones para la próxima sesión", "Lições para a próxima sessão", "Leçons pour la prochaine séance", "Lezioni per la prossima sessione", "Уроки для наступного тренування")} value={form.lessons ?? ""} onChange={f("lessons")} rows={3} className="col-span-2" />
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="secondary" onClick={requestClose}>{t("Cancel", "Cancelar", "Cancelar", "Annuler", "Annulla")}</Button>
-          <Button onClick={save} disabled={saving}>{saving ? t("Saving…", "Guardando…", "Salvando…", "Enregistrement…", "Salvataggio…") : t("Save", "Guardar", "Salvar", "Enregistrer", "Salva")}</Button>
+          <Button variant="secondary" onClick={requestClose}>{t("Cancel", "Cancelar", "Cancelar", "Annuler", "Annulla", "Скасувати")}</Button>
+          <Button onClick={save} disabled={saving}>{saving ? t("Saving…", "Guardando…", "Salvando…", "Enregistrement…", "Salvataggio…", "Збереження…") : t("Save", "Guardar", "Salvar", "Enregistrer", "Salva", "Зберегти")}</Button>
         </div>
       </Modal>
     </div>

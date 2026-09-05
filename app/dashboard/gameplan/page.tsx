@@ -44,7 +44,7 @@ const EXAMPLES = [
 export default function GameplanPage() {
   const { user } = useAuth();
   const { locale } = useLanguage();
-  const t = (en: string, es: string, pt: string, fr: string, it: string) => tr(locale, { en, es, pt, fr, it });
+  const t = (en: string, es: string, pt: string, fr: string, it: string, uk: string) => tr(locale, { en, es, pt, fr, it, uk });
   const [gameplans, setGameplans] = useState<Gameplan[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Gameplan | null>(null);
@@ -80,7 +80,8 @@ export default function GameplanPage() {
         "Tienes cambios sin guardar. ¿Seguro que quieres salir?",
         "Você tem alterações não salvas. Tem certeza de que deseja sair?",
         "Vous avez des modifications non enregistrées. Voulez-vous vraiment quitter ?",
-        "Hai modifiche non salvate. Sei sicuro di voler uscire?"
+        "Hai modifiche non salvate. Sei sicuro di voler uscire?",
+        "У вас є незбережені зміни. Впевнені, що хочете вийти?"
       ));
       if (!ok) return;
     }
@@ -101,16 +102,16 @@ export default function GameplanPage() {
   if (!isIntermediate) {
     return (
       <div>
-        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface mb-6">{t("Gameplan Builder", "Constructor de gameplan", "Construtor de gameplan", "Créateur de gameplan", "Costruttore di gameplan")}</h1>
+        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface mb-6">{t("Gameplan Builder", "Constructor de gameplan", "Construtor de gameplan", "Créateur de gameplan", "Costruttore di gameplan", "Конструктор плану бою")}</h1>
         <div className="border border-navy/30 bg-navy/10 rounded-sm p-6 text-center max-w-lg mx-auto mt-10">
           <div className="text-4xl mb-3 opacity-30">◇</div>
           <div className="font-condensed text-xl font-bold uppercase tracking-widest text-navy-light mb-2">
-            {t("Intermediate Feature", "Función intermedia", "Recurso intermediário", "Fonctionnalité intermédiaire", "Funzione intermedia")}
+            {t("Intermediate Feature", "Función intermedia", "Recurso intermediário", "Fonctionnalité intermédiaire", "Funzione intermedia", "Проміжна функція")}
           </div>
           <p className="text-sm text-stone-text mb-4">
-            {t("Gameplan Builder is available for Intermediate Amateur fighters. Upgrade your level to unlock tactical setup chains.", "Gameplan Builder está disponible para nivel intermedio. Sube tu nivel para desbloquear secuencias tácticas.", "O Construtor de Gameplan está disponível para o nível intermediário. Suba de nível para desbloquear sequências táticas.", "Le Créateur de gameplan est disponible pour le niveau intermédiaire. Passez de niveau pour débloquer les chaînes tactiques.", "Il Costruttore di gameplan è disponibile per il livello intermedio. Sali di livello per sbloccare le sequenze tattiche.")}
+            {t("Gameplan Builder is available for Intermediate Amateur fighters. Upgrade your level to unlock tactical setup chains.", "Gameplan Builder está disponible para nivel intermedio. Sube tu nivel para desbloquear secuencias tácticas.", "O Construtor de Gameplan está disponível para o nível intermediário. Suba de nível para desbloquear sequências táticas.", "Le Créateur de gameplan est disponible pour le niveau intermédiaire. Passez de niveau pour débloquer les chaînes tactiques.", "Il Costruttore di gameplan è disponibile per il livello intermedio. Sali di livello per sbloccare le sequenze tattiche.", "Конструктор плану бою доступний для бійців-аматорів середнього рівня. Підвищте рівень, щоб розблокувати тактичні ланцюги.")}
           </p>
-          <div className="text-xs text-stone-text">{t("Requires: Intermediate Amateur mode", "Requiere modo Intermedio Amateur", "Requer modo Amador Intermediário", "Nécessite le mode Amateur intermédiaire", "Richiede modalità Dilettante Intermedio")}</div>
+          <div className="text-xs text-stone-text">{t("Requires: Intermediate Amateur mode", "Requiere modo Intermedio Amateur", "Requer modo Amador Intermediário", "Nécessite le mode Amateur intermédiaire", "Richiede modalità Dilettante Intermedio", "Потрібно: режим аматора середнього рівня")}</div>
         </div>
       </div>
     );
@@ -120,15 +121,15 @@ export default function GameplanPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{t("Gameplan Builder", "Constructor de gameplan", "Construtor de gameplan", "Créateur de gameplan", "Costruttore di gameplan")}</h1>
-          <p className="text-sm text-stone-text mt-1">{t("Build and save tactical setups", "Construye y guarda setups tácticos", "Construa e salve setups táticos", "Créez et enregistrez des setups tactiques", "Crea e salva setup tattici")}</p>
+          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{t("Gameplan Builder", "Constructor de gameplan", "Construtor de gameplan", "Créateur de gameplan", "Costruttore di gameplan", "Конструктор плану бою")}</h1>
+          <p className="text-sm text-stone-text mt-1">{t("Build and save tactical setups", "Construye y guarda setups tácticos", "Construa e salve setups táticos", "Créez et enregistrez des setups tactiques", "Crea e salva setup tattici", "Створюйте та зберігайте тактичні налаштування")}</p>
         </div>
-        <Button onClick={openNew}>+ {t("Add Setup", "Añadir setup", "Adicionar setup", "Ajouter un setup", "Aggiungi setup")}</Button>
+        <Button onClick={openNew}>+ {t("Add Setup", "Añadir setup", "Adicionar setup", "Ajouter un setup", "Aggiungi setup", "Додати налаштування")}</Button>
       </div>
 
       {gameplans.length === 0 && (
         <div className="mb-4 p-4 border border-stone-border/50 rounded-sm">
-          <div className="text-xs text-stone-text uppercase tracking-wider mb-2">{t("Example setups to get started:", "Ejemplos para empezar:", "Exemplos para começar:", "Exemples de setups pour commencer :", "Esempi per iniziare:")}</div>
+          <div className="text-xs text-stone-text uppercase tracking-wider mb-2">{t("Example setups to get started:", "Ejemplos para empezar:", "Exemplos para começar:", "Exemples de setups pour commencer :", "Esempi per iniziare:", "Приклади для початку:")}</div>
           <div className="flex flex-wrap gap-2">
             {EXAMPLES.map((e) => (
               <button key={e} onClick={() => { setForm({ ...emptyPlan, name: e }); setOpen(true); }} className="text-xs bg-bg-elevated border border-stone-border/50 px-2 py-1 rounded-sm text-beige-warm hover:border-amber/50 transition-colors">
@@ -146,18 +147,18 @@ export default function GameplanPage() {
               <div className="flex items-start justify-between mb-3">
                 <div className="font-condensed font-bold text-lg text-beige-surface uppercase tracking-wide">{g.name}</div>
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => openEdit(g)}>{t("Edit", "Editar", "Editar", "Modifier", "Modifica")}</Button>
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(g)}>{t("Edit", "Editar", "Editar", "Modifier", "Modifica", "Редагувати")}</Button>
                   <Button variant="danger" size="sm" onClick={() => del(g.id)}>×</Button>
                 </div>
               </div>
               <div className="space-y-2 text-xs">
-                {g.startPosition && <Row label={t("Start", "Inicio", "Início", "Début", "Inizio")} value={g.startPosition} />}
-                {g.trigger && <Row label={t("Trigger", "Disparador", "Gatilho", "Déclencheur", "Trigger")} value={g.trigger} />}
-                {g.action && <Row label={t("Action", "Acción", "Ação", "Action", "Azione")} value={g.action} color="text-amber" />}
-                {g.followUpA && <Row label="Follow-up A" value={g.followUpA} />}
-                {g.followUpB && <Row label="Follow-up B" value={g.followUpB} />}
-                {g.counterRisk && <Row label={t("Counter Risk", "Riesgo de contra", "Risco de contra-ataque", "Risque de contre", "Rischio di contrattacco")} value={g.counterRisk} color="text-burgundy-light" />}
-                {g.bestAgainst && <Row label={t("Best Against", "Mejor contra", "Melhor contra", "Meilleur contre", "Migliore contro")} value={g.bestAgainst} />}
+                {g.startPosition && <Row label={t("Start", "Inicio", "Início", "Début", "Inizio", "Початок")} value={g.startPosition} />}
+                {g.trigger && <Row label={t("Trigger", "Disparador", "Gatilho", "Déclencheur", "Trigger", "Тригер")} value={g.trigger} />}
+                {g.action && <Row label={t("Action", "Acción", "Ação", "Action", "Azione", "Дія")} value={g.action} color="text-amber" />}
+                {g.followUpA && <Row label={t("Follow-up A", "Seguimiento A", "Continuação A", "Suite A", "Follow-up A", "Продовження A")} value={g.followUpA} />}
+                {g.followUpB && <Row label={t("Follow-up B", "Seguimiento B", "Continuação B", "Suite B", "Follow-up B", "Продовження B")} value={g.followUpB} />}
+                {g.counterRisk && <Row label={t("Counter Risk", "Riesgo de contra", "Risco de contra-ataque", "Risque de contre", "Rischio di contrattacco", "Ризик контратаки")} value={g.counterRisk} color="text-burgundy-light" />}
+                {g.bestAgainst && <Row label={t("Best Against", "Mejor contra", "Melhor contra", "Meilleur contre", "Migliore contro", "Найкраще проти")} value={g.bestAgainst} />}
                 {g.notes && <div className="mt-2 text-stone-text italic border-t border-stone-border/50 pt-2">{g.notes}</div>}
               </div>
             </CardBody>
@@ -165,21 +166,21 @@ export default function GameplanPage() {
         ))}
       </div>
 
-      <Modal open={open} onClose={requestClose} title={editing ? t("Edit Setup", "Editar setup", "Editar setup", "Modifier le setup", "Modifica setup") : t("New Setup", "Nuevo setup", "Novo setup", "Nouveau setup", "Nuovo setup")} className="max-w-xl">
+      <Modal open={open} onClose={requestClose} title={editing ? t("Edit Setup", "Editar setup", "Editar setup", "Modifier le setup", "Modifica setup", "Редагувати налаштування") : t("New Setup", "Nuevo setup", "Novo setup", "Nouveau setup", "Nuovo setup", "Нове налаштування")} className="max-w-xl">
         <div className="flex flex-col gap-4">
-          <Input label={t("Setup Name", "Nombre del setup", "Nome do setup", "Nom du setup", "Nome del setup")} value={form.name} onChange={f("name")} placeholder={t("e.g. Jab to low kick", "ej: Jab a low kick", "ex: Jab para low kick", "ex : Jab vers low kick", "es: Jab verso low kick")} />
-          <Input label={t("Starting Position", "Posición inicial", "Posição inicial", "Position de départ", "Posizione iniziale")} value={form.startPosition ?? ""} onChange={f("startPosition")} placeholder={t("e.g. Orthodox, at range", "ej: Ortodoxo, a distancia", "ex: Ortodoxo, à distância", "ex : Orthodoxe, à distance", "es: Ortodosso, a distanza")} />
-          <Input label={t("Trigger", "Disparador", "Gatilho", "Déclencheur", "Trigger")} value={form.trigger ?? ""} onChange={f("trigger")} placeholder={t("e.g. Opponent drops guard", "ej: rival baja la guardia", "ex: adversário baixa a guarda", "ex : l'adversaire baisse sa garde", "es: l'avversario abbassa la guardia")} />
-          <Input label={t("Action", "Acción", "Ação", "Action", "Azione")} value={form.action ?? ""} onChange={f("action")} placeholder={t("e.g. Throw jab", "ej: lanzar jab", "ex: aplicar jab", "ex : lancer un jab", "es: tirare un jab")} />
-          <Input label="Follow-up A" value={form.followUpA ?? ""} onChange={f("followUpA")} placeholder={t("e.g. Low kick if they shell", "ej: low kick si cierra", "ex: low kick se fechar", "ex : low kick s'il se ferme", "es: low kick se si chiude")} />
-          <Input label="Follow-up B" value={form.followUpB ?? ""} onChange={f("followUpB")} placeholder={t("e.g. Level change if they counter", "ej: cambio de nivel si contragolpea", "ex: mudança de nível se contra-atacar", "ex : changement de niveau s'il contre", "es: cambio di livello se contrattacca")} />
-          <Input label={t("Counter Risk", "Riesgo de contra", "Risco de contra-ataque", "Risque de contre", "Rischio di contrattacco")} value={form.counterRisk ?? ""} onChange={f("counterRisk")} placeholder={t("e.g. Right hand counter", "ej: contra de derecha", "ex: contra-ataque de direita", "ex : contre de la main droite", "es: contrattacco di destro")} />
-          <Input label={t("Best Against", "Mejor contra", "Melhor contra", "Meilleur contre", "Migliore contro")} value={form.bestAgainst ?? ""} onChange={f("bestAgainst")} placeholder={t("e.g. Aggressive pressure fighters", "ej: rivales presionantes", "ex: lutadores agressivos de pressão", "ex : combattants agressifs qui pressent", "es: combattenti aggressivi che pressano")} />
-          <Textarea label={t("Notes", "Notas", "Notas", "Notes", "Note")} value={form.notes ?? ""} onChange={f("notes")} rows={3} />
+          <Input label={t("Setup Name", "Nombre del setup", "Nome do setup", "Nom du setup", "Nome del setup", "Назва налаштування")} value={form.name} onChange={f("name")} placeholder={t("e.g. Jab to low kick", "ej: Jab a low kick", "ex: Jab para low kick", "ex : Jab vers low kick", "es: Jab verso low kick", "напр. Джеб у низький кік")} />
+          <Input label={t("Starting Position", "Posición inicial", "Posição inicial", "Position de départ", "Posizione iniziale", "Початкова позиція")} value={form.startPosition ?? ""} onChange={f("startPosition")} placeholder={t("e.g. Orthodox, at range", "ej: Ortodoxo, a distancia", "ex: Ortodoxo, à distância", "ex : Orthodoxe, à distance", "es: Ortodosso, a distanza", "напр. Ортодокс, на дистанції")} />
+          <Input label={t("Trigger", "Disparador", "Gatilho", "Déclencheur", "Trigger", "Тригер")} value={form.trigger ?? ""} onChange={f("trigger")} placeholder={t("e.g. Opponent drops guard", "ej: rival baja la guardia", "ex: adversário baixa a guarda", "ex : l'adversaire baisse sa garde", "es: l'avversario abbassa la guardia", "напр. Суперник опускає гарду")} />
+          <Input label={t("Action", "Acción", "Ação", "Action", "Azione", "Дія")} value={form.action ?? ""} onChange={f("action")} placeholder={t("e.g. Throw jab", "ej: lanzar jab", "ex: aplicar jab", "ex : lancer un jab", "es: tirare un jab", "напр. Кинути джеб")} />
+          <Input label={t("Follow-up A", "Seguimiento A", "Continuação A", "Suite A", "Follow-up A", "Продовження A")} value={form.followUpA ?? ""} onChange={f("followUpA")} placeholder={t("e.g. Low kick if they shell", "ej: low kick si cierra", "ex: low kick se fechar", "ex : low kick s'il se ferme", "es: low kick se si chiude", "напр. Низький кік, якщо він закривається")} />
+          <Input label={t("Follow-up B", "Seguimiento B", "Continuação B", "Suite B", "Follow-up B", "Продовження B")} value={form.followUpB ?? ""} onChange={f("followUpB")} placeholder={t("e.g. Level change if they counter", "ej: cambio de nivel si contragolpea", "ex: mudança de nível se contra-atacar", "ex : changement de niveau s'il contre", "es: cambio di livello se contrattacca", "напр. Зміна рівня, якщо він контратакує")} />
+          <Input label={t("Counter Risk", "Riesgo de contra", "Risco de contra-ataque", "Risque de contre", "Rischio di contrattacco", "Ризик контратаки")} value={form.counterRisk ?? ""} onChange={f("counterRisk")} placeholder={t("e.g. Right hand counter", "ej: contra de derecha", "ex: contra-ataque de direita", "ex : contre de la main droite", "es: contrattacco di destro", "напр. Контратака правою рукою")} />
+          <Input label={t("Best Against", "Mejor contra", "Melhor contra", "Meilleur contre", "Migliore contro", "Найкраще проти")} value={form.bestAgainst ?? ""} onChange={f("bestAgainst")} placeholder={t("e.g. Aggressive pressure fighters", "ej: rivales presionantes", "ex: lutadores agressivos de pressão", "ex : combattants agressifs qui pressent", "es: combattenti aggressivi che pressano", "напр. Агресивні бійці тиску")} />
+          <Textarea label={t("Notes", "Notas", "Notas", "Notes", "Note", "Нотатки")} value={form.notes ?? ""} onChange={f("notes")} rows={3} />
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="secondary" onClick={requestClose}>{t("Cancel", "Cancelar", "Cancelar", "Annuler", "Annulla")}</Button>
-          <Button onClick={save} disabled={saving || !form.name}>{saving ? t("Saving…", "Guardando…", "Salvando…", "Enregistrement…", "Salvataggio…") : t("Save", "Guardar", "Salvar", "Enregistrer", "Salva")}</Button>
+          <Button variant="secondary" onClick={requestClose}>{t("Cancel", "Cancelar", "Cancelar", "Annuler", "Annulla", "Скасувати")}</Button>
+          <Button onClick={save} disabled={saving || !form.name}>{saving ? t("Saving…", "Guardando…", "Salvando…", "Enregistrement…", "Salvataggio…", "Збереження…") : t("Save", "Guardar", "Salvar", "Enregistrer", "Salva", "Зберегти")}</Button>
         </div>
       </Modal>
     </div>

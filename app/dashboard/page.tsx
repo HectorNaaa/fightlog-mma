@@ -519,7 +519,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 mb-2"><Badge label={last.type} /><span className="text-xs text-stone-text">{formatDate(last.date)}</span></div>
           <div className="grid grid-cols-3 gap-2">
             <div><div className="text-[9px] text-stone-text uppercase">{t.dashboard.duration}</div><div className="font-condensed font-bold text-lg text-beige-surface">{last.duration}<span className="text-[10px] text-stone-text">{t.dashboard.minutes}</span></div></div>
-            <div><div className="text-[9px] text-stone-text uppercase">Int.</div><div className="font-condensed font-bold text-lg text-amber">{last.intensity}<span className="text-[10px] text-stone-text">/10</span></div></div>
+            <div><div className="text-[9px] text-stone-text uppercase">{t.dashboard.intensity}</div><div className="font-condensed font-bold text-lg text-amber">{last.intensity}<span className="text-[10px] text-stone-text">/10</span></div></div>
             <div><div className="text-[9px] text-stone-text uppercase">{t.dashboard.energy}</div><div className="font-condensed font-bold text-lg text-beige-surface">{last.energyBefore}→{last.energyAfter}</div></div>
           </div>
           {last.mainFocus && <p className="text-xs text-stone-text mt-2 italic">&ldquo;{last.mainFocus}&rdquo;</p>}

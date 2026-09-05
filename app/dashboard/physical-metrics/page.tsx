@@ -40,7 +40,7 @@ const empty: Omit<Metric, "id"> = {
 
 export default function PhysicalMetricsPage() {
   const { locale } = useLanguage();
-  const t = (en: string, es: string, pt: string, fr: string, it: string) => tr(locale, { en, es, pt, fr, it });
+  const t = (en: string, es: string, pt: string, fr: string, it: string, uk: string) => tr(locale, { en, es, pt, fr, it, uk });
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [tab, setTab] = useState<"metrics" | "sparring" | "weekly">("metrics");
   const [open, setOpen] = useState(false);
@@ -94,18 +94,18 @@ export default function PhysicalMetricsPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{t("Performance", "Rendimiento", "Desempenho", "Performance", "Prestazioni")}</h1>
-          <p className="text-sm text-stone-text mt-1">{t("Metrics, sparring and weekly review", "Métricas, sparring y revisión semanal", "Métricas, sparring e revisão semanal", "Métriques, sparring et revue hebdomadaire", "Metriche, sparring e revisione settimanale")}</p>
+          <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{t("Performance", "Rendimiento", "Desempenho", "Performance", "Prestazioni", "Показники")}</h1>
+          <p className="text-sm text-stone-text mt-1">{t("Metrics, sparring and weekly review", "Métricas, sparring y revisión semanal", "Métricas, sparring e revisão semanal", "Métriques, sparring et revue hebdomadaire", "Metriche, sparring e revisione settimanale", "Показники, спаринг та тижневий огляд")}</p>
         </div>
-        {tab === "metrics" && <Button onClick={openNew}>+ {t("Log Metrics", "Registrar métricas", "Registrar métricas", "Enregistrer métriques", "Registra metriche")}</Button>}
+        {tab === "metrics" && <Button onClick={openNew}>+ {t("Log Metrics", "Registrar métricas", "Registrar métricas", "Enregistrer métriques", "Registra metriche", "Записати показники")}</Button>}
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 mb-5 border-b border-stone-border pb-0">
         {([
-          { key: "metrics", label: t("Metrics", "Métricas", "Métricas", "Métriques", "Metriche") },
-          { key: "sparring", label: "Sparring" },
-          { key: "weekly", label: t("Weekly Review", "Revisión semanal", "Revisão semanal", "Revue hebdomadaire", "Revisione settimanale") },
+          { key: "metrics", label: t("Metrics", "Métricas", "Métricas", "Métriques", "Metriche", "Показники") },
+          { key: "sparring", label: t("Sparring", "Sparring", "Sparring", "Sparring", "Sparring", "Спаринг") },
+          { key: "weekly", label: t("Weekly Review", "Revisión semanal", "Revisão semanal", "Revue hebdomadaire", "Revisione settimanale", "Тижневий огляд") },
         ] as const).map((item) => (
           <button
             key={item.key}
@@ -130,20 +130,20 @@ export default function PhysicalMetricsPage() {
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <Card>
-          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Body Weight", "Peso corporal", "Peso corporal", "Poids corporel", "Peso corporeo")}</div></CardHeader>
-          <CardBody>{weightChart.length > 0 ? <MetricChart data={weightChart} color="#e8e2d6" height={150} /> : <Empty text={t("No weight data yet", "Sin datos de peso aún", "Ainda sem dados de peso", "Pas encore de données de poids", "Ancora nessun dato sul peso")} />}</CardBody>
+          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Body Weight", "Peso corporal", "Peso corporal", "Poids corporel", "Peso corporeo", "Вага тіла")}</div></CardHeader>
+          <CardBody>{weightChart.length > 0 ? <MetricChart data={weightChart} color="#e8e2d6" height={150} /> : <Empty text={t("No weight data yet", "Sin datos de peso aún", "Ainda sem dados de peso", "Pas encore de données de poids", "Ancora nessun dato sul peso", "Ще немає даних про вагу")} />}</CardBody>
         </Card>
         <Card>
-          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Recovery Score", "Recuperación", "Recuperação", "Récupération", "Recupero")}</div></CardHeader>
-          <CardBody>{recoveryChart.length > 0 ? <MetricChart data={recoveryChart} color="#8b2635" height={150} /> : <Empty text={t("No recovery data yet", "Sin datos de recuperación", "Ainda sem dados de recuperação", "Pas encore de données de récupération", "Ancora nessun dato di recupero")} />}</CardBody>
+          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Recovery Score", "Recuperación", "Recuperação", "Récupération", "Recupero", "Очуження")}</div></CardHeader>
+          <CardBody>{recoveryChart.length > 0 ? <MetricChart data={recoveryChart} color="#8b2635" height={150} /> : <Empty text={t("No recovery data yet", "Sin datos de recuperación", "Ainda sem dados de recuperação", "Pas encore de données de récupération", "Ancora nessun dato di recupero", "Ще немає даних про відновлення")} />}</CardBody>
         </Card>
         <Card>
-          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Resting Heart Rate", "Frecuencia en reposo", "Frequência em repouso", "Fréquence cardiaque au repos", "Frequenza a riposo")}</div></CardHeader>
-          <CardBody>{hrChart.length > 0 ? <MetricChart data={hrChart} color="#2a2622" type="line" height={150} /> : <Empty text={t("No HR data yet", "Sin datos de FC", "Ainda sem dados de FC", "Pas encore de données FC", "Ancora nessun dato FC")} />}</CardBody>
+          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Resting Heart Rate", "Frecuencia en reposo", "Frequência em repouso", "Fréquence cardiaque au repos", "Frequenza a riposo", "ЧСС у спокої")}</div></CardHeader>
+          <CardBody>{hrChart.length > 0 ? <MetricChart data={hrChart} color="#2a2622" type="line" height={150} /> : <Empty text={t("No HR data yet", "Sin datos de FC", "Ainda sem dados de FC", "Pas encore de données FC", "Ancora nessun dato FC", "Ще немає даних ЧСС")} />}</CardBody>
         </Card>
         <Card>
-          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Sleep Hours", "Horas de sueño", "Horas de sono", "Heures de sommeil", "Ore di sonno")}</div></CardHeader>
-          <CardBody>{sleepChart.length > 0 ? <MetricChart data={sleepChart} color="#e8e2d6" type="line" height={150} /> : <Empty text={t("No sleep data yet", "Sin datos de sueño", "Ainda sem dados de sono", "Pas encore de données de sommeil", "Ancora nessun dato sul sonno")} />}</CardBody>
+          <CardHeader><div className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Sleep Hours", "Horas de sueño", "Horas de sono", "Heures de sommeil", "Ore di sonno", "Години сну")}</div></CardHeader>
+          <CardBody>{sleepChart.length > 0 ? <MetricChart data={sleepChart} color="#e8e2d6" type="line" height={150} /> : <Empty text={t("No sleep data yet", "Sin datos de sueño", "Ainda sem dados de sono", "Pas encore de données de sommeil", "Ancora nessun dato sul sonno", "Ще немає даних про сон")} />}</CardBody>
         </Card>
       </div>
 
@@ -151,19 +151,19 @@ export default function PhysicalMetricsPage() {
       <Card>
         <CardBody className="p-0 overflow-x-auto">
           {metrics.length === 0 ? (
-            <div className="p-10 text-center text-stone-text text-sm">{t("No metric entries yet.", "Aún no hay registros de métricas.", "Ainda não há registros de métricas.", "Aucune entrée de métrique pour le moment.", "Ancora nessuna voce di metrica.")}</div>
+            <div className="p-10 text-center text-stone-text text-sm">{t("No metric entries yet.", "Aún no hay registros de métricas.", "Ainda não há registros de métricas.", "Aucune entrée de métrique pour le moment.", "Ancora nessuna voce di metrica.", "Ще немає записів показників.")}</div>
           ) : (
             <table className="data-table min-w-[800px]">
               <thead>
                 <tr>
-                  <th>{t("Date", "Fecha", "Data", "Date", "Data")}</th>
-                  <th>{t("Weight", "Peso", "Peso", "Poids", "Peso")}</th>
-                  <th>{t("Resting HR", "FC reposo", "FC repouso", "FC repos", "FC riposo")}</th>
-                  <th>{t("Sleep", "Sueño", "Sono", "Sommeil", "Sonno")}</th>
-                  <th>{t("Sleep Q.", "Cal. sueño", "Qual. sono", "Qual. sommeil", "Qual. sonno")}</th>
-                  <th>{t("Calories", "Calorías", "Calorias", "Calories", "Calorie")}</th>
-                  <th>{t("Recovery", "Recuperación", "Recuperação", "Récupération", "Recupero")}</th>
-                  <th>{t("Injuries", "Lesiones", "Lesões", "Blessures", "Infortuni")}</th>
+                  <th>{t("Date", "Fecha", "Data", "Date", "Data", "Дата")}</th>
+                  <th>{t("Weight", "Peso", "Peso", "Poids", "Peso", "Вага")}</th>
+                  <th>{t("Resting HR", "FC reposo", "FC repouso", "FC repos", "FC riposo", "ЧСС у спокої")}</th>
+                  <th>{t("Sleep", "Sueño", "Sono", "Sommeil", "Sonno", "Сон")}</th>
+                  <th>{t("Sleep Q.", "Cal. sueño", "Qual. sono", "Qual. sommeil", "Qual. sonno", "Якість сну")}</th>
+                  <th>{t("Calories", "Calorías", "Calorias", "Calories", "Calorie", "Калорії")}</th>
+                  <th>{t("Recovery", "Recuperación", "Recuperação", "Récupération", "Recupero", "Очуження")}</th>
+                  <th>{t("Injuries", "Lesiones", "Lesões", "Blessures", "Infortuni", "Травми")}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -180,8 +180,8 @@ export default function PhysicalMetricsPage() {
                     <td className="text-stone-text max-w-[150px] truncate">{m.injuries ?? "—"}</td>
                     <td>
                       <div className="flex gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => openEdit(m)}>{t("Edit", "Editar", "Editar", "Modifier", "Modifica")}</Button>
-                        <Button variant="danger" size="sm" onClick={() => del(m.id)}>{t("Del", "Borrar", "Excluir", "Suppr", "Elimina")}</Button>
+                        <Button variant="ghost" size="sm" onClick={() => openEdit(m)}>{t("Edit", "Editar", "Editar", "Modifier", "Modifica", "Редагувати")}</Button>
+                        <Button variant="danger" size="sm" onClick={() => del(m.id)}>{t("Del", "Borrar", "Excluir", "Suppr", "Elimina", "Видал.")}</Button>
                       </div>
                     </td>
                   </tr>
@@ -192,28 +192,28 @@ export default function PhysicalMetricsPage() {
         </CardBody>
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={editing ? t("Edit Metrics", "Editar métricas", "Editar métricas", "Modifier métriques", "Modifica metriche") : t("Log Physical Metrics", "Registrar métricas", "Registrar métricas", "Enregistrer métriques", "Registra metriche")} className="max-w-xl">
+      <Modal open={open} onClose={() => setOpen(false)} title={editing ? t("Edit Metrics", "Editar métricas", "Editar métricas", "Modifier métriques", "Modifica metriche", "Редагувати показники") : t("Log Physical Metrics", "Registrar métricas", "Registrar métricas", "Enregistrer métriques", "Registra metriche", "Записати показники")} className="max-w-xl">
         <div className="grid grid-cols-2 gap-4">
-          <Input label={t("Date", "Fecha", "Data", "Date", "Data")} type="date" value={form.date} onChange={f("date")} className="col-span-2" />
-          <Input label={t("Body Weight (kg)", "Peso corporal (kg)", "Peso corporal (kg)", "Poids corporel (kg)", "Peso corporeo (kg)")} type="number" step="0.1" value={form.bodyWeight ?? ""} onChange={f("bodyWeight")} />
-          <Input label={t("Resting Heart Rate", "Frecuencia cardiaca en reposo", "Frequência cardíaca em repouso", "Fréquence cardiaque au repos", "Frequenza cardiaca a riposo")} type="number" value={form.restingHeartRate ?? ""} onChange={f("restingHeartRate")} />
-          <Input label={t("Sleep Hours", "Horas de sueño", "Horas de sono", "Heures de sommeil", "Ore di sonno")} type="number" step="0.5" value={form.sleepHours ?? ""} onChange={f("sleepHours")} />
+          <Input label={t("Date", "Fecha", "Data", "Date", "Data", "Дата")} type="date" value={form.date} onChange={f("date")} className="col-span-2" />
+          <Input label={t("Body Weight (kg)", "Peso corporal (kg)", "Peso corporal (kg)", "Poids corporel (kg)", "Peso corporeo (kg)", "Вага тіла (кг)")} type="number" step="0.1" value={form.bodyWeight ?? ""} onChange={f("bodyWeight")} />
+          <Input label={t("Resting Heart Rate", "Frecuencia cardiaca en reposo", "Frequência cardíaca em repouso", "Fréquence cardiaque au repos", "Frequenza cardiaca a riposo", "ЧСС у спокої")} type="number" value={form.restingHeartRate ?? ""} onChange={f("restingHeartRate")} />
+          <Input label={t("Sleep Hours", "Horas de sueño", "Horas de sono", "Heures de sommeil", "Ore di sonno", "Години сну")} type="number" step="0.5" value={form.sleepHours ?? ""} onChange={f("sleepHours")} />
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{t("Sleep Quality", "Calidad del sueño", "Qualidade do sono", "Qualité du sommeil", "Qualità del sonno")} (1–10): {form.sleepQuality ?? 0}</label>
-            <input title={t("Sleep Quality", "Calidad del sueño", "Qualidade do sono", "Qualité du sommeil", "Qualità del sonno")} type="range" min={1} max={10} value={form.sleepQuality ?? 5} onChange={f("sleepQuality")} />
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{t("Sleep Quality", "Calidad del sueño", "Qualidade do sono", "Qualité du sommeil", "Qualità del sonno", "Якість сну")} (1–10): {form.sleepQuality ?? 0}</label>
+            <input title={t("Sleep Quality", "Calidad del sueño", "Qualidade do sono", "Qualité du sommeil", "Qualità del sonno", "Якість сну")} type="range" min={1} max={10} value={form.sleepQuality ?? 5} onChange={f("sleepQuality")} />
           </div>
           <div className="flex flex-col gap-1 col-span-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{t("Recovery Score", "Puntuación de recuperación", "Pontuação de recuperação", "Score de récupération", "Punteggio di recupero")} (1–10): {form.recoveryScore ?? 0}</label>
-            <input title={t("Recovery Score", "Puntuación de recuperación", "Pontuação de recuperação", "Score de récupération", "Punteggio di recupero")} type="range" min={1} max={10} value={form.recoveryScore ?? 5} onChange={f("recoveryScore")} />
+            <label className="text-xs font-semibold uppercase tracking-wider text-stone-text">{t("Recovery Score", "Puntuación de recuperación", "Pontuação de recuperação", "Score de récupération", "Punteggio di recupero", "Оцінка відновлення")} (1–10): {form.recoveryScore ?? 0}</label>
+            <input title={t("Recovery Score", "Puntuación de recuperación", "Pontuação de recuperação", "Score de récupération", "Punteggio di recupero", "Оцінка відновлення")} type="range" min={1} max={10} value={form.recoveryScore ?? 5} onChange={f("recoveryScore")} />
           </div>
-          <Input label={t("Calories (optional)", "Calorías (opcional)", "Calorias (opcional)", "Calories (facultatif)", "Calorie (opzionale)")} type="number" value={form.calories ?? ""} onChange={f("calories")} className="col-span-2" />
-          <Textarea label={t("Strength Notes", "Notas de fuerza", "Notas de força", "Notes de force", "Note sulla forza")} value={form.strengthNotes ?? ""} onChange={f("strengthNotes")} rows={2} />
-          <Textarea label={t("Cardio Notes", "Notas de cardio", "Notas de cardio", "Notes de cardio", "Note sul cardio")} value={form.cardioNotes ?? ""} onChange={f("cardioNotes")} rows={2} />
-          <Textarea label={t("Injuries / Pain Areas", "Lesiones / zonas de dolor", "Lesões / áreas de dor", "Blessures / zones douloureuses", "Infortuni / aree dolorose")} value={form.injuries ?? ""} onChange={f("injuries")} rows={2} className="col-span-2" />
+          <Input label={t("Calories (optional)", "Calorías (opcional)", "Calorias (opcional)", "Calories (facultatif)", "Calorie (opzionale)", "Калорії (необов'язково)")} type="number" value={form.calories ?? ""} onChange={f("calories")} className="col-span-2" />
+          <Textarea label={t("Strength Notes", "Notas de fuerza", "Notas de força", "Notes de force", "Note sulla forza", "Нотатки про силу")} value={form.strengthNotes ?? ""} onChange={f("strengthNotes")} rows={2} />
+          <Textarea label={t("Cardio Notes", "Notas de cardio", "Notas de cardio", "Notes de cardio", "Note sul cardio", "Нотатки про кардіо")} value={form.cardioNotes ?? ""} onChange={f("cardioNotes")} rows={2} />
+          <Textarea label={t("Injuries / Pain Areas", "Lesiones / zonas de dolor", "Lesões / áreas de dor", "Blessures / zones douloureuses", "Infortuni / aree dolorose", "Травми / болючі зони")} value={form.injuries ?? ""} onChange={f("injuries")} rows={2} className="col-span-2" />
         </div>
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="secondary" onClick={() => setOpen(false)}>{t("Cancel", "Cancelar", "Cancelar", "Annuler", "Annulla")}</Button>
-          <Button onClick={save} disabled={saving}>{saving ? t("Saving…", "Guardando…", "Salvando…", "Enregistrement…", "Salvataggio…") : t("Save", "Guardar", "Salvar", "Enregistrer", "Salva")}</Button>
+          <Button variant="secondary" onClick={() => setOpen(false)}>{t("Cancel", "Cancelar", "Cancelar", "Annuler", "Annulla", "Скасувати")}</Button>
+          <Button onClick={save} disabled={saving}>{saving ? t("Saving…", "Guardando…", "Salvando…", "Enregistrement…", "Salvataggio…", "Збереження…") : t("Save", "Guardar", "Salvar", "Enregistrer", "Salva", "Зберегти")}</Button>
         </div>
       </Modal>
       </>

@@ -58,7 +58,7 @@ export default function AccountPage() {
   const { locale, setLocale } = useLanguage();
   const { theme, setTheme } = useTheme();
   const router = useRouter();
-  const t = (en: string, es: string, pt: string, fr: string, it: string) => tr(locale, { en, es, pt, fr, it });
+  const t = (en: string, es: string, pt: string, fr: string, it: string, uk: string) => tr(locale, { en, es, pt, fr, it, uk });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -141,7 +141,7 @@ export default function AccountPage() {
         }),
       });
       if (!res.ok) {
-        setError(t("Could not save. Please try again.", "No se pudo guardar. Intenta de nuevo.", "Não foi possível salvar. Tente novamente.", "Impossible d'enregistrer. Réessayez.", "Impossibile salvare. Riprova."));
+        setError(t("Could not save. Please try again.", "No se pudo guardar. Intenta de nuevo.", "Não foi possível salvar. Tente novamente.", "Impossible d'enregistrer. Réessayez.", "Impossibile salvare. Riprova.", "Не вдалося зберегти. Спробуйте ще раз."));
         return;
       }
       await refetch();
@@ -239,26 +239,26 @@ export default function AccountPage() {
   };
 
   if (loading) {
-    return <div className="text-sm text-stone-text">{t("Loading account...", "Cargando cuenta...", "Carregando conta...", "Chargement du compte...", "Caricamento account...")}</div>;
+    return <div className="text-sm text-stone-text">{t("Loading account...", "Cargando cuenta...", "Carregando conta...", "Chargement du compte...", "Caricamento account...", "Завантаження облікового запису...")}</div>;
   }
 
   return (
     <div className="space-y-5 pb-6">
       <div>
-        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{t("My Account", "Mi Cuenta", "Minha Conta", "Mon Compte", "Il Mio Account")}</h1>
-        <p className="text-sm text-stone-text mt-1">{t("Preferences, profile and your data", "Preferencias, perfil y tus datos", "Preferências, perfil e seus dados", "Préférences, profil et vos données", "Preferenze, profilo e i tuoi dati")}</p>
+        <h1 className="font-condensed font-black text-3xl uppercase tracking-widest text-beige-surface">{t("My Account", "Mi Cuenta", "Minha Conta", "Mon Compte", "Il Mio Account", "Мій обліковий запис")}</h1>
+        <p className="text-sm text-stone-text mt-1">{t("Preferences, profile and your data", "Preferencias, perfil y tus datos", "Preferências, perfil e seus dados", "Préférences, profil et vos données", "Preferenze, profilo e i tuoi dati", "Налаштування, профіль і ваші дані")}</p>
       </div>
 
       {/* Appearance */}
       <Card>
         <CardHeader>
-          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Appearance", "Apariencia", "Aparência", "Apparence", "Aspetto")}</h2>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Appearance", "Apariencia", "Aparência", "Apparence", "Aspetto", "Зовнішній вигляд")}</h2>
         </CardHeader>
         <CardBody className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <div className="text-sm font-semibold text-beige-warm">{t("Color mode", "Modo de color", "Modo de cor", "Mode couleur", "Modalità colore")}</div>
+            <div className="text-sm font-semibold text-beige-warm">{t("Color mode", "Modo de color", "Modo de cor", "Mode couleur", "Modalità colore", "Кольоровий режим")}</div>
             <div className="text-xs text-stone-text mt-0.5">
-              {theme === "light" ? t("Light mode on", "Modo claro activado", "Modo claro ativado", "Mode clair activé", "Modalità chiara attiva") : t("Dark mode on", "Modo oscuro activado", "Modo escuro ativado", "Mode sombre activé", "Modalità scura attiva")}
+              {theme === "light" ? t("Light mode on", "Modo claro activado", "Modo claro ativado", "Mode clair activé", "Modalità chiara attiva", "Світлий режим увімкнено") : t("Dark mode on", "Modo oscuro activado", "Modo escuro ativado", "Mode sombre activé", "Modalità scura attiva", "Темний режим увімкнено")}
             </div>
           </div>
           <div className="flex rounded-full border border-stone-border overflow-hidden">
@@ -267,14 +267,14 @@ export default function AccountPage() {
               onClick={() => setTheme("dark")}
               className={cn("px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors", theme === "dark" ? "bg-burgundy text-white" : "text-stone-text hover:text-beige-warm")}
             >
-              {t("Dark", "Oscuro", "Escuro", "Sombre", "Scuro")}
+              {t("Dark", "Oscuro", "Escuro", "Sombre", "Scuro", "Темний")}
             </button>
             <button
               type="button"
               onClick={() => setTheme("light")}
               className={cn("px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors", theme === "light" ? "bg-burgundy text-white" : "text-stone-text hover:text-beige-warm")}
             >
-              {t("Light", "Claro", "Claro", "Clair", "Chiaro")}
+              {t("Light", "Claro", "Claro", "Clair", "Chiaro", "Світлий")}
             </button>
           </div>
         </CardBody>
@@ -283,7 +283,7 @@ export default function AccountPage() {
       {/* Language */}
       <Card>
         <CardHeader>
-          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Language", "Idioma", "Idioma", "Langue", "Lingua")}</h2>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Language", "Idioma", "Idioma", "Langue", "Lingua", "Мова")}</h2>
         </CardHeader>
         <CardBody>
           <div className="flex flex-wrap gap-2">
@@ -309,21 +309,21 @@ export default function AccountPage() {
       {/* Notifications */}
       <Card>
         <CardHeader>
-          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Notifications", "Notificaciones", "Notificações", "Notifications", "Notifiche")}</h2>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Notifications", "Notificaciones", "Notificações", "Notifications", "Notifiche", "Сповіщення")}</h2>
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <div className="text-sm font-semibold text-beige-warm">{t("Push alerts", "Alertas push", "Alertas push", "Alertes push", "Avvisi push")}</div>
+              <div className="text-sm font-semibold text-beige-warm">{t("Push alerts", "Alertas push", "Alertas push", "Alertes push", "Avvisi push", "Push-сповіщення")}</div>
               <div className="text-xs text-stone-text mt-0.5">
-                {t("Receive notifications on this device", "Recibe notificaciones en este dispositivo", "Receba notificações neste dispositivo", "Recevez des notifications sur cet appareil", "Ricevi notifiche su questo dispositivo")}
+                {t("Receive notifications on this device", "Recibe notificaciones en este dispositivo", "Receba notificações neste dispositivo", "Recevez des notifications sur cet appareil", "Ricevi notifiche su questo dispositivo", "Отримувати сповіщення на цьому пристрої")}
               </div>
             </div>
             <PushNotificationToggle />
           </div>
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="text-xs text-stone-text max-w-sm">
-              {t("Not sure it's working? Send yourself a test push right now.", "¿No estás seguro de que funciona? Envíate una notificación de prueba ahora.", "Não tem certeza se funciona? Envie uma notificação de teste agora.", "Pas sûr que ça marche ? Envoyez-vous une notification de test maintenant.", "Non sei sicuro che funzioni? Invia subito una notifica di prova.")}
+              {t("Not sure it's working? Send yourself a test push right now.", "¿No estás seguro de que funciona? Envíate una notificación de prueba ahora.", "Não tem certeza se funciona? Envie uma notificação de teste agora.", "Pas sûr que ça marche ? Envoyez-vous une notification de test maintenant.", "Non sei sicuro che funzioni? Invia subito una notifica di prova.", "Не впевнені, що працює? Надішліть собі тестове сповіщення зараз.")}
             </div>
             <button
               type="button"
@@ -332,27 +332,27 @@ export default function AccountPage() {
               className="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-stone-border text-stone-text hover:text-beige-warm transition-colors disabled:opacity-50"
             >
               {testPushStatus === "sending"
-                ? t("Sending...", "Enviando...", "Enviando...", "Envoi...", "Invio...")
-                : t("Send test notification", "Enviar notificación de prueba", "Enviar notificação de teste", "Envoyer une notification test", "Invia notifica di prova")}
+                ? t("Sending...", "Enviando...", "Enviando...", "Envoi...", "Invio...", "Надсилання...")
+                : t("Send test notification", "Enviar notificación de prueba", "Enviar notificação de teste", "Envoyer une notification test", "Invia notifica di prova", "Надіслати тестове сповіщення")}
             </button>
           </div>
           {testPushStatus === "sent" && (
             <div className="text-xs text-burgundy-light">
-              {t("Test sent — check your device.", "Prueba enviada — revisa tu dispositivo.", "Teste enviado — verifique seu dispositivo.", "Test envoyé — vérifiez votre appareil.", "Prova inviata — controlla il tuo dispositivo.")}
+              {t("Test sent — check your device.", "Prueba enviada — revisa tu dispositivo.", "Teste enviado — verifique seu dispositivo.", "Test envoyé — vérifiez votre appareil.", "Prova inviata — controlla il tuo dispositivo.", "Тест надіслано — перевірте свій пристрій.")}
             </div>
           )}
           {testPushStatus === "error" && (
             <div className="text-xs text-burgundy">
-              {t("Couldn't send. Enable push alerts above first.", "No se pudo enviar. Activa las alertas push primero.", "Não foi possível enviar. Ative os alertas push primeiro.", "Envoi impossible. Activez d'abord les alertes push.", "Impossibile inviare. Attiva prima gli avvisi push.")}
+              {t("Couldn't send. Enable push alerts above first.", "No se pudo enviar. Activa las alertas push primero.", "Não foi possível enviar. Ative os alertas push primeiro.", "Envoi impossible. Activez d'abord les alertes push.", "Impossibile inviare. Attiva prima gli avvisi push.", "Не вдалося надіслати. Спочатку увімкніть push-сповіщення вище.")}
             </div>
           )}
 
           <div className="border-t border-stone-border/50 pt-4">
             <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
               <div>
-                <div className="text-sm font-semibold text-beige-warm">{t("Daily reminder", "Recordatorio diario", "Lembrete diário", "Rappel quotidien", "Promemoria giornaliero")}</div>
+                <div className="text-sm font-semibold text-beige-warm">{t("Daily reminder", "Recordatorio diario", "Lembrete diário", "Rappel quotidien", "Promemoria giornaliero", "Щоденне нагадування")}</div>
                 <div className="text-xs text-stone-text mt-0.5 max-w-sm">
-                  {t("We'll nudge you to log today's training session or fight.", "Te avisamos para que registres tu sesión de entreno o pelea del día.", "Vamos te lembrar de registrar seu treino ou luta do dia.", "Nous vous rappellerons d'enregistrer votre séance ou combat du jour.", "Ti ricorderemo di registrare l'allenamento o l'incontro di oggi.")}
+                  {t("We'll nudge you to log today's training session or fight.", "Te avisamos para que registres tu sesión de entreno o pelea del día.", "Vamos te lembrar de registrar seu treino ou luta do dia.", "Nous vous rappellerons d'enregistrer votre séance ou combat du jour.", "Ti ricorderemo di registrare l'allenamento o l'incontro di oggi.", "Ми нагадаємо вам записати сьогоднішнє тренування чи бій.")}
                 </div>
               </div>
               <button
@@ -364,7 +364,7 @@ export default function AccountPage() {
                   reminderEnabled ? "bg-burgundy text-white" : "border border-stone-border text-stone-text hover:text-beige-warm"
                 )}
               >
-                {reminderEnabled ? t("On", "Activado", "Ativado", "Activé", "Attivo") : t("Off", "Desactivado", "Desativado", "Désactivé", "Disattivo")}
+                {reminderEnabled ? t("On", "Activado", "Ativado", "Activé", "Attivo", "Увімкнено") : t("Off", "Desactivado", "Desativado", "Désactivé", "Disattivo", "Вимкнено")}
               </button>
             </div>
             {reminderEnabled && (
@@ -379,7 +379,7 @@ export default function AccountPage() {
                       !reminderIntervalHours ? "bg-burgundy text-white" : "text-stone-text hover:text-beige-warm"
                     )}
                   >
-                    {t("Specific days", "Días concretos", "Dias espec\u00edficos", "Jours sp\u00e9cifiques", "Giorni specifici")}
+                    {t("Specific days", "Días concretos", "Dias espec\u00edficos", "Jours sp\u00e9cifiques", "Giorni specifici", "Конкретні дні")}
                   </button>
                   <button
                     type="button"
@@ -390,14 +390,14 @@ export default function AccountPage() {
                       reminderIntervalHours ? "bg-burgundy text-white" : "text-stone-text hover:text-beige-warm"
                     )}
                   >
-                    {t("Every X hours", "Cada X horas", "A cada X horas", "Toutes les X heures", "Ogni X ore")}
+                    {t("Every X hours", "Cada X horas", "A cada X horas", "Toutes les X heures", "Ogni X ore", "Кожні X годин")}
                   </button>
                 </div>
 
                 {reminderIntervalHours ? (
                   <div>
                     <div className="text-[10px] uppercase tracking-widest text-stone-text mb-2">
-                      {t("Remind me every", "Avísame cada", "Lembre-me a cada", "Rappelez-moi toutes les", "Ricordamelo ogni")}
+                      {t("Remind me every", "Avísame cada", "Lembre-me a cada", "Rappelez-moi toutes les", "Ricordamelo ogni", "Нагадувати кожні")}
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {[2, 3, 4, 6, 8, 12, 24].map((hours) => (
@@ -421,7 +421,7 @@ export default function AccountPage() {
                 ) : (
                   <div>
                     <div className="text-[10px] uppercase tracking-widest text-stone-text mb-2">
-                      {t("Days of the week", "Días de la semana", "Dias da semana", "Jours de la semaine", "Giorni della settimana")}
+                      {t("Days of the week", "Días de la semana", "Dias da semana", "Jours de la semaine", "Giorni della settimana", "Дні тижня")}
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {dayLabels.map((label, day) => (
@@ -452,45 +452,45 @@ export default function AccountPage() {
       {/* Profile */}
       <Card>
         <CardHeader>
-          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Profile", "Perfil", "Perfil", "Profil", "Profilo")}</h2>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Profile", "Perfil", "Perfil", "Profil", "Profilo", "Профіль")}</h2>
         </CardHeader>
         <CardBody className="grid gap-3 sm:grid-cols-2">
-          <Input label={t("Name", "Nombre", "Nome", "Nom", "Nome")} value={form.displayName} onChange={f("displayName")} maxLength={80} />
-          <Input label={t("Email", "Correo", "E-mail", "E-mail", "Email")} value={user?.email ?? ""} disabled className="opacity-60 cursor-not-allowed" />
-          <Select label={t("Level", "Nivel", "Nível", "Niveau", "Livello")} value={form.level} onChange={f("level")}>
+          <Input label={t("Name", "Nombre", "Nome", "Nom", "Nome", "Ім'я")} value={form.displayName} onChange={f("displayName")} maxLength={80} />
+          <Input label={t("Email", "Correo", "E-mail", "E-mail", "Email", "Ел. пошта")} value={user?.email ?? ""} disabled className="opacity-60 cursor-not-allowed" />
+          <Select label={t("Level", "Nivel", "Nível", "Niveau", "Livello", "Рівень")} value={form.level} onChange={f("level")}>
             {LEVELS.map((l) => (
               <option key={l.value} value={l.value} disabled={l.disabled}>{l.label}</option>
             ))}
           </Select>
-          <Select label={t("Primary discipline", "Disciplina principal", "Disciplina principal", "Discipline principale", "Disciplina principale")} value={form.discipline} onChange={f("discipline")}>
+          <Select label={t("Primary discipline", "Disciplina principal", "Disciplina principal", "Discipline principale", "Disciplina principale", "Основна дисципліна")} value={form.discipline} onChange={f("discipline")}>
             {DISCIPLINES.map((d) => (
               <option key={d} value={d}>{d}</option>
             ))}
           </Select>
-          <Input label={t("Gym (optional)", "Gimnasio (opcional)", "Academia (opcional)", "Salle (facultatif)", "Palestra (opzionale)")} value={form.gymName} onChange={f("gymName")} placeholder={t("Your gym's name", "Nombre de tu gimnasio", "Nome da sua academia", "Nom de votre salle", "Nome della tua palestra")} maxLength={80} />
-          <Input label={t("Postal code", "Código postal", "CEP", "Code postal", "CAP")} value={form.postalCode} onChange={f("postalCode")} placeholder="28001" maxLength={20} />
-          <Input label={t("City", "Ciudad", "Cidade", "Ville", "Città")} value={form.city} onChange={f("city")} maxLength={80} />
-          <Input label={t("Weight class", "Categoría de peso", "Categoria de peso", "Catégorie de poids", "Categoria di peso")} value={form.weightClass} onChange={f("weightClass")} maxLength={60} />
-          <Input label={t("Belt / rank", "Cinturón / rango", "Faixa / grau", "Ceinture / grade", "Cintura / grado")} value={form.beltRank} onChange={f("beltRank")} maxLength={60} />
+          <Input label={t("Gym (optional)", "Gimnasio (opcional)", "Academia (opcional)", "Salle (facultatif)", "Palestra (opzionale)", "Зала (необов'язково)")} value={form.gymName} onChange={f("gymName")} placeholder={t("Your gym's name", "Nombre de tu gimnasio", "Nome da sua academia", "Nom de votre salle", "Nome della tua palestra", "Назва вашої зали")} maxLength={80} />
+          <Input label={t("Postal code", "Código postal", "CEP", "Code postal", "CAP", "Поштовий індекс")} value={form.postalCode} onChange={f("postalCode")} placeholder="28001" maxLength={20} />
+          <Input label={t("City", "Ciudad", "Cidade", "Ville", "Città", "Місто")} value={form.city} onChange={f("city")} maxLength={80} />
+          <Input label={t("Weight class", "Categoría de peso", "Categoria de peso", "Catégorie de poids", "Categoria di peso", "Вагова категорія")} value={form.weightClass} onChange={f("weightClass")} maxLength={60} />
+          <Input label={t("Belt / rank", "Cinturón / rango", "Faixa / grau", "Ceinture / grade", "Cintura / grado", "Пояс / ранг")} value={form.beltRank} onChange={f("beltRank")} maxLength={60} />
         </CardBody>
       </Card>
 
       {/* Disciplines */}
       <Card>
         <CardHeader>
-          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Disciplines", "Disciplinas", "Disciplinas", "Disciplines", "Discipline")}</h2>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Disciplines", "Disciplinas", "Disciplinas", "Disciplines", "Discipline", "Дисципліни")}</h2>
         </CardHeader>
         <CardBody>
           <div className="flex flex-wrap gap-2 mb-3">
             {disciplines.length === 0 && (
-              <span className="text-xs text-stone-text/50 italic">{t("No disciplines added", "Sin disciplinas añadidas", "Nenhuma disciplina adicionada", "Aucune discipline ajoutée", "Nessuna disciplina aggiunta")}</span>
+              <span className="text-xs text-stone-text/50 italic">{t("No disciplines added", "Sin disciplinas añadidas", "Nenhuma disciplina adicionada", "Aucune discipline ajoutée", "Nessuna disciplina aggiunta", "Дисциплін не додано")}</span>
             )}
             {disciplines.map((d) => (
               <button
                 key={d}
                 type="button"
                 onClick={() => removeDisc(d)}
-                title={t(`Remove ${d}`, `Eliminar ${d}`, `Remover ${d}`, `Supprimer ${d}`, `Rimuovi ${d}`)}
+                title={t(`Remove ${d}`, `Eliminar ${d}`, `Remover ${d}`, `Supprimer ${d}`, `Rimuovi ${d}`, `Видалити ${d}`)}
                 className="text-[11px] bg-bg-elevated border border-stone-border px-2.5 py-1 rounded-sm text-beige-warm flex items-center gap-1.5 hover:border-burgundy/60 hover:text-white transition-colors"
               >
                 {d} <span className="text-stone-text/60 text-xs">×</span>
@@ -499,12 +499,12 @@ export default function AccountPage() {
           </div>
           <div className="flex gap-2">
             <Select value={selectedDisc} onChange={(e) => setSelectedDisc(e.target.value)} className="flex-1">
-              <option value="">{t("Add discipline...", "Añadir disciplina...", "Adicionar disciplina...", "Ajouter une discipline...", "Aggiungi disciplina...")}</option>
+              <option value="">{t("Add discipline...", "Añadir disciplina...", "Adicionar disciplina...", "Ajouter une discipline...", "Aggiungi disciplina...", "Додати дисципліну...")}</option>
               {DISCIPLINES.filter((d) => !disciplines.includes(d)).map((d) => (
                 <option key={d} value={d}>{d}</option>
               ))}
             </Select>
-            <Button type="button" onClick={addDisc} disabled={!selectedDisc}>{t("Add", "Añadir", "Adicionar", "Ajouter", "Aggiungi")}</Button>
+            <Button type="button" onClick={addDisc} disabled={!selectedDisc}>{t("Add", "Añadir", "Adicionar", "Ajouter", "Aggiungi", "Додати")}</Button>
           </div>
         </CardBody>
       </Card>
@@ -512,13 +512,13 @@ export default function AccountPage() {
       {/* Data export */}
       <Card>
         <CardHeader>
-          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Your data", "Tus datos", "Seus dados", "Vos données", "I tuoi dati")}</h2>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-text">{t("Your data", "Tus datos", "Seus dados", "Vos données", "I tuoi dati", "Ваші дані")}</h2>
         </CardHeader>
         <CardBody className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <div className="text-sm font-semibold text-beige-warm">{t("Export to Excel", "Exportar a Excel", "Exportar para Excel", "Exporter vers Excel", "Esporta in Excel")}</div>
+            <div className="text-sm font-semibold text-beige-warm">{t("Export to Excel", "Exportar a Excel", "Exportar para Excel", "Exporter vers Excel", "Esporta in Excel", "Експорт в Excel")}</div>
             <div className="text-xs text-stone-text mt-0.5 max-w-md">
-              {t("Download all your training sessions, metrics, techniques, gameplans and sparring as a .xlsx file you can save anywhere (Drive, your device, etc.).", "Descarga todos tus entrenamientos, métricas, técnicas, gameplans y sparring en un archivo .xlsx que puedes guardar donde quieras (Drive, tu equipo, etc.).", "Baixe todos os seus treinos, métricas, técnicas, gameplans e sparring em um arquivo .xlsx que você pode salvar onde quiser (Drive, seu dispositivo, etc.).", "Téléchargez toutes vos séances, métriques, techniques, gameplans et sparring dans un fichier .xlsx à enregistrer où vous voulez (Drive, votre appareil, etc.).", "Scarica tutti i tuoi allenamenti, metriche, tecniche, gameplan e sparring in un file .xlsx da salvare ovunque (Drive, il tuo dispositivo, ecc.).")}
+              {t("Download all your training sessions, metrics, techniques, gameplans and sparring as a .xlsx file you can save anywhere (Drive, your device, etc.).", "Descarga todos tus entrenamientos, métricas, técnicas, gameplans y sparring en un archivo .xlsx que puedes guardar donde quieras (Drive, tu equipo, etc.).", "Baixe todos os seus treinos, métricas, técnicas, gameplans e sparring em um arquivo .xlsx que você pode salvar onde quiser (Drive, seu dispositivo, etc.).", "Téléchargez toutes vos séances, métriques, techniques, gameplans et sparring dans un fichier .xlsx à enregistrer où vous voulez (Drive, votre appareil, etc.).", "Scarica tutti i tuoi allenamenti, metriche, tecniche, gameplan e sparring in un file .xlsx da salvare ovunque (Drive, il tuo dispositivo, ecc.).", "Завантажте всі свої тренування, показники, техніки, ігрові плани та спаринги у вигляді файлу .xlsx, який можна зберегти будь-де (Drive, ваш пристрій тощо).")}
             </div>
           </div>
           <a
@@ -526,7 +526,7 @@ export default function AccountPage() {
             download
             className="inline-flex items-center gap-2 bg-burgundy text-white text-xs font-bold uppercase tracking-widest px-4 py-2.5 rounded-sm hover:bg-burgundy-light transition-colors whitespace-nowrap"
           >
-            ⬇ {t("Download Excel", "Descargar Excel", "Baixar Excel", "Télécharger Excel", "Scarica Excel")}
+            ⬇ {t("Download Excel", "Descargar Excel", "Baixar Excel", "Télécharger Excel", "Scarica Excel", "Завантажити Excel")}
           </a>
         </CardBody>
       </Card>
@@ -534,13 +534,13 @@ export default function AccountPage() {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">
           <Button onClick={save} disabled={saving}>
-            {saving ? t("Saving...", "Guardando...", "Salvando...", "Enregistrement...", "Salvataggio...") : t("Save changes", "Guardar cambios", "Salvar alterações", "Enregistrer les modifications", "Salva modifiche")}
+            {saving ? t("Saving...", "Guardando...", "Salvando...", "Enregistrement...", "Salvataggio...", "Збереження...") : t("Save changes", "Guardar cambios", "Salvar alterações", "Enregistrer les modifications", "Salva modifiche", "Зберегти зміни")}
           </Button>
-          {saved && <span className="text-xs text-amber font-semibold uppercase tracking-wider">{t("Saved ✓", "Guardado ✓", "Salvo ✓", "Enregistré ✓", "Salvato ✓")}</span>}
+          {saved && <span className="text-xs text-amber font-semibold uppercase tracking-wider">{t("Saved ✓", "Guardado ✓", "Salvo ✓", "Enregistré ✓", "Salvato ✓", "Збережено ✓")}</span>}
           {error && <span className="text-xs text-burgundy-light">{error}</span>}
         </div>
         <button onClick={handleLogout} className="text-xs text-stone-text hover:text-beige-warm uppercase tracking-wider transition-colors">
-          {t("Log out", "Cerrar sesión", "Sair", "Déconnexion", "Disconnetti")}
+          {t("Log out", "Cerrar sesión", "Sair", "Déconnexion", "Disconnetti", "Вийти")}
         </button>
       </div>
     </div>
