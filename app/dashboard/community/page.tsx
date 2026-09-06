@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/language-context";
 import { tr } from "@/lib/i18n";
 import GymsDirectoryPage from "@/app/dashboard/gyms/page";
 import { Modal } from "@/components/ui/modal";
+import { LocalAttachments } from "@/components/files/local-attachments";
 
 const NearbyMap = dynamic(() => import("@/components/map/nearby-map"), {
   ssr: false,
@@ -533,6 +534,8 @@ export default function CommunityPage() {
 
       {error && <div className="rounded-lg border border-burgundy/40 bg-burgundy/15 px-3 py-2 text-sm text-burgundy-light">{error}</div>}
       {loading && <div className="text-sm text-stone-text">{L({ en: "Loading community intelligence...", es: "Cargando red social...", pt: "Carregando rede social...", fr: "Chargement du réseau communautaire...", it: "Caricamento della rete sociale...", uk: "Завантаження спільноти..." })}</div>}
+
+      <LocalAttachments section="social" />
 
       {!loading && tab === "feed" && (
         <section className="space-y-4">

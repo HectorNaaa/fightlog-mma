@@ -20,6 +20,19 @@ enum FriendRequestStatus {
   canceled
 }
 
+enum AttachmentSection {
+  training
+  social
+  technical
+  performance
+  account
+}
+
+enum AttachmentKind {
+  document
+  media
+}
+
 model User {
   id           String    @id @default(cuid())
   name         String
@@ -59,6 +72,32 @@ model User {
   pushSubscriptions      PushSubscription[]
   sentMessages           Message[]        @relation("SentMessages")
   receivedMessages       Message[]        @relation("ReceivedMessages")
+  attachments            Attachment[]
+}
+
+// Only file METADATA is stored here (name, type, size, date, note, which
+// device holds it). The actual file bytes NEVER touch the server/DB — they
+// stay in the uploading device's browser (IndexedDB), so this feature costs
+// zero Vercel storage/bandwidth no matter how many files users attach.
+model Attachment {
+  id         String            @id @default(cuid())
+  userId     String
+  section    AttachmentSection
+  kind       AttachmentKind
+  fileName   String
+  fileType   String
+  fileSize   Int
+  date       DateTime
+  note       String?
+  deviceId   String
+  deviceName String
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, section])
 }
 
 model Profile {

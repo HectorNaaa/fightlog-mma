@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { Card, CardHeader, CardBody } from "@/components/ui/card";
 import { LEVELS, DISCIPLINES, cn } from "@/lib/utils";
+import { LocalAttachments } from "@/components/files/local-attachments";
 
 interface ProfileResponse {
   name: string;
@@ -530,6 +531,8 @@ export default function AccountPage() {
           </a>
         </CardBody>
       </Card>
+
+      <LocalAttachments section="account" />
 
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">

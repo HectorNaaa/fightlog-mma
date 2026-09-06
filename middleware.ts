@@ -13,9 +13,87 @@ const API_AUTH_PATHS = [
 ];
 const AUTH_PAGES = ["/auth/login", "/auth/signup"];
 
+// --- Abuse / cost-spike protection -----------------------------------------
+// Best-effort in-memory rate limiting + request-size guard for /api/*. This
+// runs on the Edge runtime and the counters live per-instance (not shared
+// across Vercel's edge regions/instances), so it isn't a perfect global
+// limiter — but it stops the common case of a single client/script hammering
+// the API (brute-forcing login, spamming write endpoints, etc.) and does so
+// for free, without needing a paid external store (Redis/Upstash). It's a
+// meaningful first line of defense against runaway function-invocation /
+// database costs from automated abuse, layered on top of Vercel's own
+// platform-level DDoS protection.
+type Bucket = { count: number; resetAt: number };
+const rateLimitStore = new Map<string, Bucket>();
+const MAX_TRACKED_KEYS = 5000;
+
+function getClientIp(request: NextRequest): string {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) return forwardedFor.split(",")[0]!.trim();
+  return request.headers.get("x-real-ip") ?? "unknown";
+}
+
+function checkRateLimit(key: string, limit: number, windowMs: number): { limited: boolean; retryAfterSec: number } {
+  const now = Date.now();
+  const bucket = rateLimitStore.get(key);
+
+  if (!bucket || bucket.resetAt <= now) {
+    rateLimitStore.set(key, { count: 1, resetAt: now + windowMs });
+    // Prevent unbounded memory growth if an attacker rotates IPs/paths.
+    if (rateLimitStore.size > MAX_TRACKED_KEYS) {
+      rateLimitStore.forEach((v, k) => {
+        if (v.resetAt <= now) rateLimitStore.delete(k);
+      });
+    }
+    return { limited: false, retryAfterSec: 0 };
+  }
+
+  bucket.count += 1;
+  if (bucket.count > limit) {
+    return { limited: true, retryAfterSec: Math.max(1, Math.ceil((bucket.resetAt - now) / 1000)) };
+  }
+  return { limited: false, retryAfterSec: 0 };
+}
+
+// No route in this app is meant to receive raw file bytes (uploads are kept
+// device-local, see components/files/local-attachments.tsx) — every API
+// body is small JSON, so a generous-but-finite cap blocks large-payload
+// flood attempts without risking legitimate requests.
+const MAX_BODY_BYTES = 500_000;
+
+function tooLarge(request: NextRequest): boolean {
+  if (!["POST", "PUT", "PATCH"].includes(request.method)) return false;
+  const len = request.headers.get("content-length");
+  if (!len) return false;
+  const bytes = Number(len);
+  return Number.isFinite(bytes) && bytes > MAX_BODY_BYTES;
+}
+// ----------------------------------------------------------------------------
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(COOKIE_NAME)?.value;
+
+  if (pathname.startsWith("/api/")) {
+    if (tooLarge(request)) {
+      return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+    }
+
+    const ip = getClientIp(request);
+    const isAuthEndpoint = pathname.startsWith("/api/auth/login") || pathname.startsWith("/api/auth/signup");
+    // Stricter window on login/signup slows down credential-stuffing/brute-force
+    // attempts; a looser general limit still catches runaway scripted abuse.
+    const { limited, retryAfterSec } = isAuthEndpoint
+      ? checkRateLimit(`auth:${ip}`, 20, 5 * 60 * 1000)
+      : checkRateLimit(`api:${ip}`, 120, 60 * 1000);
+
+    if (limited) {
+      return NextResponse.json(
+        { error: "Too many requests. Please slow down." },
+        { status: 429, headers: { "Retry-After": String(retryAfterSec) } }
+      );
+    }
+  }
 
   // Logged-in users shouldn't revisit login/signup pages.
   if (AUTH_PAGES.some((p) => pathname.startsWith(p)) && token) {

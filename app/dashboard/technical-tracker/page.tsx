@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useLanguage } from "@/contexts/language-context";
 import { tr, type Locale } from "@/lib/i18n";
 import GameplanPage from "@/app/dashboard/gameplan/page";
+import { LocalAttachments } from "@/components/files/local-attachments";
 
 interface Technique {
   id: string;
@@ -182,6 +183,8 @@ export default function TechnicalTrackerPage() {
           </CardBody>
         </Card>
       )}
+
+      <LocalAttachments section="technical" />
 
       <Modal open={open} onClose={requestClose} title={editing ? t("Edit Technique", "Editar técnica", "Editar técnica", "Modifier la technique", "Modifica tecnica", "Редагувати техніку") : t("Add Technique", "Añadir técnica", "Adicionar técnica", "Ajouter une technique", "Aggiungi tecnica", "Додати техніку")} className="max-w-2xl">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -10,6 +10,7 @@ import { useLanguage } from "@/contexts/language-context";
 import { tr } from "@/lib/i18n";
 import SparringPage from "@/app/dashboard/sparring/page";
 import WeeklyReviewPage from "@/app/dashboard/weekly-review/page";
+import { LocalAttachments } from "@/components/files/local-attachments";
 
 interface Metric {
   id: string;
@@ -218,6 +219,8 @@ export default function PhysicalMetricsPage() {
       </Modal>
       </>
       )}
+
+      <LocalAttachments section="performance" />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/language-context";
 import { tr } from "@/lib/i18n";
+import { LocalAttachments } from "@/components/files/local-attachments";
 
 const MOTIVATIONS: Record<number, { en: string; es: string; pt: string; fr: string; it: string; uk: string }> = {
   0: {
@@ -586,6 +587,8 @@ export default function DashboardPage() {
       </button>
 
       {/* Quick log modal */}
+      <LocalAttachments section="training" />
+
       <Modal open={fabOpen} onClose={requestCloseLog} title={editingSession ? L({ en: "Edit Session", es: "Editar sesión", pt: "Editar sessão", fr: "Modifier la séance", it: "Modifica sessione", uk: "Редагувати сесію" }) : form.isFight ? L({ en: "Log Fight", es: "Registrar Pelea", pt: "Registrar Luta", fr: "Enregistrer un combat", it: "Registra combattimento", uk: "Записати бій" }) : L({ en: "Log Session", es: "Registrar Entreno", pt: "Registrar Treino", fr: "Enregistrer la séance", it: "Registra sessione", uk: "Записати тренування" })}>
         <div className="flex rounded-full border border-stone-border overflow-hidden mb-4 w-fit">
           <button
