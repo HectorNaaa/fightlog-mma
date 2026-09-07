@@ -19,6 +19,7 @@ interface AttachmentItem {
   note?: string | null;
   deviceId: string;
   deviceName: string;
+  hasFile?: boolean;
 }
 
 function formatSize(bytes: number): string {
@@ -28,18 +29,23 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
 }
 
+// Only PDF/Excel are allowed for the routine document (small, uploaded to
+// the server so it's available on every device). Photos/videos are always
+// media, saved only on this device.
 const DOC_ACCEPT =
-  ".pdf,.xls,.xlsx,.doc,.docx,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/*";
+  ".pdf,.xls,.xlsx,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 const MEDIA_ACCEPT = "image/*,video/*";
+const MAX_DOC_BYTES = 15 * 1024 * 1024;
 
 /**
- * Lets the user attach routine files (PDF/Excel/photos) or personal
- * photos/videos to one of the app's 5 sections, with a date and a note.
- * The file bytes are NEVER uploaded — they're saved only in this browser's
- * IndexedDB (see lib/local-files.ts). Only tiny metadata (name/size/date/
- * note/device label) is sent to the server, so this costs zero Vercel
- * storage no matter how many/large the files are. The user is asked to
- * confirm before every save, and each entry shows which device holds it.
+ * Lets the user attach a routine file (PDF/Excel) or exercise photos/videos
+ * to one of the app's 5 sections, with a date and a note. Routine documents
+ * are small so their actual bytes ARE uploaded and stored server-side
+ * (available on every device). Photos/videos are saved ONLY in this
+ * browser's IndexedDB (see lib/local-files.ts) — never uploaded — so they
+ * cost zero Vercel storage no matter how many/large they are. Media saves
+ * ask the user to confirm the device first; each media entry shows which
+ * device holds it.
  */
 export function LocalAttachments({ section }: { section: Section }) {
   const { t } = useLanguage();
@@ -63,6 +69,7 @@ export function LocalAttachments({ section }: { section: Section }) {
       setItems(list);
       const avail: Record<string, boolean> = {};
       for (const item of list) {
+        if (item.kind === "document" && item.hasFile) continue; // stored server-side, no local lookup needed
         if (item.deviceId === deviceIdRef.current) {
           const blob = await getLocalFile(item.id);
           avail[item.id] = !!blob;
@@ -87,7 +94,35 @@ export function LocalAttachments({ section }: { section: Section }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section]);
 
-  const handleFile = async (file: File, kind: "document" | "media") => {
+  const handleDocumentFile = async (file: File) => {
+    const lower = file.name.toLowerCase();
+    if (!/\.(pdf|xls|xlsx)$/.test(lower)) {
+      window.alert(at.docTypeError);
+      return;
+    }
+    if (file.size > MAX_DOC_BYTES) {
+      window.alert(at.docSizeError);
+      return;
+    }
+    setBusy(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("section", section);
+      form.append("date", formatDateInput(new Date()));
+      form.append("deviceId", deviceIdRef.current);
+      form.append("deviceName", deviceNameRef.current);
+      const res = await fetch("/api/attachments", { method: "POST", body: form });
+      if (!res.ok) throw new Error("Failed to upload document");
+      await load();
+    } catch {
+      window.alert(at.saveError);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleMediaFile = async (file: File) => {
     const confirmMsg = at.confirmLocalSave.replace("{device}", deviceNameRef.current);
     if (!window.confirm(confirmMsg)) return;
 
@@ -98,7 +133,7 @@ export function LocalAttachments({ section }: { section: Section }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           section,
-          kind,
+          kind: "media",
           fileName: file.name,
           fileType: file.type || "application/octet-stream",
           fileSize: file.size,
@@ -113,17 +148,23 @@ export function LocalAttachments({ section }: { section: Section }) {
         await saveLocalFile(created.id, file);
       } catch (err) {
         await fetch(`/api/attachments/${created.id}`, { method: "DELETE" });
-        throw err;
+        const isQuota = err instanceof DOMException && err.name === "QuotaExceededError";
+        window.alert(isQuota ? at.quotaError : at.saveError);
+        return;
       }
       await load();
     } catch {
-      window.alert("Error saving file locally / Error al guardar el archivo en local.");
+      window.alert(at.saveError);
     } finally {
       setBusy(false);
     }
   };
 
   const openFile = async (item: AttachmentItem) => {
+    if (item.kind === "document" && item.hasFile) {
+      window.open(`/api/attachments/${item.id}/download`, "_blank", "noopener,noreferrer");
+      return;
+    }
     let url = blobUrlsRef.current[item.id];
     if (!url) {
       const blob = await getLocalFile(item.id);
@@ -173,7 +214,7 @@ export function LocalAttachments({ section }: { section: Section }) {
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) handleFile(file, "document");
+              if (file) handleDocumentFile(file);
               e.target.value = "";
             }}
           />
@@ -184,7 +225,7 @@ export function LocalAttachments({ section }: { section: Section }) {
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) handleFile(file, "media");
+              if (file) handleMediaFile(file);
               e.target.value = "";
             }}
           />
@@ -198,8 +239,9 @@ export function LocalAttachments({ section }: { section: Section }) {
         ) : (
           <div className="flex flex-col gap-3">
             {items.map((item) => {
+              const isServerFile = item.kind === "document" && !!item.hasFile;
               const isThisDevice = item.deviceId === deviceIdRef.current;
-              const canView = !!availability[item.id];
+              const canView = isServerFile || !!availability[item.id];
               return (
                 <div key={item.id} className="border border-stone-border rounded-sm p-3 flex flex-col gap-2">
                   <div className="flex items-center justify-between flex-wrap gap-2">
@@ -217,7 +259,9 @@ export function LocalAttachments({ section }: { section: Section }) {
                     </div>
                   </div>
                   <div className="text-[11px]">
-                    {isThisDevice ? (
+                    {isServerFile ? (
+                      <span className="text-stone-text">{at.storedOnServer}</span>
+                    ) : isThisDevice ? (
                       <span className="text-stone-text">{at.savedOn}: {item.deviceName} ({at.thisDevice})</span>
                     ) : (
                       <span className="text-burgundy-light">{at.notAvailableDevice.replace("{device}", item.deviceName)}</span>

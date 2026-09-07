@@ -87,6 +87,12 @@ model Attachment {
   fileName   String
   fileType   String
   fileSize   Int
+  // Only populated for kind=="document" (routine PDF/Excel) — small files the
+  // user wants available on every device, so these bytes ARE stored server-side.
+  // kind=="media" (exercise photos/videos) stays null forever; those bytes live
+  // only in the uploading device's IndexedDB (see lib/local-files.ts) to avoid
+  // Vercel storage costs.
+  fileData   Bytes?
   date       DateTime
   note       String?
   deviceId   String

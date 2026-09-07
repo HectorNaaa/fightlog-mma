@@ -55,18 +55,25 @@ function checkRateLimit(key: string, limit: number, windowMs: number): { limited
   return { limited: false, retryAfterSec: 0 };
 }
 
-// No route in this app is meant to receive raw file bytes (uploads are kept
-// device-local, see components/files/local-attachments.tsx) — every API
-// body is small JSON, so a generous-but-finite cap blocks large-payload
-// flood attempts without risking legitimate requests.
+// No route in this app accepts large file uploads except the routine
+// PDF/Excel attachment upload (small documents only, media stays device-
+// local) — every other API body is small JSON, so a generous-but-finite
+// cap blocks large-payload flood attempts without risking legitimate
+// requests.
 const MAX_BODY_BYTES = 500_000;
+const MAX_ATTACHMENT_UPLOAD_BYTES = 16 * 1024 * 1024;
 
 function tooLarge(request: NextRequest): boolean {
   if (!["POST", "PUT", "PATCH"].includes(request.method)) return false;
   const len = request.headers.get("content-length");
   if (!len) return false;
   const bytes = Number(len);
-  return Number.isFinite(bytes) && bytes > MAX_BODY_BYTES;
+  if (!Number.isFinite(bytes)) return false;
+  const limit =
+    request.method === "POST" && request.nextUrl.pathname === "/api/attachments"
+      ? MAX_ATTACHMENT_UPLOAD_BYTES
+      : MAX_BODY_BYTES;
+  return bytes > limit;
 }
 // ----------------------------------------------------------------------------
 
