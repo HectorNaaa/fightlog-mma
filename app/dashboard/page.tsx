@@ -641,33 +641,35 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex flex-col gap-1.5">
                     {ex.sets.map((set, j) => (
-                      <div key={j} className="flex items-center gap-2">
-                        <span className="text-[10px] text-stone-text w-10 shrink-0">{L({ en: "Set", es: "Serie", pt: "Série", fr: "Série", it: "Serie", uk: "Підхід" })} {j + 1}</span>
-                        <input
-                          type="number"
-                          value={set.weight}
-                          onChange={(e) => updateSet(i, j, "weight", e.target.value)}
-                          placeholder={L({ en: "Weight (kg)", es: "Peso (kg)", pt: "Peso (kg)", fr: "Poids (kg)", it: "Peso (kg)", uk: "Вага (кг)" })}
-                          className="w-24 bg-bg-card border border-stone-border rounded-sm px-2 py-1 text-xs text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
-                        />
-                        <input
-                          type="number"
-                          value={set.reps}
-                          onChange={(e) => updateSet(i, j, "reps", e.target.value)}
-                          placeholder={L({ en: "Reps", es: "Repes", pt: "Reps", fr: "Reps", it: "Rip.", uk: "Повт." })}
-                          className="w-20 bg-bg-card border border-stone-border rounded-sm px-2 py-1 text-xs text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
-                        />
-                        <input
-                          type="number"
-                          min={1}
-                          max={10}
-                          value={set.rpe}
-                          onChange={(e) => updateSet(i, j, "rpe", e.target.value)}
-                          placeholder="RPE"
-                          title={L({ en: "RPE (1-10)", es: "RPE (1-10)", pt: "RPE (1-10)", fr: "RPE (1-10)", it: "RPE (1-10)", uk: "RPE (1-10)" })}
-                          className="w-16 bg-bg-card border border-stone-border rounded-sm px-2 py-1 text-xs text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
-                        />
-                        <button type="button" onClick={() => removeSet(i, j)} title={L({ en: "Remove set", es: "Eliminar serie", pt: "Remover série", fr: "Supprimer la série", it: "Rimuovi serie", uk: "Видалити підхід" })} className="text-stone-text/50 hover:text-burgundy-light text-xs px-1">×</button>
+                      <div key={j} className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-[10px] text-stone-text w-8 shrink-0">{L({ en: "Set", es: "Serie", pt: "Série", fr: "Série", it: "Serie", uk: "Підхід" })} {j + 1}</span>
+                        <div className="grid grid-cols-3 gap-1.5 flex-1 min-w-0">
+                          <input
+                            type="number"
+                            value={set.weight}
+                            onChange={(e) => updateSet(i, j, "weight", e.target.value)}
+                            placeholder={L({ en: "Kg", es: "Kg", pt: "Kg", fr: "Kg", it: "Kg", uk: "Кг" })}
+                            className="w-full min-w-0 bg-bg-card border border-stone-border rounded-sm px-1.5 py-1 text-xs text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
+                          />
+                          <input
+                            type="number"
+                            value={set.reps}
+                            onChange={(e) => updateSet(i, j, "reps", e.target.value)}
+                            placeholder={L({ en: "Reps", es: "Repes", pt: "Reps", fr: "Reps", it: "Rip.", uk: "Повт." })}
+                            className="w-full min-w-0 bg-bg-card border border-stone-border rounded-sm px-1.5 py-1 text-xs text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
+                          />
+                          <input
+                            type="number"
+                            min={1}
+                            max={10}
+                            value={set.rpe}
+                            onChange={(e) => updateSet(i, j, "rpe", e.target.value)}
+                            placeholder="RPE"
+                            title={L({ en: "RPE (1-10)", es: "RPE (1-10)", pt: "RPE (1-10)", fr: "RPE (1-10)", it: "RPE (1-10)", uk: "RPE (1-10)" })}
+                            className="w-full min-w-0 bg-bg-card border border-stone-border rounded-sm px-1.5 py-1 text-xs text-beige-warm placeholder:text-stone-text/50 focus:outline-none focus:border-amber"
+                          />
+                        </div>
+                        <button type="button" onClick={() => removeSet(i, j)} title={L({ en: "Remove set", es: "Eliminar serie", pt: "Remover série", fr: "Supprimer la série", it: "Rimuovi serie", uk: "Видалити підхід" })} className="text-stone-text/50 hover:text-burgundy-light text-xs px-1 shrink-0">×</button>
                       </div>
                     ))}
                   </div>
